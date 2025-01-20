@@ -15,10 +15,7 @@ public partial class CharacterTest : CharacterBody2D
 		Vector2 direction = Input.GetVector("MoveLeft", "MoveRight", "MoveUp", "MoveDown");
 		if(Input.IsMouseButtonPressed(MouseButton.Left))
 		{
-			velocity.X = (GetGlobalMousePosition() - GlobalPosition).Normalized().X * Speed;
-			velocity.Y = (GetGlobalMousePosition() - GlobalPosition).Normalized().Y * Speed;
-			GD.Print("Mouse", GetGlobalMousePosition());
-			GD.Print(velocity);
+			velocity = MouseHelper.HandlePlayerMovementToMouse(GetGlobalMousePosition(), GlobalPosition, Speed);
 		} 
 		else if (direction != Vector2.Zero)
 		{
