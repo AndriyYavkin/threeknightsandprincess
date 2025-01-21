@@ -6,18 +6,23 @@ namespace GameHelperCharacters
     public static class MouseHelper
     {
         ///<summary>
-        ///<para>Takes 3 parameters: global mouse position, position of character and speed.</para>
-        ///<para>Returns normalized Vector2 velocity.</para>
-        ///<para> <b>Note:</b> Should be used only with CharacterBody2D and player controlled characters. </para>
+        ///<para>Takes 3 parameters: Camera3D, mouse position(viewport) and speed.</para>
+        ///<para>Returns normalized Vector3 velocity.</para>
+        ///<para> <b>Note:</b> Should be used only with CharacterBody3D and player controlled characters. </para>
+        ///<para> <b>Note 2: Moving camera away from the character will break movements</b></para>
         ///</summary>
-        public static Vector2 HandlePlayerMovementToMouse(Vector2 MousePosition, Vector2 CharacterPosition, float Speed)
+        public static Vector3 HandlePlayerMovementToMouse(Camera3D camera, Vector2 mouseViewport, float Speed)
         {
-            Vector2 velocity;
+            Vector3 from = camera.ProjectRayOrigin(mouseViewport);
+            Vector3 to = from + camera.ProjectRayNormal(mouseViewport);
 
-            velocity.X = (MousePosition - CharacterPosition).Normalized().X * Speed;
-			velocity.Y = (MousePosition - CharacterPosition).Normalized().Y * Speed;
+            Vector3 velocity = Vector3.Zero;
+            
+            velocity.X = to.X - from.X;
+            velocity.Z = to.Z - from.Z;
 
-            return velocity;
+            return velocity.Normalized() * Speed;
+
         }
 
         ///<summary>

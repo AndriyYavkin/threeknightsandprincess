@@ -1,17 +1,16 @@
 [gd_scene load_steps=4 format=3 uid="uid://balc5ja7v6yda"]
 
 [ext_resource type="Texture2D" uid="uid://cw1v8p86ib4tp" path="res://icon.svg" id="1_1w6fu"]
-[ext_resource type="Script" path="res://Characters/CharacterScripts/CharacterTest.cs" id="1_7i02w"]
+[ext_resource type="Script" path="res://Characters/CharacterScripts/CharacterTest3D.cs" id="1_tx4tg"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ir2mc"]
-size = Vector2(128, 128)
+[sub_resource type="BoxShape3D" id="BoxShape3D_1o5ye"]
 
-[node name="CharacterTest" type="CharacterBody2D"]
-scale = Vector2(0.902587, 0.793848)
-script = ExtResource("1_7i02w")
+[node name="CharacterBody3D" type="CharacterBody3D"]
+script = ExtResource("1_tx4tg")
 
-[node name="Texture2D" type="Sprite2D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_1o5ye")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.000750466, 1, 0, -1, -0.000750466, 0, 0, 0)
 texture = ExtResource("1_1w6fu")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_ir2mc")
