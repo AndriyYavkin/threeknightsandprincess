@@ -1,0 +1,45 @@
+[gd_scene load_steps=9 format=3 uid="uid://pos74ns0mk3e"]
+
+[ext_resource type="Shader" path="res://Shaders/TestShaders/TestShader.gdshader" id="1_cis2j"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_k13b2"]
+size = Vector3(50, 0.1, 50)
+subdivide_width = 32
+subdivide_depth = 32
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_1c084"]
+seed = 2
+frequency = 0.0002
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_vdmjb"]
+seamless_blend_skirt = 0.0
+noise = SubResource("FastNoiseLite_1c084")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_fdrfj"]
+frequency = 0.355
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_w87ug"]
+as_normal_map = true
+noise = SubResource("FastNoiseLite_fdrfj")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ck2yk"]
+render_priority = 0
+shader = ExtResource("1_cis2j")
+shader_parameter/height_scale = 0.5
+shader_parameter/noise = SubResource("NoiseTexture2D_vdmjb")
+shader_parameter/normalmap = SubResource("NoiseTexture2D_w87ug")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_367bf"]
+size = Vector3(50, 0.4, 50)
+
+[node name="FloorTest" type="MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0154343, -9.53674e-07, -1.49215)
+mesh = SubResource("BoxMesh_k13b2")
+surface_material_override/0 = SubResource("ShaderMaterial_ck2yk")
+
+[node name="StaticBody" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.43205)
+
+[node name="Collision" type="CollisionShape3D" parent="StaticBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.149311, 1.43205)
+shape = SubResource("BoxShape3D_367bf")

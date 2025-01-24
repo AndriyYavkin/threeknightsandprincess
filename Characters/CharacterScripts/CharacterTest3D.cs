@@ -13,7 +13,11 @@ public partial class CharacterTest3D : CharacterBody3D
 		Vector2 inputDir = Input.GetVector("MoveLeft", "MoveRight", "MoveUp", "MoveDown");
 		Vector3 direction = (Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
 
-		if(Input.IsMouseButtonPressed(MouseButton.Left))
+		if (!IsOnFloor())
+		{
+			velocity += GetGravity() * (float)delta;
+		} 
+		else if(Input.IsMouseButtonPressed(MouseButton.Left))
 		{
 			Vector2 mouseViewport = GetViewport().GetMousePosition();
 			velocity = MouseHelper.HandlePlayerMovementToMouse(mainCamera, mouseViewport, Speed);

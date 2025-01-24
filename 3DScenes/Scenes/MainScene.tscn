@@ -1,47 +1,17 @@
-[gd_scene load_steps=9 format=3 uid="uid://v246ih4rqt23"]
+[gd_scene load_steps=4 format=3 uid="uid://v246ih4rqt23"]
 
 [ext_resource type="PackedScene" uid="uid://balc5ja7v6yda" path="res://Characters/CharactersNodes/CharacterTest.tscn" id="1_5352l"]
-[ext_resource type="Shader" path="res://Shaders/TestShaders/TestShader.gdshader" id="2_5a4gi"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_pl0gg"]
-size = Vector3(50, 0.1, 50)
-subdivide_width = 32
-subdivide_depth = 32
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_06hnm"]
-seed = 2
-frequency = 0.0036
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_vdmjb"]
-noise = SubResource("FastNoiseLite_06hnm")
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_x5h54"]
-frequency = 0.1
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_w87ug"]
-as_normal_map = true
-noise = SubResource("FastNoiseLite_x5h54")
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_fgm5t"]
-render_priority = 0
-shader = ExtResource("2_5a4gi")
-shader_parameter/height_scale = 0.5
-shader_parameter/noise = SubResource("NoiseTexture2D_vdmjb")
-shader_parameter/normalmap = SubResource("NoiseTexture2D_w87ug")
+[ext_resource type="PackedScene" uid="uid://pos74ns0mk3e" path="res://3DScenes/Scenes/floor_test.tscn" id="2_rcurs"]
+[ext_resource type="PackedScene" uid="uid://djr5c3wyal3bv" path="res://3DScenes/Scenes/ObjectTest.tscn" id="3_eociv"]
 
 [node name="Node3D" type="Node3D"]
 
-[node name="CharacterBody3D" parent="." node_paths=PackedStringArray("mainCamera") instance=ExtResource("1_5352l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.12051, 0)
+[node name="CharacterTest" parent="." node_paths=PackedStringArray("mainCamera") instance=ExtResource("1_5352l")]
+transform = Transform3D(1, 0, 0, 0, 0.999887, -0.0150267, 0, 0.0150267, 0.999887, -5.20399, 1.0856, 0)
 mainCamera = NodePath("Camera3D")
 
-[node name="Camera3D" type="Camera3D" parent="CharacterBody3D"]
-transform = Transform3D(1, 0, 0, 0, 0.0349522, 0.999389, 0, -0.999389, 0.0349522, -0.0544051, 5.08659, 0.126256)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.43205)
-mesh = SubResource("BoxMesh_pl0gg")
-surface_material_override/0 = SubResource("ShaderMaterial_fgm5t")
+[node name="Camera3D" type="Camera3D" parent="CharacterTest"]
+transform = Transform3D(1, 0, 0, 0, 0.0349522, 0.999389, 0, -0.999389, 0.0349522, -0.110888, 3.79622, -0.00525725)
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.188, 21.7297, -21.243)
@@ -50,3 +20,8 @@ light_indirect_energy = 5.096
 light_volumetric_fog_energy = 4.84
 omni_range = 527.098
 omni_attenuation = 1.16
+
+[node name="FloorTest" parent="." instance=ExtResource("2_rcurs")]
+
+[node name="MeshInstance3D" parent="." instance=ExtResource("3_eociv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.610164, 2.30358)
