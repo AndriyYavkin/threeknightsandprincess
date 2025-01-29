@@ -1,14 +1,11 @@
 using Godot;
 using GameHelperCharacters;
-using System.Reflection.Metadata;
-using System;
 
 public partial class CharacterTest3D : CharacterBody3D
 {
-	[Export] float Speed = 5.0f;
-	[Export] Camera3D mainCamera;
-	//[Export] SpringArm3D springArm3D;
-	//[Export] Node3D springArmPivot;
+	[Export] float Speed = 5.0f; // Speed of character, not in meters!
+	[Export] Camera3D mainCamera; // Sets the main camera to change it's position and rotation
+	[Export] float zoomSpeed = 0.5f; // Speed of zooming
 
     public override void _UnhandledInput(InputEvent @event)
     {
@@ -17,15 +14,31 @@ public partial class CharacterTest3D : CharacterBody3D
 			GetTree().Quit();
 		}
 		
-		if(@event is InputEventMouseButton == Input.IsMouseButtonPressed(MouseButton.Middle))
+		if(Input.IsMouseButtonPressed(MouseButton.Middle) && @event is InputEventMouseMotion ev)
 		{
-			GD.Print("Worked");
-			if(@event is InputEventMouseMotion ev)
-		{
-			mainCamera.RotateY(ev.Relative.X * 0.005f);
-			mainCamera.RotateX(ev.Relative.Y * 0.005f);
+			// Rotate Y (left/right)
+			float newYRotation = mainCamera.Rotation.Y - ev.Relative.X * 0.005f; // Subtract ot invert axis
+			newYRotation = Mathf.Clamp(newYRotation, Mathf.DegToRad(-60), Mathf.DegToRad(60)); // The best option is min and max
+
+			// Rotate X (up/down) but clamp the angle
+			float newXRotation = mainCamera.Rotation.X - ev.Relative.Y * 0.005f; // Subtract to invert axis
+			newXRotation = Mathf.Clamp(newXRotation, Mathf.DegToRad(-90), Mathf.DegToRad(-60)); // The best option is min -90 and max -60
+				
+			mainCamera.Rotation = new Vector3(newXRotation, newYRotation, mainCamera.Rotation.Z);
 		}
-		}
+
+		if (@event is InputEventMouseButton mouseEvent)
+    	{
+			if (mouseEvent.ButtonIndex == MouseButton.WheelUp) // Zoom In
+			{
+				AdjustZoom(-zoomSpeed);
+			}
+			else if (mouseEvent.ButtonIndex == MouseButton.WheelDown) // Zoom Out
+			{
+				AdjustZoom(zoomSpeed);
+			}
+    	}
+		GD.Print(mainCamera.Rotation);
     }
 
     public override void _PhysicsProcess(double delta)
@@ -57,5 +70,21 @@ public partial class CharacterTest3D : CharacterBody3D
 
 		Velocity = velocity;
 		MoveAndSlide();
+	}
+
+	private void AdjustZoom(float zoomAmount)
+	{
+		/*GD.Print("Main camera position: ",mainCamera.Position);
+		GD.Print("Distance from camera to character: ", mainCamera.Position.DistanceTo(Position));
+		GD.Print("Position of character", Position);
+		Vector3 tempPositionOfCamera =
+		if(mainCamera.Position.DistanceTo(Position) > 5f && mainCamera.Position.DistanceTo(Position) < 10f)
+		{
+			mainCamera.Position = new Vector3(mainCamera.Position.X, mainCamera.Position.Y + zoomAmount, mainCamera.Position.Z);
+		}
+		else
+		{
+			mainCamera.Position = new Vector3(mainCamera.Position.X, );
+		}*/
 	}
 }
