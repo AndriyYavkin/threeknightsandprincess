@@ -1,12 +1,34 @@
 using Godot;
 using GameHelperCharacters;
+using System.Reflection.Metadata;
+using System;
 
 public partial class CharacterTest3D : CharacterBody3D
 {
 	[Export] float Speed = 5.0f;
 	[Export] Camera3D mainCamera;
+	//[Export] SpringArm3D springArm3D;
+	//[Export] Node3D springArmPivot;
 
-	public override void _PhysicsProcess(double delta)
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if(Input.IsActionJustPressed("Quit"))
+		{
+			GetTree().Quit();
+		}
+		
+		if(@event is InputEventMouseButton == Input.IsMouseButtonPressed(MouseButton.Middle))
+		{
+			GD.Print("Worked");
+			if(@event is InputEventMouseMotion ev)
+		{
+			mainCamera.RotateY(ev.Relative.X * 0.005f);
+			mainCamera.RotateX(ev.Relative.Y * 0.005f);
+		}
+		}
+    }
+
+    public override void _PhysicsProcess(double delta)
 	{
 		Vector3 velocity = Velocity;
 		

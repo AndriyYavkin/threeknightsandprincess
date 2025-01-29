@@ -6,12 +6,8 @@
 
 [node name="Node3D" type="Node3D"]
 
-[node name="CharacterTest" parent="." node_paths=PackedStringArray("mainCamera") instance=ExtResource("1_5352l")]
+[node name="CharacterTest" parent="." instance=ExtResource("1_5352l")]
 transform = Transform3D(1, 0, 0, 0, 0.999887, -0.0150267, 0, 0.0150267, 0.999887, -5.20399, 1.0856, 0)
-mainCamera = NodePath("Camera3D")
-
-[node name="Camera3D" type="Camera3D" parent="CharacterTest"]
-transform = Transform3D(1, 0, 0, 0, 0.0349522, 0.999389, 0, -0.999389, 0.0349522, -0.110888, 3.79622, -0.00525725)
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.188, 21.7297, -21.243)
