@@ -1,19 +1,22 @@
-[gd_scene load_steps=5 format=3 uid="uid://v246ih4rqt23"]
+[gd_scene load_steps=7 format=3 uid="uid://v246ih4rqt23"]
 
 [ext_resource type="PackedScene" uid="uid://balc5ja7v6yda" path="res://Characters/CharactersNodes/CharacterTest.tscn" id="1_5352l"]
+[ext_resource type="Script" path="res://3DScenes/ScenesScripts/MainScene.cs" id="1_supt6"]
 [ext_resource type="PackedScene" uid="uid://pos74ns0mk3e" path="res://3DScenes/Scenes/floor_test.tscn" id="2_rcurs"]
 [ext_resource type="PackedScene" uid="uid://djr5c3wyal3bv" path="res://3DScenes/Scenes/ObjectTest.tscn" id="3_eociv"]
+[ext_resource type="PackedScene" uid="uid://7l5t5il3085e" path="res://3DScenes/Scenes/TestMarker.tscn" id="5_a7cc0"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_w3r3n"]
 size = Vector3(50, 50, 1)
 
 [node name="Node3D" type="Node3D"]
+script = ExtResource("1_supt6")
 
 [node name="CharacterTest" parent="." instance=ExtResource("1_5352l")]
 transform = Transform3D(1, 0, 0, 0, 0.999887, -0.0150267, 0, 0.0150267, 0.999887, -5.20399, 1.0856, 0)
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -17.188, 21.7297, -21.243)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6068, 21.7297, 2.0579)
 light_energy = 7.296
 light_indirect_energy = 5.096
 light_volumetric_fog_energy = 4.84
@@ -33,3 +36,5 @@ skeleton = NodePath("../MeshInstance3D2")
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.873758, 0, -27.3545)
 mesh = SubResource("BoxMesh_w3r3n")
+
+[node name="TestMarker" parent="." instance=ExtResource("5_a7cc0")]

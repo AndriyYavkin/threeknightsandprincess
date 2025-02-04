@@ -9,6 +9,10 @@ namespace GameHelperCharacters
         /// Wee need it to be set from the character's class to the mainCamera. Otherwise, in the best scenario, most features with camera won't work properly
         /// </summary>
         public static Camera3D mainCamera { get; set; }
+        public static float MinRotationXAxis { get; set; }
+        public static float MaxRotationXAxis { get; set; }
+        public static float MinRotationYAxis { get; set; }
+        public static float MaxRotationYAxis { get; set; }
 
         ///<summary>
         ///<para>Takes 3 parameters: Camera3D, mouse position(viewport) and speed.</para>
@@ -16,7 +20,7 @@ namespace GameHelperCharacters
         ///<para> <b>Note:</b> Should be used only with CharacterBody3D and player controlled characters. </para>
         ///<para> <b>Note 2: Moving camera away from the character will break movements</b></para>
         ///</summary>
-        public static Vector3 HandlePlayerMovementToMouse(Vector2 mouseViewport, float Speed)
+        public static Vector3 HandlePlayerMovementToMouse(Vector2 mouseViewport, float Speed, Vector3 CharacterPosition)
         {
             Vector3 from = mainCamera.ProjectRayOrigin(mouseViewport);
             Vector3 to = from + mainCamera.ProjectRayNormal(mouseViewport);
@@ -25,7 +29,7 @@ namespace GameHelperCharacters
             
             velocity.X = to.X - from.X;
             velocity.Z = to.Z - from.Z;
-
+            GD.Print("velocity: ", velocity);
             return velocity.Normalized() * Speed;
         }
         
@@ -39,11 +43,11 @@ namespace GameHelperCharacters
             {
                 // Rotate Y (left/right)
                 float newYRotation = mainCamera.Rotation.Y - ev.Relative.X * 0.005f; // Subtract ot invert axis
-                newYRotation = Mathf.Clamp(newYRotation, Mathf.DegToRad(-60), Mathf.DegToRad(60)); // The best option is min and max
+                newYRotation = Mathf.Clamp(newYRotation, Mathf.DegToRad(MinRotationYAxis), Mathf.DegToRad(MaxRotationYAxis)); // The best option is min and max
 
                 // Rotate X (up/down) but clamp the angle
                 float newXRotation = mainCamera.Rotation.X - ev.Relative.Y * 0.005f; // Subtract to invert axis
-                newXRotation = Mathf.Clamp(newXRotation, Mathf.DegToRad(-90), Mathf.DegToRad(-60)); // The best option is min -90 and max -60
+                newXRotation = Mathf.Clamp(newXRotation, Mathf.DegToRad(MinRotationXAxis), Mathf.DegToRad(MaxRotationXAxis)); // The best option is min -90 and max -60
                     
                 mainCamera.Rotation = new Vector3(newXRotation, newYRotation, mainCamera.Rotation.Z);
             }

@@ -1,0 +1,37 @@
+[gd_scene load_steps=7 format=3 uid="uid://ctu5vvruyvbbs"]
+
+[ext_resource type="Script" path="res://3DScenes/ScenesScripts/Battle.cs" id="1_kr78b"]
+[ext_resource type="Script" path="res://3DScenes/ScenesScripts/Camera3dTesting.cs" id="2_4oemf"]
+[ext_resource type="Shader" path="res://Shaders/TestShaders/GridShader.gdshader" id="3_cmbmv"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8w0il"]
+render_priority = 0
+shader = ExtResource("3_cmbmv")
+
+[sub_resource type="BoxMesh" id="BoxMesh_4mi34"]
+material = SubResource("ShaderMaterial_8w0il")
+
+[sub_resource type="MultiMesh" id="MultiMesh_2d24l"]
+use_colors = true
+instance_count = 30
+mesh = SubResource("BoxMesh_4mi34")
+buffer = PackedFloat32Array(0, 0, 0, 0, 0, 0.3, 0, 0, -4, 4.89843e-16, 0, 0, 0, 0, -0.0655738, 8.16404e-18, 0, 0, 0, 0, 0, 0.3, 0, 0, -7.34764e-16, -4, 0, 0, 0, 0, -1.20453e-17, -0.0666667, 61, 0, 0, 0, 0, 0.3, 1, 0, 61, -4, 0, 0, 0, 0, 1, -0.0666667, 61, 0, 0, 0, 0, 0.3, 1, 0, 65, -9.79685e-16, 0, 0, 0, 0, 1.06557, -1.63281e-17, 61, 60, 0, 0, 0, 0.3, 1, 1, 65, 60, 0, 0, 0, 0, 1.06557, 1, 61, 60, 0, 0, 0, 0.3, 1, 1, 61, 64, 0, 0, 0, 0, 1, 1.06667, 0, 60, 0, 0, 0, 0.3, 0, 1, 1.22461e-15, 64, 0, 0, 0, 0, 2.00755e-17, 1.06667, 0, 60, 0, 0, 0, 0.3, 0, 1, -4, 60, 0, 0, 0, 0, -0.0655738, 1, 0, 0, 0, 0, 0, 0.3, 0, 0, 0, 0, 0, 0, 0, 0.3, 0, 0, 61, 0, 0, 0, 0, 0.3, 1, 0, 61, 0, 0, 0, 0, 0.3, 1, 0, 61, 60, 0, 0, 0, 0.3, 1, 1, 61, 60, 0, 0, 0, 0.3, 1, 1, 0, 60, 0, 0, 0, 0.3, 0, 1, 0, 60, 0, 0, 0, 0.3, 0, 1, 1, 1, 0.132, 0.1265, 0.1485, 1, 0.0163934, 0.0166667, 0, 0, 0.132, 0.1265, 0.1485, 1, 0, 0, 1, 1, 0.132, 0.1265, 0.1485, 1, 0.0163934, 0.0166667, 0, 0, 0.132, 0.1265, 0.1485, 1, 0, 0, 60, 1, 0.132, 0.1265, 0.1485, 1, 0.983607, 0.0166667, 61, 0, 0.132, 0.1265, 0.1485, 1, 1, 0, 60, 1, 0.132, 0.1265, 0.1485, 1, 0.983607, 0.0166667, 61, 0, 0.132, 0.1265, 0.1485, 1, 1, 0, 60, 59, 0.132, 0.1265, 0.1485, 1, 0.983607, 0.983333, 61, 60, 0.132, 0.1265, 0.1485, 1, 1, 1, 60, 59, 0.132, 0.1265, 0.1485, 1, 0.983607, 0.983333, 61, 60, 0.132, 0.1265, 0.1485, 1, 1, 1, 1, 59, 0.132, 0.1265, 0.1485, 1, 0.0163934, 0.983333, 0, 60, 0.132, 0.1265, 0.1485, 1, 0, 1, 1, 59, 0.132, 0.1265, 0.1485, 1, 0.0163934, 0.983333, 0, 60, 0.132, 0.1265, 0.1485, 1, 0, 1, 1, 1, 0.24, 0.23, 0.27, 1, 0.0163934, 0.0166667, 1, 1, 0.24, 0.23, 0.27, 1, 0.0163934, 0.0166667, 60, 1, 0.24, 0.23, 0.27, 1, 0.983607, 0.0166667, 60, 1, 0.24, 0.23, 0.27, 1, 0.983607, 0.0166667, 60, 59, 0.24, 0.23, 0.27, 1, 0.983607, 0.983333)
+
+[node name="Battle" type="Node3D"]
+script = ExtResource("1_kr78b")
+
+[node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("camera3D")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 1.62494, 28.6795, 40.5607)
+script = ExtResource("2_4oemf")
+camera3D = NodePath(".")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6068, 21.7297, 2.0579)
+light_energy = 7.296
+light_indirect_energy = 5.096
+light_volumetric_fog_energy = 4.84
+omni_range = 527.098
+omni_attenuation = 1.16
+
+[node name="MultiMeshInstance3D" type="MultiMeshInstance3D" parent="."]
+multimesh = SubResource("MultiMesh_2d24l")
