@@ -13,6 +13,9 @@ public partial class CharacterTest3D : CharacterBody3D
 	private PackedScene marker;
 	private Tween _tween; // for smooth effect?
 	private Node3D _spawnedInstance;
+	private Vector3 _targetPosition;
+	private bool _isMoving = false;
+	private bool _isHolding = false; // Track if the mouse is held down
 
 	//As node enters, we init new instance of CharacterHelper to set mainCamera
     public override void _Ready()
@@ -39,62 +42,68 @@ public partial class CharacterTest3D : CharacterBody3D
 			GetTree().ChangeSceneToFile("3DScenes/Scenes/battle.tscn");
 		}
 
+		 if (@event is InputEventMouseButton mouseEvent)
+        {
+            if (mouseEvent.ButtonIndex == MouseButton.Left)
+            {
+                if (mouseEvent.Pressed)
+                {
+                    _isHolding = true;
+                    SpawnInstance(); // Set target position when clicking
+                }
+                else
+                {
+                    _isHolding = false; // Stop updating target when released
+                }
+            }
+        }
+
 		CharacterHelper.HandlePlayerCameraRotation(@event);
 		CharacterHelper.HandleZooming(@event, zoomSpeed, Position);
     }
 
     public override void _PhysicsProcess(double delta)
 	{
+		// TODO: Refactor this code and also replace some of the features into the event handler so it won't update each frame
 		Vector3 velocity = Velocity;
-		if(Input.IsMouseButtonPressed(MouseButton.Left))
-		{
-			/*GD.Print("Camera: ",mainCamera.ProjectPosition(GetViewport().GetMousePosition(), Speed));
-			GD.Print("Position: ", Position);*/
-			SpawnInstance();
-		}
 
-		Vector2 inputDir = Input.GetVector("MoveLeft", "MoveRight", "MoveUp", "MoveDown");
-		Vector3 direction = (Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
-
-		//To be honest, in this kind of games, I don't think we will need to be able to move via keys.
-		/*if (!IsOnFloor())
+		// Handle movement toward target position
+		if (_isMoving)
 		{
-			velocity += GetGravity() * (float)delta;
-		} 
-		else if(Input.IsMouseButtonPressed(MouseButton.Left))
-		{
-			Vector2 mouseViewport = GetViewport().GetMousePosition();
-			velocity = CharacterHelper.HandlePlayerMovementToMouse(mouseViewport, Speed, Position);
-			GD.Print(velocity);
-		} 
-		else*/ if (direction != Vector3.Zero)
-		{
-			velocity.X = direction.X * Speed;
-			velocity.Z = direction.Z * Speed;
+			Vector3 direction = (_targetPosition - GlobalPosition).Normalized();
+			velocity = direction * Speed;
+			// Stop moving when close enough
+			if (GlobalPosition.DistanceTo(_targetPosition) < 0.1f)
+			{
+				velocity = Vector3.Zero;
+				_isMoving = false;
+			}
 		}
 		else
 		{
-			velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed);
-			velocity.Z = Mathf.MoveToward(Velocity.Z, 0, Speed);
+			// Handle player input movement
+			Vector2 inputDir = Input.GetVector("MoveLeft", "MoveRight", "MoveUp", "MoveDown");
+			Vector3 direction = (Transform.Basis * new Vector3(inputDir.X, 0, inputDir.Y)).Normalized();
+			if (direction != Vector3.Zero)
+			{
+				velocity.X = direction.X * Speed;
+				velocity.Z = direction.Z * Speed;
+			}
+			else
+			{
+				velocity.X = Mathf.MoveToward(Velocity.X, 0, Speed);
+				velocity.Z = Mathf.MoveToward(Velocity.Z, 0, Speed);
+			}
 		}
-
 		Velocity = velocity;
 		MoveAndSlide();
-	}
-
-	public Vector3 SetTargetPosition(Vector3 pos)
-	{
-		return Vector3.Zero;
-	}
+		}
 
 	private void SpawnInstance()
 	{
-		if (marker == null)
+		if (marker == null || mainCamera == null)
 			return;
 
-		if (mainCamera == null)
-			return;
-		// Get mouse position in viewport
 		Vector2 mousePos = GetViewport().GetMousePosition();
 
 		// Create a ray from the camera
@@ -107,32 +116,20 @@ public partial class CharacterTest3D : CharacterBody3D
 
 		if (result.Count > 0)
 		{
-			// Get the collision point
-			Vector3 position = (Vector3)result["position"];
+			_targetPosition = (Vector3)result["position"];
+			_isMoving = true; // Start moving towards the target
 
-			// If an instance exists, update its position instead of creating a new one
+			// If the marker doesn't exist, create it
 			if (_spawnedInstance == null)
 			{
 				_spawnedInstance = marker.Instantiate<Node3D>();
-				AddChild(_spawnedInstance);
+				GetTree().CurrentScene.AddChild(_spawnedInstance);
 			}
 
-			_spawnedInstance.GlobalPosition = position;
-
-			this.MoveTo(position);
+			// Update marker position
+			_spawnedInstance.GlobalPosition = _targetPosition;
 		}
+
 		GD.Print(GetChildCount());
-	}
-
-	private void MoveTo(Vector3 targetPosition)
-	{
-		_tween = CreateTween();	
-
-		// Animate movement to target position over time
-		_tween.TweenProperty(this, "global_position", targetPosition, 0.5f)
-			.SetTrans(Tween.TransitionType.Sine)
-			.SetEase(Tween.EaseType.Out);
-
-		_tween.Play();
 	}
 }
