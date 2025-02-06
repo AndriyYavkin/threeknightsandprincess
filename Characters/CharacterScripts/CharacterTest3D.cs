@@ -11,7 +11,7 @@ public partial class CharacterTest3D : CharacterBody3D
 	[Export] float zoomSpeed = 0.5f; // Speed of zooming
 
 	private PackedScene marker;
-	private Vector3 _targetPosition;
+	private Tween _tween; // for smooth effect?
 	private Node3D _spawnedInstance;
 
 	//As node enters, we init new instance of CharacterHelper to set mainCamera
@@ -119,11 +119,20 @@ public partial class CharacterTest3D : CharacterBody3D
 
 			_spawnedInstance.GlobalPosition = position;
 
-			GD.Print("Mouse Position: " + mousePos);
-			GD.Print("Ray Origin: " + from);
-			GD.Print("Ray Target: " + to);
-			GD.Print("Spawn Position: " + position);
+			this.MoveTo(position);
 		}
 		GD.Print(GetChildCount());
+	}
+
+	private void MoveTo(Vector3 targetPosition)
+	{
+		_tween = CreateTween();	
+
+		// Animate movement to target position over time
+		_tween.TweenProperty(this, "global_position", targetPosition, 0.5f)
+			.SetTrans(Tween.TransitionType.Sine)
+			.SetEase(Tween.EaseType.Out);
+
+		_tween.Play();
 	}
 }
