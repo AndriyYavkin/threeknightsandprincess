@@ -18,6 +18,7 @@ namespace GameHelperCharacters
         public static float MinRotationYAxis { get; set; }
         public static float MaxRotationYAxis { get; set; }
         public static float Speed { get; set; }
+        public static float ZoomSpeed { get; set; }
         public static CharacterTest3D Character { get; set; }
 
         private static Vector3 _targetPosition;
@@ -86,19 +87,17 @@ namespace GameHelperCharacters
         /// If used, user will be able to zoom in and zoom out using his mouse wheel. Takes 3 parameters
         /// </summary>
         /// <param name="event">Unhandled events mostly. Not tested if it will work with other type of events</param>
-        /// <param name="zoomSpeed">How fast we will zoom in and zoom out. Better to keep it less then 1f</param>
-        /// <param name="CharacterPosition">Position of a character whose camera this is</param>
-        public static void HandleZooming(InputEvent @event, float zoomSpeed, Vector3 CharacterPosition)
+        public static void HandleZooming(InputEvent @event)
         {
             if (@event is InputEventMouseButton mouseEvent)
             {
                 if (mouseEvent.ButtonIndex == MouseButton.WheelUp)
                 {
-                    AdjustZoom(zoomSpeed, CharacterPosition);
+                    AdjustZoom(ZoomSpeed);
                 }
                 else if (mouseEvent.ButtonIndex == MouseButton.WheelDown)
                 {
-                    AdjustZoom(-zoomSpeed, CharacterPosition);
+                    AdjustZoom(-ZoomSpeed);
                 }
             }
         }
@@ -162,7 +161,7 @@ namespace GameHelperCharacters
         /// </summary>
         /// <param name="zoomAmount">How much we will zoom in, zoom out(it is better to keep it lower then 1)</param>
         /// <param name="targetPosition">Position of a character, who's camera this is</param>
-        private static void AdjustZoom(float zoomAmount, Vector3 targetPosition)
+        private static void AdjustZoom(float zoomAmount)
         {
             float minZoomDistance = 2f;  // Closest zoom distance
             float maxZoomDistance = 7f; // Farthest zoom distance
@@ -177,7 +176,7 @@ namespace GameHelperCharacters
             Vector3 newPosition = new Vector3(cameraPosition.X, cameraPosition.Y + forward.Y * zoomAmount, cameraPosition.Z);
 
             // Clamp distance to prevent extreme zooming
-            float distance = (newPosition - targetPosition).Length();
+            float distance = (newPosition - Character.Position).Length();
             if (distance < minZoomDistance || distance > maxZoomDistance)
                 return; // Don't apply zoom if out of bounds
 

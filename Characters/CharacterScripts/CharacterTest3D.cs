@@ -57,7 +57,7 @@ public partial class CharacterTest3D : CharacterBody3D
         }
 
 		CharacterHelper.HandlePlayerCameraRotation(@event);
-		CharacterHelper.HandleZooming(@event, zoomSpeed, Position);
+		CharacterHelper.HandleZooming(@event);
     }
 
 	public override void _PhysicsProcess(double delta)
@@ -80,6 +80,7 @@ public partial class CharacterTest3D : CharacterBody3D
 		CharacterHelper.MinRotationXAxis = -90;
 		CharacterHelper.MaxRotationYAxis = 60;
 		CharacterHelper.MaxRotationXAxis = -60;
+		CharacterHelper.ZoomSpeed = zoomSpeed;
 
 		CharacterHelper.Speed = Speed;
 		CharacterHelper.Character = this;
