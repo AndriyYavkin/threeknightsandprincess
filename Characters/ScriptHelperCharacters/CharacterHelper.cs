@@ -1,36 +1,65 @@
 using System;
+using System.ComponentModel;
+using Characters;
 using Godot;
+using Godot.Collections;
 
 namespace GameHelperCharacters
 {
-    public static class CharacterHelper
+    public class CharacterHelper
     {
         /// <summary>
         /// Wee need it to be set from the character's class to the mainCamera. Otherwise, in the best scenario, most features with camera won't work properly
         /// </summary>
+
         public static Camera3D mainCamera { get; set; }
         public static float MinRotationXAxis { get; set; }
         public static float MaxRotationXAxis { get; set; }
         public static float MinRotationYAxis { get; set; }
         public static float MaxRotationYAxis { get; set; }
+        public static float Speed { get; set; }
+        public static CharacterTest3D Character { get; set; }
+
+        private static Vector3 _targetPosition;
+        private static bool _isMoving = false; 
 
         ///<summary>
-        ///<para>Takes 3 parameters: Camera3D, mouse position(viewport) and speed.</para>
-        ///<para>Returns normalized Vector3 velocity.</para>
-        ///<para> <b>Note:</b> Should be used only with CharacterBody3D and player controlled characters. </para>
-        ///<para> <b>Note 2: Moving camera away from the character will break movements</b></para>
+        ///<para>Takes 1 parameters: CharacterBody3d</para>
+        ///<para>Returns Vector3 velocity.</para>
+        ///<para> <b>Note:</b>  </para>
         ///</summary>
-        public static Vector3 HandlePlayerMovementToMouse(Vector2 mouseViewport, float Speed, Vector3 CharacterPosition)
+        public static Vector3 HandlePlayerMovementsPhysics()
         {
-            Vector3 from = mainCamera.ProjectRayOrigin(mouseViewport);
-            Vector3 to = from + mainCamera.ProjectRayNormal(mouseViewport);
+            Vector3 velocity = Character.Velocity;
 
-            Vector3 velocity = Vector3.Zero;
-            
-            velocity.X = to.X - from.X;
-            velocity.Z = to.Z - from.Z;
-            GD.Print("velocity: ", velocity);
-            return velocity.Normalized() * Speed;
+            // Handle movement toward target position
+            if (_isMoving)
+            {
+                Vector3 direction = new Vector3(
+                _targetPosition.X - Character.GlobalPosition.X,
+                0, // Ignore Y-axis
+                _targetPosition.Z - Character.GlobalPosition.Z
+                ).Normalized();
+
+                velocity = direction * Speed;
+                float distanceToTarget = Character.GlobalPosition.DistanceTo(_targetPosition);
+
+                // If the character is close to the target, move directly to it
+                if (distanceToTarget <= 1f)
+                {
+                    velocity = Vector3.Zero;
+                    Character.GlobalPosition = new Vector3(_targetPosition.X, Character.GlobalPosition.Y, _targetPosition.Z); // Snap to the exact target position
+                    _isMoving = false;
+                    GD.Print("Movement stoped!");
+                }
+            }
+            else
+            {
+                // Stop movement if no target
+                velocity.X = Mathf.MoveToward(Character.Velocity.X, 0, Speed);
+                velocity.Z = Mathf.MoveToward(Character.Velocity.Z, 0, Speed);
+            }
+            return velocity;
         }
         
         /// <summary>
@@ -74,15 +103,58 @@ namespace GameHelperCharacters
             }
         }
 
-        ///<summary>
-        ///<para>Takes 4 parameters: global mouse position, position of character, speed, limit of pixels where we need acceleration.</para>
-        ///<para>Returns normalized Vector2 velocity.</para>
-        ///<para> <b>Note:</b> Should be used only with CharacterBody2D and player controlled characters. </para>
-        ///<para> <b>Note 2:</b> It is not implemented yet! Using this method will result in NotImplementedException</para>
-        ///</summary>
-        public static Vector2 HandlePlayerMovementToMouseWithAcceleration(Vector2 MousePosition, Vector2 CharacterPosition, float Speed)
+        public static void HandleCharacterMovements(Vector2 mousePos, PhysicsDirectSpaceState3D space)
         {
-            throw new NotImplementedException();
+            if (mainCamera == null)
+            {
+                GD.PrintErr("Camera is null!");
+                return;
+            }
+
+            // Create a ray from the camera
+            Vector3 from = mainCamera.ProjectRayOrigin(mousePos);
+            Vector3 to = from + mainCamera.ProjectRayNormal(mousePos) * 100f; // Ray length
+
+            PhysicsRayQueryParameters3D query = PhysicsRayQueryParameters3D.Create(from, to);
+            Dictionary result = space.IntersectRay(query);
+
+            if (result.Count > 0)
+            {
+                // Snap the target position to the grid
+                var hitPosition = (Vector3)result["position"];
+                var targetGridPosition = new Vector3I(
+                    Mathf.RoundToInt(hitPosition.X / 2), // Adjust scaling as needed
+                    0,
+                    Mathf.RoundToInt(hitPosition.Z / 2)
+                );
+                GD.Print(targetGridPosition);
+
+                // Check if the target position is valid and passable
+                if (IsPositionValid(targetGridPosition) && Scenes.GlobalMap.map[targetGridPosition.X, 0, targetGridPosition.Z].IsPassable)
+                {
+                    // Calculate path using the pathfinder
+                    var path = Pathfinder3D.FindPath(new Vector3I(
+                        Mathf.RoundToInt(Character.GlobalPosition.X / 2),
+                        0,
+                        Mathf.RoundToInt(Character.GlobalPosition.Z / 2)
+                    ), targetGridPosition);
+
+                    if (path.Count > 0 && path.Count <= Character.RemainingMovement)
+                    {
+                        _targetPosition = new Vector3(targetGridPosition.X * 2, 0, targetGridPosition.Z * 2); // Convert back to world coordinates
+                        _isMoving = true;
+                        Character.GridPosition = targetGridPosition;
+                    }
+                    else
+                    {
+                        GD.Print("Not enough movement points or target is unreachable!");
+                    }
+                }
+                else
+                {
+                    GD.Print("Cannot move to this tile!");
+                }
+            }
         }
 
         /// <summary>
@@ -110,6 +182,12 @@ namespace GameHelperCharacters
                 return; // Don't apply zoom if out of bounds
 
             mainCamera.GlobalTransform = new Transform3D(mainCamera.GlobalTransform.Basis, newPosition);
+        }
+
+        private static bool IsPositionValid(Vector3I position)
+        {
+            return position.X >= -Scenes.GlobalMap.MapWidth/2 && position.X < Scenes.GlobalMap.MapWidth/2 &&
+                   position.Z >= -Scenes.GlobalMap.MapHeight/2 && position.Z < Scenes.GlobalMap.MapHeight/2;
         }
     }
 }

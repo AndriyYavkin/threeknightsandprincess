@@ -18,34 +18,33 @@ public partial class GlobalMap : Node3D
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		map = new Tile[MapWidth, MapHeight, MapDepth];
+		map = new Tile[MapWidth, 1, MapHeight];
 		try
 		{
-			InitializeMap();
+			InitializeGrid();
 			Pathfinder3D.Initialize(map);
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			GD.PrintErr("Map failed to initialize!");
+			GD.PrintErr("Map failed to initialize! ", ex);
 		}
-		GD.Print("Map initialized succesful!");
 
 		hero.GlobalPosition = new Vector3(0, 1, 0);
 	}
 
-	private static void InitializeMap()
+	private static void InitializeGrid()
     {
-        for (int x = 0; x < MapWidth; x++)
-        {
-            for (int y = 0; y < MapHeight; y++)
-            {
-                for (int z = 0; z < MapDepth; z++)
-                {
-                    map[x, y, z] = new Tile(TileType.Grass); // Default tile type
-                }
-            }
-        }
-    }
+		int halfWidth = MapWidth / 2;
+		int halfHeight = MapHeight / 2;
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
+        for (int x = -halfWidth; x < halfWidth; x++)
+        {
+			for (int z = -halfHeight; z < halfHeight; z++)
+			{
+				GD.Print("X:", x + halfWidth);
+				GD.Print("Z:", z + halfHeight);
+				map[x + halfWidth, 0, z + halfHeight] = new Tile(TileType.Grass);
+			}
+		}
+    }
 }
