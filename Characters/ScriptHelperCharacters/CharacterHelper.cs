@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Characters;
 using Godot;
@@ -23,11 +24,39 @@ namespace GameHelperCharacters
 
         private static Vector3 _targetPosition;
         private static bool _isMoving = false; 
+        private static List<Node3D> _pathMarkers = new List<Node3D>(); // Store path markers
+        private static PackedScene _pathMarkerScene; // Scene for path markers
+        private static bool _isTargetSelected = false; // Track if a target is selected
+        private static Vector3I _selectedTargetGridPosition; // Store the selected target position
+        private static double _targetSelectionTimeout = 2.0; // Timeout in seconds
+        private static double _targetSelectionTimer = 0.0;
+
+
+        public static void Update(double delta)
+        {
+            if (_isTargetSelected)
+            {
+                _targetSelectionTimer += delta;
+
+                // Reset target selection if the timeout is reached
+                if (_targetSelectionTimer >= _targetSelectionTimeout)
+                {
+                    ClearPathMarkers();
+                    _isTargetSelected = false;
+                    _targetSelectionTimer = 0.0;
+                    GD.Print("Target selection timed out!");
+                }
+            }
+        }
+
+        public static void InitializePathVisualization(PackedScene pathMarkerScene)
+        {
+            _pathMarkerScene = pathMarkerScene;
+        }
 
         ///<summary>
-        ///<para>Takes 1 parameters: CharacterBody3d</para>
-        ///<para>Returns Vector3 velocity.</para>
-        ///<para> <b>Note:</b>  </para>
+        ///<para>Returns Vector3 velocity. Works with movements</para>
+        ///<para> <b>Note:</b> Should be usen in _PhysicsProcess</para>
         ///</summary>
         public static Vector3 HandlePlayerMovementsPhysics()
         {
@@ -65,6 +94,7 @@ namespace GameHelperCharacters
         
         /// <summary>
         /// Handles camera rotation using mouse wheel. If you want to change minimum and maximum degree of rotation, you will need to change values inside of a method
+        /// <para> <b>Note:</b> Should be used in Unhandled Events </para>
         /// </summary>
         /// <param name="event">Unhandled events mostly. Not tested if it will work with other type of events</param>
         public static void HandlePlayerCameraRotation(InputEvent @event)
@@ -102,6 +132,10 @@ namespace GameHelperCharacters
             }
         }
 
+        ///<summary>
+        ///<para>Finds what position player clicked, translating position to tiles</para>
+        ///<para> <b>Note:</b> Should be usen in _UnhandledEvents</para>
+        ///</summary>
         public static void HandleCharacterMovements(Vector2 mousePos, PhysicsDirectSpaceState3D space)
         {
             if (mainCamera == null)
@@ -109,6 +143,8 @@ namespace GameHelperCharacters
                 GD.PrintErr("Camera is null!");
                 return;
             }
+
+            ClearPathMarkers();
 
             // Create a ray from the camera
             Vector3 from = mainCamera.ProjectRayOrigin(mousePos);
@@ -132,27 +168,48 @@ namespace GameHelperCharacters
                 if (IsPositionValid(targetGridPosition) && Scenes.GlobalMap.map[targetGridPosition.X, 0, targetGridPosition.Z].IsPassable)
                 {
                     // Calculate path using the pathfinder
-                    var path = Pathfinder3D.FindPath(new Vector3I(
-                        Mathf.RoundToInt(Character.GlobalPosition.X / 2),
-                        0,
-                        Mathf.RoundToInt(Character.GlobalPosition.Z / 2)
-                    ), targetGridPosition);
-
-                    if (path.Count > 0 && path.Count <= Character.RemainingMovement)
-                    {
-                        _targetPosition = new Vector3(targetGridPosition.X * 2, 0, targetGridPosition.Z * 2); // Convert back to world coordinates
-                        _isMoving = true;
-                        Character.GridPosition = targetGridPosition;
-                    }
-                    else
-                    {
-                        GD.Print("Not enough movement points or target is unreachable!");
-                    }
+                    PathingAndMovingRf(targetGridPosition);
                 }
                 else
                 {
                     GD.Print("Cannot move to this tile!");
                 }
+            }
+        }
+
+        /// <summary>
+        /// Method made in order to maintain readability of HandleCharacterMovements
+        /// </summary>
+        private static void PathingAndMovingRf(Vector3I targetGridPosition)
+        {
+            var path = Pathfinder3D.FindPath(new Vector3I(
+            Mathf.RoundToInt(Character.GlobalPosition.X / 2),
+            0,
+            Mathf.RoundToInt(Character.GlobalPosition.Z / 2)
+            ), targetGridPosition);
+
+            if (path.Count > 0 && path.Count <= Character.RemainingMovement)
+            {
+                if (!_isTargetSelected || (_isTargetSelected && _selectedTargetGridPosition != targetGridPosition))
+                {
+                    // First click: Select the target and visualize the path
+                    _selectedTargetGridPosition = targetGridPosition;
+                    VisualizePath(path);
+                    _isTargetSelected = true;
+                }
+                else
+                {
+                    // Second click: Confirm the movement
+                    _targetPosition = new Vector3(targetGridPosition.X * 2, 0, targetGridPosition.Z * 2); // Convert back to world coordinates
+                    _isMoving = true;
+                    Character.GridPosition = targetGridPosition;
+                    ClearPathMarkers(); // Clear path markers
+                    _isTargetSelected = false; // Reset target selection
+                }
+            }
+            else
+            {
+                GD.Print("Not enough movement points or target is unreachable!");
             }
         }
 
@@ -187,6 +244,38 @@ namespace GameHelperCharacters
         {
             return position.X >= -Scenes.GlobalMap.MapWidth/2 && position.X < Scenes.GlobalMap.MapWidth/2 &&
                    position.Z >= -Scenes.GlobalMap.MapHeight/2 && position.Z < Scenes.GlobalMap.MapHeight/2;
+        }
+
+        private static void VisualizePath(List<Vector3I> path)
+        {
+            if (_pathMarkerScene == null)
+            {
+                GD.PrintErr("Path marker scene is not set!");
+                return;
+            }
+
+            foreach (var point in path)
+            {
+                // Convert grid position to world position
+                Vector3 worldPosition = new Vector3(point.X * 2, 0, point.Z * 2);
+
+                // Spawn a path marker
+                var marker = _pathMarkerScene.Instantiate<Node3D>();
+                Character.GetTree().CurrentScene.AddChild(marker);
+                marker.GlobalPosition = worldPosition;
+
+                // Store the marker for later removal
+                _pathMarkers.Add(marker);
+            }
+        }
+
+        private static void ClearPathMarkers()
+        {
+            foreach (var marker in _pathMarkers)
+            {
+                marker.QueueFree(); // Remove the marker from the scene
+            }
+            _pathMarkers.Clear();
         }
     }
 }

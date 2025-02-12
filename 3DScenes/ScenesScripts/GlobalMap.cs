@@ -41,8 +41,6 @@ public partial class GlobalMap : Node3D
         {
 			for (int z = -halfHeight; z < halfHeight; z++)
 			{
-				GD.Print("X:", x + halfWidth);
-				GD.Print("Z:", z + halfHeight);
 				map[x + halfWidth, 0, z + halfHeight] = new Tile(TileType.Grass);
 			}
 		}

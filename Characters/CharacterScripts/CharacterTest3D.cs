@@ -15,19 +15,20 @@ public partial class CharacterTest3D : CharacterBody3D
 	public int MovementRange { get; set; } = 10; // Example movement range
     public int RemainingMovement { get; set; }
 
-	private PackedScene marker;
 	private Tween _tween; // for smooth effect?
-	private Node3D _spawnedInstance;
-	private Vector3 _targetPosition;
-	private bool _isMoving = false;
 	private bool _isHolding = false; // Track if the mouse is held down
+	private PackedScene _pathMarkerScene;
 
 	//As node enters, we init new instance of CharacterHelper to set mainCamera
     public override void _Ready()
     {
 		InitializeCharacterHelper();
 
-		marker = GD.Load<PackedScene>("res://3DScenes/Scenes/TestMarker.tscn");
+		// TODO: Make visualy acceptable markers
+		_pathMarkerScene = GD.Load<PackedScene>("res://3DScenes/Scenes/PathMarker.tscn");
+
+		CharacterHelper.InitializePathVisualization(_pathMarkerScene);
+
 		RemainingMovement = MovementRange;
     }
 
@@ -45,15 +46,7 @@ public partial class CharacterTest3D : CharacterBody3D
 
 		if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && mouseEvent.Pressed)
         {
-            if (mouseEvent.Pressed)
-            {
-                _isHolding = true;
-                CharacterHelper.HandleCharacterMovements(GetViewport().GetMousePosition(), GetWorld3D().DirectSpaceState); // Set target position when clicking
-            }
-            else
-            {
-                _isHolding = false; // Stop updating target when released
-            }
+            CharacterHelper.HandleCharacterMovements(GetViewport().GetMousePosition(), GetWorld3D().DirectSpaceState); // Set target position when clicking
         }
 
 		CharacterHelper.HandlePlayerCameraRotation(@event);
@@ -63,6 +56,7 @@ public partial class CharacterTest3D : CharacterBody3D
 	public override void _PhysicsProcess(double delta)
 	{
 		Velocity = CharacterHelper.HandlePlayerMovementsPhysics();
+		//CharacterHelper.Update(delta); // if we will need to remove player's choice of path, uncomment this method
 		MoveAndSlide();
 	}
 
