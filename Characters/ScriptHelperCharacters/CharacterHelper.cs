@@ -7,47 +7,28 @@ using Godot.Collections;
 
 namespace GameHelperCharacters
 {
+    /// <summary>
+    /// Class to help with basics characters features. Camera rotation, zooming, moving character, path finding
+    /// </summary>
     public class CharacterHelper
     {
-        /// <summary>
-        /// Wee need it to be set from the character's class to the mainCamera. Otherwise, in the best scenario, most features with camera won't work properly
-        /// </summary>
-
         public static Camera3D mainCamera { get; set; }
+        public static CharacterTest3D Character { get; set; }
         public static float MinRotationXAxis { get; set; }
         public static float MaxRotationXAxis { get; set; }
         public static float MinRotationYAxis { get; set; }
         public static float MaxRotationYAxis { get; set; }
         public static float Speed { get; set; }
         public static float ZoomSpeed { get; set; }
-        public static CharacterTest3D Character { get; set; }
 
-        private static Vector3 _targetPosition;
-        private static bool _isMoving = false; 
         private static List<Node3D> _pathMarkers = new List<Node3D>(); // Store path markers
+        private static List<Vector3I> _pathPoints = new List<Vector3I>(); // Store path points
         private static PackedScene _pathMarkerScene; // Scene for path markers
-        private static bool _isTargetSelected = false; // Track if a target is selected
         private static Vector3I _selectedTargetGridPosition; // Store the selected target position
-        private static double _targetSelectionTimeout = 2.0; // Timeout in seconds
-        private static double _targetSelectionTimer = 0.0;
-
-
-        public static void Update(double delta)
-        {
-            if (_isTargetSelected)
-            {
-                _targetSelectionTimer += delta;
-
-                // Reset target selection if the timeout is reached
-                if (_targetSelectionTimer >= _targetSelectionTimeout)
-                {
-                    ClearPathMarkers();
-                    _isTargetSelected = false;
-                    _targetSelectionTimer = 0.0;
-                    GD.Print("Target selection timed out!");
-                }
-            }
-        }
+        private static Vector3 _targetPosition;
+        private static int _currentPathIndex = 0;
+        private static bool _isTargetSelected = false; // Track if a target is selected
+        private static bool _isMoving = false; 
 
         public static void InitializePathVisualization(PackedScene pathMarkerScene)
         {
@@ -63,12 +44,12 @@ namespace GameHelperCharacters
             Vector3 velocity = Character.Velocity;
 
             // Handle movement toward target position
-            if (_isMoving)
+            if (_isMoving && _currentPathIndex < _pathPoints.Count)
             {
                 Vector3 direction = new Vector3(
-                _targetPosition.X - Character.GlobalPosition.X,
-                0, // Ignore Y-axis
-                _targetPosition.Z - Character.GlobalPosition.Z
+                    _targetPosition.X - Character.GlobalPosition.X,
+                    0, // Ignore Y-axis
+                    _targetPosition.Z - Character.GlobalPosition.Z
                 ).Normalized();
 
                 velocity = direction * Speed;
@@ -80,7 +61,12 @@ namespace GameHelperCharacters
                     velocity = Vector3.Zero;
                     Character.GlobalPosition = new Vector3(_targetPosition.X, Character.GlobalPosition.Y, _targetPosition.Z); // Snap to the exact target position
                     _isMoving = false;
+                    ClearPathMarkers();
                     GD.Print("Movement stoped!");
+                }
+                else
+                {
+                    ClearPassedPathMarkers();
                 }
             }
             else
@@ -144,7 +130,7 @@ namespace GameHelperCharacters
                 return;
             }
 
-            ClearPathMarkers();
+            //ClearPathMarkers();
 
             // Create a ray from the camera
             Vector3 from = mainCamera.ProjectRayOrigin(mousePos);
@@ -203,7 +189,6 @@ namespace GameHelperCharacters
                     _targetPosition = new Vector3(targetGridPosition.X * 2, 0, targetGridPosition.Z * 2); // Convert back to world coordinates
                     _isMoving = true;
                     Character.GridPosition = targetGridPosition;
-                    ClearPathMarkers(); // Clear path markers
                     _isTargetSelected = false; // Reset target selection
                 }
             }
@@ -240,12 +225,6 @@ namespace GameHelperCharacters
             mainCamera.GlobalTransform = new Transform3D(mainCamera.GlobalTransform.Basis, newPosition);
         }
 
-        private static bool IsPositionValid(Vector3I position)
-        {
-            return position.X >= -Scenes.GlobalMap.MapWidth/2 && position.X < Scenes.GlobalMap.MapWidth/2 &&
-                   position.Z >= -Scenes.GlobalMap.MapHeight/2 && position.Z < Scenes.GlobalMap.MapHeight/2;
-        }
-
         private static void VisualizePath(List<Vector3I> path)
         {
             if (_pathMarkerScene == null)
@@ -254,18 +233,61 @@ namespace GameHelperCharacters
                 return;
             }
 
-            foreach (var point in path)
+            ClearPathMarkers();
+
+            // Store the path points
+            _pathPoints = path;
+
+            for (int i = 0; i < path.Count - 1; i++)
             {
                 // Convert grid position to world position
-                Vector3 worldPosition = new Vector3(point.X * 2, 0, point.Z * 2);
+                Vector3 worldPosition = new Vector3(path[i].X * 2, 0, path[i].Z * 2);
 
                 // Spawn a path marker
                 var marker = _pathMarkerScene.Instantiate<Node3D>();
                 Character.GetTree().CurrentScene.AddChild(marker);
                 marker.GlobalPosition = worldPosition;
 
+                // Rotate the arrow to face the next point in the path
+                if (i < path.Count - 1)
+                {
+                    Vector3 nextPosition = new Vector3(path[i + 1].X * 2, 0, path[i + 1].Z * 2);
+                    Vector3 direction = (nextPosition - worldPosition).Normalized();
+                    marker.LookAt(worldPosition + direction, Vector3.Up);
+                }
+
                 // Store the marker for later removal
                 _pathMarkers.Add(marker);
+            }
+        }
+
+        private static void ClearPassedPathMarkers()
+        {
+            GD.Print(_pathPoints.Count, _pathMarkers.Count);
+            if (_pathPoints.Count == 0 || _pathMarkers.Count == 0)
+                return;
+
+            // Get the character's current grid position
+            var characterGridPosition = new Vector3I(
+                Mathf.RoundToInt(Character.GlobalPosition.X / 2),
+                0,
+                Mathf.RoundToInt(Character.GlobalPosition.Z / 2)
+            );
+
+            // Find the index of the current path point
+            int index = _pathPoints.FindIndex(p => p == characterGridPosition);
+
+            if (index >= 0)
+            {
+                // Remove all markers before the current position
+                for (int i = 0; i < index; i++)
+                {
+                    _pathMarkers[i].QueueFree(); // Remove the marker from the scene
+                }
+
+                // Remove the cleared markers from the lists
+                _pathMarkers.RemoveRange(0, index);
+                _pathPoints.RemoveRange(0, index);
             }
         }
 
@@ -276,6 +298,11 @@ namespace GameHelperCharacters
                 marker.QueueFree(); // Remove the marker from the scene
             }
             _pathMarkers.Clear();
+        }
+        private static bool IsPositionValid(Vector3I position)
+        {
+            return position.X >= -Scenes.GlobalMap.MapWidth/2 && position.X < Scenes.GlobalMap.MapWidth/2 &&
+                   position.Z >= -Scenes.GlobalMap.MapHeight/2 && position.Z < Scenes.GlobalMap.MapHeight/2;
         }
     }
 }

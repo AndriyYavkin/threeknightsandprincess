@@ -56,14 +56,13 @@ public partial class CharacterTest3D : CharacterBody3D
 	public override void _PhysicsProcess(double delta)
 	{
 		Velocity = CharacterHelper.HandlePlayerMovementsPhysics();
-		//CharacterHelper.Update(delta); // if we will need to remove player's choice of path, uncomment this method
 		MoveAndSlide();
 	}
 
 	private static bool IsPositionValid(Vector3I position)
     {
-        return position.X >= -Scenes.GlobalMap.MapWidth/2 && position.X < Scenes.GlobalMap.MapWidth/2 &&
-               position.Z >= -Scenes.GlobalMap.MapHeight/2 && position.Z < Scenes.GlobalMap.MapHeight/2;
+        return position.X >= 0 && position.X < Scenes.GlobalMap.MapWidth &&
+               position.Z >= 0 && position.Z < Scenes.GlobalMap.MapHeight;
     }
 
 	private void InitializeCharacterHelper()

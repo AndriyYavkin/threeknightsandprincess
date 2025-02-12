@@ -34,14 +34,11 @@ public partial class GlobalMap : Node3D
 
 	private static void InitializeGrid()
     {
-		int halfWidth = MapWidth / 2;
-		int halfHeight = MapHeight / 2;
-
-        for (int x = -halfWidth; x < halfWidth; x++)
+        for (int x = 0; x < MapWidth; x++)
         {
-			for (int z = -halfHeight; z < halfHeight; z++)
+			for (int z = 0; z < MapHeight; z++)
 			{
-				map[x + halfWidth, 0, z + halfHeight] = new Tile(TileType.Grass);
+				map[x, 0, z] = new Tile(TileType.Grass);
 			}
 		}
     }
