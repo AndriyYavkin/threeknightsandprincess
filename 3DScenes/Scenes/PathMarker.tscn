@@ -1,18 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://rd1llmi8nclu"]
+[gd_scene load_steps=2 format=3 uid="uid://rd1llmi8nclu"]
 
-[sub_resource type="PrismMesh" id="PrismMesh_slv28"]
-size = Vector3(0.7, 1, 0.1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_8yipe"]
-size = Vector3(0.3, 0.1, 1)
+[sub_resource type="BoxMesh" id="BoxMesh_qmgk0"]
 
 [node name="Node3D" type="Node3D"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0.382156, 0)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1.19249e-08, 1, 0, -1, 1.19249e-08, 0, 0, 0)
-mesh = SubResource("PrismMesh_slv28")
-
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.990059)
-mesh = SubResource("BoxMesh_8yipe")
+transform = Transform3D(0.207931, 0, 0, 0, 1, 0, 0, 0, 0.193448, 0, 1.17395, 0)
+mesh = SubResource("BoxMesh_qmgk0")
