@@ -33,6 +33,13 @@ namespace GameHelperCharacters
         {
             Vector3 velocity = Character.Velocity;
             // Handle movement toward target position
+
+            // If there is only 1 pathpoint, we should set our path index to 0 so our next if statement will work
+            if(_pathPoints.Count == 1)
+            {
+                _currentPathIndex = 0;
+            }
+
             if (_isMoving && _currentPathIndex < _pathPoints.Count)
             {
                 var targetGridPosition = _pathPoints[_currentPathIndex];
@@ -55,8 +62,7 @@ namespace GameHelperCharacters
                 if (distanceToTarget <= 0.1f)
                 {
                     // Snap to the exact target position
-                    float lerpFactor = Mathf.Clamp(distanceToTarget / Speed, 0.1f, 1.0f);
-                    Character.GlobalPosition.Lerp(targetPosition, lerpFactor);
+                    Character.GlobalPosition = targetPosition;
 
                     // Move to the next point in the path
                     _currentPathIndex++;
@@ -64,6 +70,13 @@ namespace GameHelperCharacters
                     // If the character has reached the end of the path, stop moving
                     if (_currentPathIndex >= _pathPoints.Count)
                     {
+                        // Ensure the character is exactly at the center of the last tile
+                        Character.GlobalPosition = new Vector3(
+                            _pathPoints[_pathPoints.Count - 1].X * GridPositionConverter,
+                            Character.Position.Y,
+                            _pathPoints[_pathPoints.Count - 1].Z * GridPositionConverter
+                        );
+
                         velocity = Vector3.Zero;
                         _isMoving = false;
                         ClearPathMarkers(); // Clear all path markers
@@ -159,6 +172,7 @@ namespace GameHelperCharacters
                     Character.GridPosition = targetGridPosition;
                     _isTargetSelected = false; // Reset target selection
                     GD.Print($"Path: {string.Join(" -> ", _pathPoints)}");
+                    _currentPathIndex = 0;
                 }
             }
             else
@@ -185,7 +199,7 @@ namespace GameHelperCharacters
             // Store the path points
             _pathPoints = path;
 
-            for (int i = 0; i < path.Count - 1; i++)
+            for (int i = 0; i < path.Count; i++)
             {
                 // Convert grid position to world position
                 Vector3 worldPosition = new Vector3(
