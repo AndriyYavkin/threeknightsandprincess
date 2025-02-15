@@ -20,10 +20,10 @@ namespace GameHelperCharacters
 
         private static List<Node3D> _pathMarkers = new(); // Store path markers
         private static List<Vector3I> _pathPoints = new(); // Store path points
-        //private static Vector3I _selectedTargetGridPosition; // Store the selected target position
         private static int _currentPathIndex = 0;
         private static bool _isTargetSelected = false; // Track if a target is selected
         private static bool _isMoving = false; 
+        private static bool _stopAfterNextPoint = false;
 
         ///<summary>
         ///<para>Returns Vector3 velocity. Works with movements</para>
@@ -61,31 +61,43 @@ namespace GameHelperCharacters
                 // If the character is close to the target, move directly to it
                 if (distanceToTarget <= 0.1f)
                 {
+                    GD.Print("Reached point: ", targetGridPosition);
+                    GD.Print("index:", _currentPathIndex);
+                    ClearPassedPathMarkers(_currentPathIndex);
                     // Snap to the exact target position
                     Character.GlobalPosition = targetPosition;
 
-                    // Move to the next point in the path
-                    _currentPathIndex++;
-
-                    // If the character has reached the end of the path, stop moving
-                    if (_currentPathIndex >= _pathPoints.Count)
-                    {
-                        // Ensure the character is exactly at the center of the last tile
-                        Character.GlobalPosition = new Vector3(
-                            _pathPoints[_pathPoints.Count - 1].X * GridPositionConverter,
-                            Character.Position.Y,
-                            _pathPoints[_pathPoints.Count - 1].Z * GridPositionConverter
-                        );
-
+                    if(_stopAfterNextPoint)
+                    {   
                         velocity = Vector3.Zero;
                         _isMoving = false;
-                        ClearPathMarkers(); // Clear all path markers
-                        GD.Print("Movement stopped!");
+                        _stopAfterNextPoint = false;
+                        _currentPathIndex = 0;
+                        ClearPathMarkers();
                     }
-                }
-                else
-                {
-                    ClearPassedPathMarkers();
+                    else
+                    {
+                        // Move to the next point in the path
+                        _currentPathIndex++;
+                        // If the character has reached the end of the path, stop moving
+                        if (_currentPathIndex >= _pathPoints.Count)
+                        {
+                            // Ensure the character is exactly at the center of the last tile
+                            Character.GlobalPosition = new Vector3(
+                                _pathPoints[_pathPoints.Count - 1].X * GridPositionConverter,
+                                Character.Position.Y,
+                                _pathPoints[_pathPoints.Count - 1].Z * GridPositionConverter
+                            );
+
+                            velocity = Vector3.Zero;
+                            _isMoving = false;
+                            _stopAfterNextPoint = false;
+                            _currentPathIndex = 0;
+                            ClearPathMarkers(); // Clear all path markers
+                            GD.Print("Movement stopped!");
+                        }
+                    }
+
                 }
             }
             else
@@ -111,8 +123,9 @@ namespace GameHelperCharacters
 
             if (_isMoving)
             {
-                ClearPathMarkers();
-                _isMoving = false;
+                _stopAfterNextPoint = true;
+                GD.Print("markers: ", _pathMarkers.Count);
+                GD.Print("points: ", _pathPoints.Count);
                 GD.Print("Movement interrupted!");
                 return;
             }
@@ -163,6 +176,7 @@ namespace GameHelperCharacters
                 if (!_isTargetSelected || (_isTargetSelected && _pathPoints[^1] != targetGridPosition))
                 {
                     // First click: Select the target and visualize the path
+                    ClearPathMarkers();
                     VisualizePath(path);
                     _isTargetSelected = true;
                 }
@@ -171,6 +185,7 @@ namespace GameHelperCharacters
                     _isMoving = true;
                     Character.GridPosition = targetGridPosition;
                     _isTargetSelected = false; // Reset target selection
+                    _stopAfterNextPoint = false;
                     GD.Print($"Path: {string.Join(" -> ", _pathPoints)}");
                     _currentPathIndex = 0;
                 }
@@ -192,9 +207,6 @@ namespace GameHelperCharacters
                 GD.PrintErr("Path marker scene is not set!");
                 return;
             }
-
-            // Clear existing path markers
-            ClearPathMarkers();
 
             // Store the path points
             _pathPoints = path;
@@ -233,32 +245,11 @@ namespace GameHelperCharacters
         /// <summary>
         /// Clears path markers as character moves 
         /// </summary>
-        private static void ClearPassedPathMarkers()
+        private static void ClearPassedPathMarkers(int index)
         {
-            if (_pathPoints.Count == 0 || _pathMarkers.Count == 0)
-                return;
-
-            // Get the character's current grid position
-            var characterGridPosition = new Vector3I(
-                Mathf.RoundToInt(Character.GlobalPosition.X / GridPositionConverter),
-                0,
-                Mathf.RoundToInt(Character.GlobalPosition.Z / GridPositionConverter)
-            );
-
-            // Find the index of the current path point
-            int index = _pathPoints.FindIndex(p => p == characterGridPosition);
-
-            if (index >= 0)
+            for(int i = 0; i < index; i++)
             {
-                // Remove all markers before the current position
-                for (int i = 0; i < index; i++)
-                {
-                    _pathMarkers[i].QueueFree(); // Remove the marker from the scene
-                }
-
-                // Remove the cleared markers from the lists
-                _pathMarkers.RemoveRange(0, index);
-                _pathPoints.RemoveRange(0, index);
+                _pathMarkers[i].Visible = false;
             }
         }
 
@@ -269,7 +260,7 @@ namespace GameHelperCharacters
         {
             foreach (var marker in _pathMarkers)
             {
-                marker.QueueFree(); // Remove the marker from the scene
+                marker.QueueFree();
             }
             _pathMarkers.Clear();
         }
