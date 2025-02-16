@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://d0lkgi3m63qhr"]
 
-[ext_resource type="Script" path="res://3DScenes/ScenesScripts/GlobalMap.cs" id="1_4trqa"]
+[ext_resource type="Script" path="res://3DScenes/ScenesScripts/TileMap.cs" id="1_4trqa"]
 [ext_resource type="PackedScene" uid="uid://pos74ns0mk3e" path="res://3DScenes/Scenes/floor_test.tscn" id="2_olf5i"]
 
 [node name="GlobalMap" type="Node3D"]

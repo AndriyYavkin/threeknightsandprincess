@@ -2,5 +2,5 @@
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_7vfn6"]
 
-[node name="MeshInstance3D" type="MeshInstance3D"]
+[node name="Test" type="MeshInstance3D"]
 mesh = SubResource("CapsuleMesh_7vfn6")

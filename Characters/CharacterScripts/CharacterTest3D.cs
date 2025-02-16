@@ -1,7 +1,5 @@
 using Godot;
 using GameHelperCharacters;
-using System.Collections.Generic;
-using Godot.Collections;
 
 namespace Characters;
 
@@ -10,15 +8,15 @@ public partial class CharacterTest3D : CharacterBody3D
 	[Export] float Speed = 5.0f; // Speed of character, not in meters!
 	[Export] Camera3D mainCamera; // Sets the main camera to change it's position and rotation
 	[Export] float zoomSpeed = 0.5f; // Speed of zooming
-	[Export] float GridPositionConverter = 2f;
 	[Export] int MovementRange { get; set; } = 50; // Example movement range
 
 	public Vector3I GridPosition { get; set; }
     public int RemainingMovement { get; set; }
+	
 
 	private Tween _tween; // for smooth effect
 	private bool _isHolding = false; // Track if the mouse is held down
-	
+
 	// TODO: Make visualy acceptable markers
 	private static PackedScene _pathMarkerScene = GD.Load<PackedScene>("res://3DScenes/Scenes/PathMarker.tscn");
 
@@ -27,7 +25,6 @@ public partial class CharacterTest3D : CharacterBody3D
     {
 		InitializeCharacterHelper();
 		InitializeCameraHelper();
-
 
 		RemainingMovement = MovementRange;
     }
@@ -62,7 +59,6 @@ public partial class CharacterTest3D : CharacterBody3D
 	private void InitializeCharacterHelper()
 	{
 		CharacterHelper.mainCamera = mainCamera;
-		CharacterHelper.GridPositionConverter = GridPositionConverter;
 		CharacterHelper.Speed = Speed;
 		CharacterHelper.Character = this;
 		CharacterHelper.pathMarkerScene = _pathMarkerScene;

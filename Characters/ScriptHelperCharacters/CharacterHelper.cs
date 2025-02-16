@@ -17,6 +17,8 @@ namespace GameHelperCharacters
         public static float Speed { get; set; }
         public static float GridPositionConverter { get; set;} 
         public static PackedScene pathMarkerScene { get; set; } // Scene for path markers
+        public static int MapWidth { get; set; }
+        public static int MapHeight { get; set; }
 
         private static List<Node3D> _pathMarkers = new(); // Store path markers
         private static List<Vector3I> _pathPoints = new(); // Store path points
@@ -148,7 +150,7 @@ namespace GameHelperCharacters
                 );
 
                 // Check if the target position is valid and passable
-                if (IsPositionValid(targetGridPosition) && Scenes.GlobalMap.map[targetGridPosition.X, 0, targetGridPosition.Z].IsPassable)
+                if (IsPositionValid(targetGridPosition) && Scenes.TileMap.map[targetGridPosition.X, targetGridPosition.Z].IsPassable)
                 {
                     // Calculate path using the pathfinder
                     PathingAndMovingRf(targetGridPosition);
@@ -272,8 +274,8 @@ namespace GameHelperCharacters
         /// <returns></returns>
         private static bool IsPositionValid(Vector3I position)
         {
-            return position.X >= 0 && position.X < Scenes.GlobalMap.MapWidth &&
-                   position.Z >= 0 && position.Z < Scenes.GlobalMap.MapHeight;
+            return position.X >= 0 && position.X < MapWidth &&
+                   position.Z >= 0 && position.Z < MapHeight;
         }
     }
 }

@@ -1,20 +1,20 @@
-[gd_scene load_steps=7 format=3 uid="uid://v246ih4rqt23"]
+[gd_scene load_steps=9 format=3 uid="uid://v246ih4rqt23"]
 
-[ext_resource type="Script" path="res://3DScenes/ScenesScripts/GlobalMap.cs" id="1_0k4nh"]
 [ext_resource type="PackedScene" uid="uid://balc5ja7v6yda" path="res://Characters/CharactersNodes/CharacterTest.tscn" id="1_5352l"]
 [ext_resource type="PackedScene" uid="uid://pos74ns0mk3e" path="res://3DScenes/Scenes/floor_test.tscn" id="2_rcurs"]
 [ext_resource type="PackedScene" uid="uid://djr5c3wyal3bv" path="res://3DScenes/Scenes/ObjectTest.tscn" id="3_eociv"]
 [ext_resource type="PackedScene" uid="uid://7l5t5il3085e" path="res://3DScenes/Scenes/TestMarker.tscn" id="5_a7cc0"]
+[ext_resource type="PackedScene" uid="uid://bykmw0r3iiq8u" path="res://3DScenes/Objects/TestObject.tscn" id="5_d7ie3"]
+[ext_resource type="PackedScene" uid="uid://d1ibgmayrxbse" path="res://3DScenes/Scenes/tile_map.tscn" id="5_kjfdc"]
+[ext_resource type="Script" path="res://3DScenes/ScenesScripts/TileMap.cs" id="6_5i255"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_w3r3n"]
 size = Vector3(50, 50, 1)
 
-[node name="Node3D" type="Node3D" node_paths=PackedStringArray("hero")]
-script = ExtResource("1_0k4nh")
-hero = NodePath("CharacterTest")
+[node name="Node3D" type="Node3D"]
 
 [node name="CharacterTest" parent="." instance=ExtResource("1_5352l")]
-transform = Transform3D(1, 0, 0, 0, 0.999887, -0.0150267, 0, 0.0150267, 0.999887, -5.20399, 1.0856, 0)
+transform = Transform3D(1, 0, 0, 0, 0.999887, -0.0150267, 0, 0.0150267, 0.999887, 4.65529, 1.0856, 6.02818)
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6068, 21.7297, 2.0579)
@@ -39,3 +39,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.873758, 0, -27.3545)
 mesh = SubResource("BoxMesh_w3r3n")
 
 [node name="TestMarker" parent="." instance=ExtResource("5_a7cc0")]
+
+[node name="TileMap" parent="." instance=ExtResource("5_kjfdc")]
+script = ExtResource("6_5i255")
+GridPositionConverter = 1.5
+
+[node name="Test2" parent="TileMap" instance=ExtResource("5_d7ie3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.63668, -6.5621, -1.34053)
+skeleton = NodePath("../Test")
+
+[node name="Test" parent="TileMap" instance=ExtResource("5_d7ie3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.65057, -6.5621, -0.00671864)
+skeleton = NodePath("../..")

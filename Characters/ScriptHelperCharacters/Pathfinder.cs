@@ -14,13 +14,13 @@ public static class Pathfinder3D
     /// initialize A* algorithm in order to maintain pathing for the character. Connects each point with adjacent points. Should be used only once per Node
     /// </summary>
     /// <param name="map"></param>
-    public static void Initialize(Tile[,,] map)
+    public static void Initialize(Tile[,] map)
     {
         for (int x = 0; x < map.GetLength(0); x++)
         {
-            for (int z = 0; z < map.GetLength(2); z++)
+            for (int z = 0; z < map.GetLength(1); z++)
             {
-                if (map[x, 0, z].IsPassable) // Ignore Y-axis
+                if (map[x, z].IsPassable) // Ignore Y-axis
                 {
                     try
                     {
@@ -50,30 +50,30 @@ public static class Pathfinder3D
         return path.Select(p => new Vector3I((int)p.X, 0, (int)p.Z)).ToList();
     }
     
-    private static void AstarHandleInit(Tile[,,] map, int x, int z)
+    private static void AstarHandleInit(Tile[,] map, int x, int z)
     {
         int id = GetId(x, z);
         astar.AddPoint(id, new Vector3(x, 0, z)); // Y-axis is always 0
 
-        if (x > 0 && map[x - 1, 0, z].IsPassable)
+        if (x > 0 && map[x - 1, z].IsPassable)
         {
             int adjacentId = GetId(x - 1, z);
             if (astar.HasPoint(adjacentId))
                 astar.ConnectPoints(id, adjacentId);
         }
-        if (z > 0 && map[x, 0, z - 1].IsPassable)
+        if (z > 0 && map[x, z - 1].IsPassable)
         {
             int adjacentId = GetId(x, z - 1);
             if (astar.HasPoint(adjacentId))
                 astar.ConnectPoints(id, adjacentId);
         }
-        if (x < map.GetLength(0) - 1 && map[x + 1, 0, z].IsPassable)
+        if (x < map.GetLength(0) - 1 && map[x + 1, z].IsPassable)
         {
             int adjacentId = GetId(x + 1, z);
             if (astar.HasPoint(adjacentId))
                 astar.ConnectPoints(id, adjacentId);
         }
-        if (z < map.GetLength(2) - 1 && map[x, 0, z + 1].IsPassable)
+        if (z < map.GetLength(1) - 1 && map[x, z + 1].IsPassable)
         {
             int adjacentId = GetId(x, z + 1);
             if (astar.HasPoint(adjacentId))
@@ -81,25 +81,25 @@ public static class Pathfinder3D
         }
 
         // Connect to diagonal tiles only if both orthogonal tiles are passable
-        if (x > 0 && z > 0 && map[x - 1, 0, z].IsPassable && map[x, 0, z - 1].IsPassable && map[x - 1, 0, z - 1].IsPassable)
+        if (x > 0 && z > 0 && map[x - 1, z].IsPassable && map[x, z - 1].IsPassable && map[x - 1, z - 1].IsPassable)
         {
             int diagonalId = GetId(x - 1, z - 1);
             if (astar.HasPoint(diagonalId))
                 astar.ConnectPoints(id, diagonalId);
         }
-        if (x < map.GetLength(0) - 1 && z > 0 && map[x + 1, 0, z].IsPassable && map[x, 0, z - 1].IsPassable && map[x + 1, 0, z - 1].IsPassable)
+        if (x < map.GetLength(0) - 1 && z > 0 && map[x + 1, z].IsPassable && map[x, z - 1].IsPassable && map[x + 1, z - 1].IsPassable)
         {
             int diagonalId = GetId(x + 1, z - 1);
             if (astar.HasPoint(diagonalId))
                 astar.ConnectPoints(id, diagonalId);
         }
-        if (x > 0 && z < map.GetLength(2) - 1 && map[x - 1, 0, z].IsPassable && map[x, 0, z + 1].IsPassable && map[x - 1, 0, z + 1].IsPassable)
+        if (x > 0 && z < map.GetLength(1) - 1 && map[x - 1, z].IsPassable && map[x, z + 1].IsPassable && map[x - 1, z + 1].IsPassable)
         {
             int diagonalId = GetId(x - 1, z + 1);
             if (astar.HasPoint(diagonalId))
                 astar.ConnectPoints(id, diagonalId);
         }
-        if (x < map.GetLength(0) - 1 && z < map.GetLength(2) - 1 && map[x + 1, 0, z].IsPassable && map[x, 0, z + 1].IsPassable && map[x + 1, 0, z + 1].IsPassable)
+        if (x < map.GetLength(0) - 1 && z < map.GetLength(1) - 1 && map[x + 1, z].IsPassable && map[x, z + 1].IsPassable && map[x + 1, z + 1].IsPassable)
         {
             int diagonalId = GetId(x + 1, z + 1);
             if (astar.HasPoint(diagonalId))
