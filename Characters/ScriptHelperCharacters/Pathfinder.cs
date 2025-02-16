@@ -8,6 +8,7 @@ namespace GameHelperCharacters;
 
 public static class Pathfinder3D
 {
+    public static float GridPositionConverter {get;set;}
     private static AStar3D astar = new AStar3D();
 
     /// <summary>
@@ -45,6 +46,13 @@ public static class Pathfinder3D
     {
         int startId = GetId(start.X, start.Z);
         int endId = GetId(end.X, end.Z);
+
+        var endPosition = new Vector3(end.X * GridPositionConverter, 0, end.Z * GridPositionConverter);
+        /*if (Scenes.TileMap.IsPositionBlocked(endPosition))
+        {
+            GD.Print("Target position is blocked by a decoration!");
+            return new List<Vector3I>();
+        }*/
 
         var path = astar.GetPointPath(startId, endId);
         return path.Select(p => new Vector3I((int)p.X, 0, (int)p.Z)).ToList();

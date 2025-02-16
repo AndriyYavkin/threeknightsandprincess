@@ -13,7 +13,6 @@ public partial class CharacterTest3D : CharacterBody3D
 	public Vector3I GridPosition { get; set; }
     public int RemainingMovement { get; set; }
 	
-
 	private Tween _tween; // for smooth effect
 	private bool _isHolding = false; // Track if the mouse is held down
 

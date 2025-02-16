@@ -4,6 +4,8 @@ using System.ComponentModel;
 using Characters;
 using Godot;
 using Godot.Collections;
+using Scenes;
+using ScenesHelper.TileMapScripts;
 
 namespace GameHelperCharacters
 {
@@ -15,10 +17,10 @@ namespace GameHelperCharacters
         public static Camera3D mainCamera { get; set; }
         public static CharacterTest3D Character { get; set; }
         public static float Speed { get; set; }
-        public static float GridPositionConverter { get; set;} 
         public static PackedScene pathMarkerScene { get; set; } // Scene for path markers
         public static int MapWidth { get; set; }
         public static int MapHeight { get; set; }
+        public static float GridPositionConverter { get; set;} 
 
         private static List<Node3D> _pathMarkers = new(); // Store path markers
         private static List<Vector3I> _pathPoints = new(); // Store path points
@@ -41,7 +43,7 @@ namespace GameHelperCharacters
             {
                 _currentPathIndex = 0;
             }
-
+            
             if (_isMoving && _currentPathIndex < _pathPoints.Count)
             {
                 var targetGridPosition = _pathPoints[_currentPathIndex];
@@ -50,6 +52,13 @@ namespace GameHelperCharacters
                     Character.Position.Y, // Keep the character's Y position
                     targetGridPosition.Z * GridPositionConverter
                 );
+
+                /*if (Scenes.TileMap.IsPositionBlocked(targetPosition))
+                {
+                    GD.Print("Path blocked by a decoration!");
+                    _isMoving = false;
+                    return Vector3.Zero;
+                }*/
 
                 Vector3 direction = new Vector3(
                     targetPosition.X - Character.GlobalPosition.X,

@@ -8,12 +8,12 @@ public class Tile
     public TileType Type { get; set; }
     public bool IsPassable { get; set; }
     public Color TileColor { get; set; }
-    public List<Node3D> Objects { get; set; } = new List<Node3D>();
+    public Node3D Object { get; set; }
 
     public Tile(TileType type)
     {
         Type = type;
-        IsPassable = type != TileType.Water && type != TileType.Mountain;
+        IsPassable = type != TileType.Water && type != TileType.Mountain; 
 
         // Set tile color based on type
         switch (type)
