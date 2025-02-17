@@ -34,14 +34,27 @@ public partial class Decoration : Node3D, IMapInitializable
 
     private void ProcessDecoration(MeshInstance3D decorationNode)
     {
-        // Dynamically calculate the size of the decoration
-        Vector3 size = CalculateSize(decorationNode);
+        bool blocksMovement = (bool)decorationNode.GetMeta("BlocksMovement", false);
 
-        // Mark tiles as non-passable if the decoration blocks movement
-        MarkTilesAsNonPassable(decorationNode, size);
+        if (blocksMovement)
+        {
+            // Dynamically calculate the size of the decoration (accounting for scaling)
+            Vector3 size = CalculateSize(decorationNode);
+
+            // Mark tiles as non-passable
+            MarkTilesAsNonPassable(decorationNode, size);
+        }
+        else
+        {
+            GD.Print($"Decoration {decorationNode.Name} does not block movement.");
+        }
     }
-
-    private Vector3 CalculateSize(Node3D decorationNode)
+    /// <summary>
+    /// Calculates what size will be decoration. 
+    /// </summary>
+    /// <param name="decorationNode"></param>
+    /// <returns> Scaled size to maintain Aabb mesh</returns>
+    private static Vector3 CalculateSize(Node3D decorationNode)
     {
         // Try to get the size from a MeshInstance3D
         var meshInstance = decorationNode.GetNodeOrNull<MeshInstance3D>("MeshInstance3D");
@@ -98,6 +111,9 @@ public partial class Decoration : Node3D, IMapInitializable
         }
     }
 
+    /// <summary>
+    /// Debug method to visualize what tiles were blocked via decorations
+    /// </summary>
     private void VisualizeTile(int x, int z)
     {
         var tile = Scenes.TileMap.map[x, z];
@@ -115,8 +131,12 @@ public partial class Decoration : Node3D, IMapInitializable
         AddChild(meshInstance);
     }
 
-
-    private Color GetTileColor(Tile tile)
+    /// <summary>
+    /// Debug method to visualize (select color) what tiles were blocked via decorations
+    /// </summary>
+    /// <param name="tile"></param>
+    /// <returns>Purple color if tile is not passable</returns>
+    private static Color GetTileColor(Tile tile)
     {
         // If the tile is non-passable, color it purple
         if (!tile.IsPassable)
