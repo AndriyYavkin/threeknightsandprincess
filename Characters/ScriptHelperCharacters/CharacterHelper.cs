@@ -1,11 +1,7 @@
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using Characters;
 using Godot;
 using Godot.Collections;
-using Scenes;
-using ScenesHelper.TileMapScripts;
 
 namespace GameHelperCharacters
 {
@@ -53,13 +49,6 @@ namespace GameHelperCharacters
                     targetGridPosition.Z * GridPositionConverter
                 );
 
-                /*if (Scenes.TileMap.IsPositionBlocked(targetPosition))
-                {
-                    GD.Print("Path blocked by a decoration!");
-                    _isMoving = false;
-                    return Vector3.Zero;
-                }*/
-
                 Vector3 direction = new Vector3(
                     targetPosition.X - Character.GlobalPosition.X,
                     0, // Ignore Y-axis
@@ -100,11 +89,12 @@ namespace GameHelperCharacters
                                 _pathPoints[_pathPoints.Count - 1].Z * GridPositionConverter
                             );
 
+                            // Reset all the movement
                             velocity = Vector3.Zero;
                             _isMoving = false;
                             _stopAfterNextPoint = false;
                             _currentPathIndex = 0;
-                            ClearPathMarkers(); // Clear all path markers
+                            ClearPathMarkers();
                             GD.Print("Movement stopped!");
                         }
                     }
@@ -135,8 +125,6 @@ namespace GameHelperCharacters
             if (_isMoving)
             {
                 _stopAfterNextPoint = true;
-                GD.Print("markers: ", _pathMarkers.Count);
-                GD.Print("points: ", _pathPoints.Count);
                 GD.Print("Movement interrupted!");
                 return;
             }

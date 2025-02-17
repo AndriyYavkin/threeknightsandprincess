@@ -8,6 +8,7 @@ public partial class TilesMap : Node3D, IMapInitializable
     public int MapHeight { get; set; }
     public float GridPositionConverter { get; set; }
 
+
 	// Called when the node enters the scene tree for the first time.
 
     public void Initialize(int mapWidth, int mapHeight, float gridPositionConverter)

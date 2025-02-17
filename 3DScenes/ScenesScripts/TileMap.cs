@@ -1,8 +1,6 @@
 using Godot;
 using ScenesHelper;
 using GameHelperCharacters;
-using System;
-using Characters;
 
 namespace Scenes;
 

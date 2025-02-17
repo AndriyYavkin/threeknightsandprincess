@@ -12,6 +12,13 @@ public partial class Objects : Node3D , IMapInitializable
 
     public void Initialize(int mapWidth, int mapHeight, float gridPositionConverter)
     {
+        
+        if(Scenes.TileMap.map is null)
+        {
+            GD.PrintErr("Tile map is null! Check your order of initialization! Objects won't initialize and work!");
+            return;
+        }        
+        
         MapWidth = mapWidth;
         MapHeight = mapHeight;
         GridPositionConverter = gridPositionConverter;

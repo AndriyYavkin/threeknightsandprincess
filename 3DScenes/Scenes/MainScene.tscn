@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://v246ih4rqt23"]
+[gd_scene load_steps=10 format=3 uid="uid://v246ih4rqt23"]
 
 [ext_resource type="PackedScene" uid="uid://balc5ja7v6yda" path="res://Characters/CharactersNodes/CharacterTest.tscn" id="1_5352l"]
 [ext_resource type="PackedScene" uid="uid://pos74ns0mk3e" path="res://3DScenes/Scenes/floor_test.tscn" id="2_rcurs"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://c1m3w4e2n7r00" path="res://3DScenes/TileScenes/tiles_map.tscn" id="5_d08vo"]
 [ext_resource type="PackedScene" uid="uid://ebv8c5j0wpum" path="res://3DScenes/TileScenes/objects_map.tscn" id="6_0pdk1"]
 [ext_resource type="PackedScene" uid="uid://bykmw0r3iiq8u" path="res://3DScenes/Objects/TestObject.tscn" id="6_iy2th"]
+[ext_resource type="PackedScene" uid="uid://cdgmbhmcqccev" path="res://3DScenes/Objects/test_decoration.tscn" id="7_sn06o"]
 
 [node name="Node3D" type="Node3D"]
 
@@ -33,8 +34,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.610164, 2.30358)
 
 [node name="DecorationsMap" parent="TileMap" instance=ExtResource("5_4tluh")]
 
-[node name="Test" parent="TileMap/DecorationsMap" instance=ExtResource("6_iy2th")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.43687, 0, 8.51865)
+[node name="test_decoration" parent="TileMap/DecorationsMap" instance=ExtResource("7_sn06o")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 16.739, 0, 7.50914)
 
 [node name="ObjectsMap" parent="TileMap" instance=ExtResource("6_0pdk1")]
 
@@ -42,4 +43,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.43687, 0, 8.51865)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.303, 0, 4.41382)
 
 [node name="Test2" parent="TileMap/ObjectsMap" instance=ExtResource("6_iy2th")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 7.30785)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.743814, 0, 7.58103)
