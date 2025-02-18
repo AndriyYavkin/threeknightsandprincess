@@ -105,6 +105,11 @@ public partial class Decoration : Node3D, IMapInitializable
                         //VisualizeTile(x,z);
                         GD.Print($"Marked tile at ({x}, {z}) as non-passable due to decoration {decorationNode.Name}");
                     }
+                    tile.TileColor = new Color (1, 0, 0);
+                    tile.Tilemesh.MaterialOverride = new StandardMaterial3D
+                    {
+                        AlbedoColor = tile.TileColor
+                    };
                     GD.Print($"Tile at ({x}, {z}) was already not passable!");
                 }
             }
