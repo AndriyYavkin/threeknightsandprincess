@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://chhib8hcmpig0"]
+
+[ext_resource type="Script" path="res://Characters/CharacterScripts/EntityModularNodesScripts/Entity.cs" id="1_m3o0l"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_ac1sr"]
+
+[node name="Entity" type="Node3D"]
+script = ExtResource("1_m3o0l")
+EntityName = "Something"
+Type = 2
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("PrismMesh_ac1sr")

@@ -49,6 +49,7 @@ public partial class TilesMap : Node3D, IMapInitializable
         };
         // Position the tile
         meshInstance.Position = new Vector3(x * GridPositionConverter, 0, z * GridPositionConverter);
-        AddChild(meshInstance);
+        Scenes.TileMap.map[x,z].Tilemesh = meshInstance;
+        AddChild(Scenes.TileMap.map[x,z].Tilemesh);
     }
 }

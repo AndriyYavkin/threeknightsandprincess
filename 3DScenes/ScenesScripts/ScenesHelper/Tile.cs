@@ -7,13 +7,15 @@ public class Tile
     public TileType Type { get; set; }
     public bool IsPassable { get; set; }
     public Color TileColor { get; set; }
-    public Node3D Object { get; set; }
+    public Node3D Object { get; set; } = null; //It can be both just a resource or entity
+    public MeshInstance3D Tilemesh{ get; set; } = null;
+    public bool IsEntity { get; set; } = false;
 
     public Tile(TileType type)
     {
         Type = type;
         IsPassable = type != TileType.Water && type != TileType.Mountain; 
-
+        
         // Set tile color based on type
         switch (type)
         {

@@ -107,6 +107,7 @@ namespace GameHelperCharacters
                 velocity.X = Mathf.MoveToward(Character.Velocity.X, 0, Speed);
                 velocity.Z = Mathf.MoveToward(Character.Velocity.Z, 0, Speed);
             }
+            
             return velocity;
         }
 

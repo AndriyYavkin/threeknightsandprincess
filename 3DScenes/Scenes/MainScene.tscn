@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://v246ih4rqt23"]
+[gd_scene load_steps=14 format=3 uid="uid://v246ih4rqt23"]
 
 [ext_resource type="PackedScene" uid="uid://balc5ja7v6yda" path="res://Characters/CharactersNodes/CharacterTest.tscn" id="1_5352l"]
 [ext_resource type="PackedScene" uid="uid://pos74ns0mk3e" path="res://3DScenes/Scenes/floor_test.tscn" id="2_rcurs"]
@@ -7,8 +7,12 @@
 [ext_resource type="PackedScene" uid="uid://d1ibgmayrxbse" path="res://3DScenes/Scenes/tile_map.tscn" id="5_6apj6"]
 [ext_resource type="PackedScene" uid="uid://c1m3w4e2n7r00" path="res://3DScenes/TileScenes/tiles_map.tscn" id="5_d08vo"]
 [ext_resource type="PackedScene" uid="uid://ebv8c5j0wpum" path="res://3DScenes/TileScenes/objects_map.tscn" id="6_0pdk1"]
+[ext_resource type="PackedScene" uid="uid://chhib8hcmpig0" path="res://Characters/CharactersNodes/Entities/entityTest.tscn" id="6_d0rmp"]
 [ext_resource type="PackedScene" uid="uid://bykmw0r3iiq8u" path="res://3DScenes/Objects/TestObject.tscn" id="6_iy2th"]
 [ext_resource type="PackedScene" uid="uid://cdgmbhmcqccev" path="res://3DScenes/Objects/test_decoration.tscn" id="7_sn06o"]
+[ext_resource type="PackedScene" uid="uid://cf5ogisnx5iso" path="res://3DScenes/TileScenes/entities.tscn" id="10_23gll"]
+[ext_resource type="PackedScene" uid="uid://um2svxyes5bt" path="res://3DScenes/TileScenes/EntitiesModules/ai_component.tscn" id="12_4vxoc"]
+[ext_resource type="PackedScene" uid="uid://b5pqd047fvovi" path="res://3DScenes/TileScenes/EntitiesModules/movement_component.tscn" id="13_eld4r"]
 
 [node name="Node3D" type="Node3D"]
 
@@ -44,3 +48,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.303, 0, 4.41382)
 
 [node name="Test2" parent="TileMap/ObjectsMap" instance=ExtResource("6_iy2th")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.743814, 0, 7.58103)
+
+[node name="Entities" parent="TileMap" instance=ExtResource("10_23gll")]
+
+[node name="Entity" parent="TileMap/Entities" instance=ExtResource("6_d0rmp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.6729, 1.311, 6.5061)
+Type = 1
+
+[node name="AIComponent" parent="TileMap/Entities/Entity" instance=ExtResource("12_4vxoc")]
+
+[node name="MovementComponent" parent="TileMap/Entities/Entity" instance=ExtResource("13_eld4r")]

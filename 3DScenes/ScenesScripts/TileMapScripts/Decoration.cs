@@ -27,7 +27,6 @@ public partial class Decoration : Node3D, IMapInitializable
             {
                 // Treat the child as a decoration
                 ProcessDecoration(decorationNode);
-                GD.Print($"Processed decoration {decorationNode.Name}");
             }
         }
     }
@@ -75,7 +74,7 @@ public partial class Decoration : Node3D, IMapInitializable
         }
 
         // Default size if no MeshInstance3D is found
-        GD.Print($"Using default size for {decorationNode.Name}");
+        GD.Print($"Using default size for {decorationNode.Name}.");
         return new Vector3(1, 1, 1) * decorationNode.Scale; // Apply scaling to default size
     }
 
