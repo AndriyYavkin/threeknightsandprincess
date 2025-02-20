@@ -1,6 +1,8 @@
 using Godot;
 using System;
 
+namespace Scenes;
+
 public partial class Battle : Node3D
 {
 	private const int GridSize = 8;

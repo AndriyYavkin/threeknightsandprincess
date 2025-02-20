@@ -11,7 +11,7 @@ public partial class Entities : Node3D, IMapInitializable
 
     public void Initialize(int mapWidth, int mapHeight, float gridPositionConverter)
     {
-        if (Scenes.TileMap.map is null)
+        if (Scenes.TileMap.Map is null)
         {
             GD.PrintErr("Tile map is null! Check your order of initialization! Entities won't initialize and work!");
             return;
@@ -48,7 +48,7 @@ public partial class Entities : Node3D, IMapInitializable
 
         if (gridX >= 0 && gridX < MapWidth && gridZ >= 0 && gridZ < MapHeight)
         {
-            var tile = Scenes.TileMap.map[gridX, gridZ];
+            var tile = Scenes.TileMap.Map[gridX, gridZ];
             tile.Object = entityNode;
             tile.IsEntity = true;
             entityNode.Position = new Vector3(gridX * 2, 1 , gridZ * 2);
@@ -67,7 +67,7 @@ public partial class Entities : Node3D, IMapInitializable
 
         if (gridX >= 0 && gridX < MapWidth && gridZ >= 0 && gridZ < MapHeight)
         {
-            var tile = Scenes.TileMap.map[gridX, gridZ];
+            var tile = Scenes.TileMap.Map[gridX, gridZ];
             if (tile.Object != null && tile.IsEntity)
             {
                 //entity.Interact(CharacterHelper.Character);

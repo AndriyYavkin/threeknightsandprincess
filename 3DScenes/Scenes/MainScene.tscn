@@ -28,6 +28,7 @@ omni_range = 527.098
 omni_attenuation = 1.16
 
 [node name="FloorTest" parent="." instance=ExtResource("2_rcurs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0154343, -0.251927, -1.49215)
 
 [node name="MeshInstance3D" parent="." instance=ExtResource("3_eociv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.610164, 2.30358)

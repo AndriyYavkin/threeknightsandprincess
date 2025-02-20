@@ -1,19 +1,21 @@
+using System;
 using System.Collections.Generic;
 using Characters;
 using Godot;
 using Godot.Collections;
+using ScenesHelper;
 
 namespace GameHelperCharacters
 {
     /// <summary>
-    /// Class to help with basics characters features. moving character, path finding
+    /// Class to help with basics characters features. moving character, path finding. Only player's characters should use this class!
     /// </summary>
-    public class CharacterHelper
+    public static class CharacterHelper
     {
         public static Camera3D mainCamera { get; set; }
         public static CharacterTest3D Character { get; set; }
-        public static float Speed { get; set; }
         public static PackedScene pathMarkerScene { get; set; } // Scene for path markers
+        public static float Speed { get; set; }
         public static int MapWidth { get; set; }
         public static int MapHeight { get; set; }
         public static float GridPositionConverter { get; set;} 
@@ -148,7 +150,7 @@ namespace GameHelperCharacters
                 );
 
                 // Check if the target position is valid and passable
-                if (IsPositionValid(targetGridPosition) && Scenes.TileMap.map[targetGridPosition.X, targetGridPosition.Z].IsPassable)
+                if (IsPositionValid(targetGridPosition) && Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z].IsPassable)
                 {
                     // Calculate path using the pathfinder
                     PathingAndMovingRf(targetGridPosition);

@@ -15,15 +15,15 @@ public partial class Entity : Node3D, IInteractable
 
     public void Initialize()
     {
-        MetadataCheck();
+        TypeCheck();
         GetAllModules();
     }
 
-    private void MetadataCheck()
+    private void TypeCheck()
     {
         if(Type == EntitiesTypes.NotDefined)
         {
-            GD.PrintErr($"Type of Entity is not defined! Entity name: {EntityName}, type of it: {Type}. NotDefined type is assigned!");
+            GD.PrintErr($"Type of Entity is not defined! Entity name: {EntityName}, type of it: {Type}. Neutral type is assigned!");
             Type = EntitiesTypes.Neutral;
         }
         else

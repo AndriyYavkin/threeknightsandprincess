@@ -14,7 +14,7 @@ public partial class Objects : Node3D , IMapInitializable
     public void Initialize(int mapWidth, int mapHeight, float gridPositionConverter)
     {
         
-        if(Scenes.TileMap.map is null)
+        if(Scenes.TileMap.Map is null)
         {
             GD.PrintErr("Tile map is null! Check your order of initialization! Objects won't initialize and work!");
             return;
@@ -34,7 +34,7 @@ public partial class Objects : Node3D , IMapInitializable
 
         if (gridX >= 0 && gridX < MapWidth && gridZ >= 0 && gridZ < MapHeight)
         {
-            var tile = Scenes.TileMap.map[gridX, gridZ];
+            var tile = Scenes.TileMap.Map[gridX, gridZ];
             if (tile.Object is IInteractable interactable)
             {
                 interactable.Interact(CharacterHelper.Character);
@@ -57,23 +57,25 @@ public partial class Objects : Node3D , IMapInitializable
     {
         int gridX = (int)Math.Round(obj.Position.X / GridPositionConverter);
         int gridZ = (int)Math.Round(obj.Position.Z / GridPositionConverter);
-        if(Scenes.TileMap.map[gridX,gridZ].Object is null)
+        if(Scenes.TileMap.Map[gridX,gridZ].Object is null)
         {
             if (gridX >= 0 && gridX < MapWidth && gridZ >= 0 && gridZ < MapHeight)
             {
-                var tile = Scenes.TileMap.map[gridX, gridZ];
+                var tile = Scenes.TileMap.Map[gridX, gridZ];
                 tile.Object = obj;
                 tile.IsEntity = false;
                 obj.Position = new Vector3(gridX * 2, 0 , gridZ * 2);
             }
             else
             {
-                GD.PrintErr($"Object {obj.Name} is outside the map boundaries!");
+                GD.PrintErr($"Object {obj.Name} is outside the map boundaries! Object was deleted");
+                obj.QueueFree();
             }
         }
         else
         {
-            GD.PrintErr($"Object {obj.Name} can't be assigned! tile is already taken!");
+            GD.PrintErr($"Object {obj.Name} can't be assigned! tile is already taken! Object was deleted");
+            obj.QueueFree();
         }
     }
 }
