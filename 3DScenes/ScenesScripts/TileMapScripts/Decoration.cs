@@ -31,7 +31,7 @@ public partial class Decoration : Node3D, IMapInitializable
         }
     }
 
-    private void ProcessDecoration(MeshInstance3D decorationNode)
+    private static void ProcessDecoration(MeshInstance3D decorationNode)
     {
         bool blocksMovement = (bool)decorationNode.GetMeta("BlocksMovement", false);
 
@@ -54,12 +54,10 @@ public partial class Decoration : Node3D, IMapInitializable
     /// </summary>
     private void VisualizeTile(int x, int z)
     {
-        var tile = Scenes.TileMap.Map[x, z];
-
         // Create a visual representation for the tile
         var meshInstance = new MeshInstance3D();
         meshInstance.Mesh = new BoxMesh();
-     // Position the tile
+         // Position the tile
         meshInstance.Position = new Vector3(x * GridPositionConverter, 1, z * GridPositionConverter);
         AddChild(meshInstance);
     }

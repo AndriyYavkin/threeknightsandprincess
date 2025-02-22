@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://c4r5n4i0j4718"]
+
+[ext_resource type="PackedScene" uid="uid://bl2tmp38p787o" path="res://2DScenes/TileMap/tile_map_global_map.tscn" id="1_qsihm"]
+
+[node name="SubViewport" type="SubViewport"]
+transparent_bg = true
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="TileMapLayer" parent="." instance=ExtResource("1_qsihm")]

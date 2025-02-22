@@ -1,3 +1,4 @@
+using GameHelperCharacters;
 using Godot;
 using Scenes;
 
@@ -5,8 +6,7 @@ namespace ScenesHelper.TileMapScripts;
 
 public partial class TilesMap : Node3D, IMapInitializable
 {
-    // [Export] PackedScene TileScene2D;
-
+    [Export] public GridMap GridMap { get; set; } // Assign the GridMap node in the editor
     public int MapWidth { get; set; }
     public int MapHeight { get; set; }
     public float GridPositionConverter { get; set; }
@@ -17,120 +17,103 @@ public partial class TilesMap : Node3D, IMapInitializable
         MapHeight = mapHeight;
         GridPositionConverter = gridPositionConverter;
 
-        //InitializeGrid();
-        LoadTileMapFromScene("res://2DScenes/TileMap/tile_map_global_map.tscn");
-    }
-
-    private void LoadTileMapFromScene(string scenePath)
-    {
-        // Load the 2D TileMap scene
-        var tileMapScene = GD.Load<PackedScene>(scenePath);
-        var tileMapNode = tileMapScene.Instantiate() as TileMapLayer;
-
-        if (tileMapNode == null)
-        {
-            GD.PrintErr("Failed to load TileMap scene.");
-            return;
-        }
-
-        var tileSet = tileMapNode.TileSet;
-
-        if (tileSet == null)
-        {
-            GD.PrintErr("TileMap does not have a TileSet.");
-            return;
-        }
-
-        // Initialize the map array
+        // Initialize the 3D tiles array
         Scenes.TileMap.Map = new Tile[MapWidth, MapHeight];
 
-        // Iterate through all cells in the TileMap
+        // Iterate over each cell in the GridMap
         for (int x = 0; x < MapWidth; x++)
         {
             for (int y = 0; y < MapHeight; y++)
             {
-                var cellPosition = new Vector2I(x, y);
-                var tileData = tileMapNode.GetCellTileData(cellPosition);
+                // Get the tile ID from the GridMap
+                int tileId = GridMap.GetCellItem(new Vector3I(x, 0, y));
 
-                if (tileData != null)
+                // Convert the tile ID to a TileType
+                TileType type = tileId switch
                 {
-                    var terrain = tileData.Terrain;
+                    0 => TileType.Grass,
+                    1 => TileType.Road,
+                    2 => TileType.Water,
+                    3 => TileType.Mountain,
+                    _ => TileType.Grass // Default to Grass if the tile ID is unknown
+                };
 
-                    GD.Print($"Cell ({x}, {y}), Terrain = {terrain}");
+                // Create a new Tile object and store it in the 3D tiles array
+                Scenes.TileMap.Map[x, y] = new Tile(type);
 
-                    // Map terrain to TileType
-                    TileType type = MapTerrainToTileType(terrain);
-
-                    Texture2D texture = GetTextureFromTileSet(tileSet, tileMapNode, new Vector2I(x,y));
-
-                    // Create a new Tile object
-                    Scenes.TileMap.Map[x, y] = new Tile(type, texture);
-
-                    // Position the tile in 3D space
-                    Scenes.TileMap.Map[x, y].TileMesh.Position = new Vector3(x * GridPositionConverter, 0, y * GridPositionConverter);
-                    AddChild(Scenes.TileMap.Map[x, y].TileMesh);
-                }
-                else
-                {
-                    // Default to Grass if no tile data is found
-                    Scenes.TileMap.Map[x, y] = new Tile(TileType.Grass);
-                    Scenes.TileMap.Map[x, y].TileMesh.Position = new Vector3(x * GridPositionConverter, 0, y * GridPositionConverter);
-                    AddChild(Scenes.TileMap.Map[x, y].TileMesh);
-                }
+                // Visualize the tile in 3D space
+                VisualizeTile(x, y, Scenes.TileMap.Map[x, y]);
             }
         }
-
-        // Clean up the TileMap node
-        tileMapNode.QueueFree();
     }
 
-    private static Texture2D GetTextureFromTileSet(TileSet tileSet, TileMapLayer tileMapLayer, Vector2I cellPosition)
+    private void InitializeGrid()
     {
-        // Get the source ID and atlas coordinates for the tile
-        var sourceId = tileMapLayer.GetCellSourceId(cellPosition);
-        var atlasCoords = tileMapLayer.GetCellAtlasCoords(cellPosition);
-        // Get the TileSetSource for the tile
-        var tileSetSource = tileSet.GetSource(sourceId) as TileSetAtlasSource;
-
-        GD.Print($"Cell ({cellPosition.X}, {cellPosition.Y}): SourceId = {sourceId}, AtlasCoords = {atlasCoords}"); 
-
-        if (tileSetSource != null)
+        // Iterate over each cell in the GridMap
+        for (int x = 0; x < MapWidth; x++)
         {
-            // Get the texture region for the tile
-            var textureRegion = tileSetSource.GetTileTextureRegion(atlasCoords);
+            for (int z = 0; z < MapHeight; z++)
+            {
+                // Get the tile ID from the GridMap
+                int tileId = GridMap.GetCellItem(new Vector3I(x, 0, z));
 
-            // Debug: Print texture region information
-            GD.Print($"Cell ({cellPosition.X}, {cellPosition.Y}): TextureRegion = {textureRegion}");
+                // Convert the tile ID to a TileType
+                TileType type = tileId switch
+                {
+                    0 => TileType.Grass,
+                    1 => TileType.Road,
+                    2 => TileType.Water,
+                    3 => TileType.Mountain,
+                    _ => TileType.Grass // Default to Grass if the tile ID is unknown
+                };
 
-            // Return the atlas texture (the entire texture sheet)
-            return tileSetSource.Texture;
-        }
+                // Create a new Tile object and store it in the 3D tiles array
+                Scenes.TileMap.Map[x, z] = new Tile(type);
 
-        return null; // Return null if no texture is found
-    }
-
-    private static TileType MapTerrainToTileType(int terrain)
-    {
-        // Map terrain data to TileType based on your game's logic
-        // Example mapping:
-        switch (terrain)
-        {
-            case 0: // Example: Terrain 0 is Grass
-                return TileType.Grass;
-            case 1: // Example: Terrain 1 is Water
-                return TileType.Water;
-            case 2: // Example: Terrain 2 is Mountain
-                return TileType.Mountain;
-            case 3: // Example: Terrain 3 is Forest
-                return TileType.Forest;
-            case 4: // Example: Terrain 4 is Town
-                return TileType.Town;
-            default:
-                return TileType.Grass; // Default to Grass
+                // Visualize the tile in 3D space
+                VisualizeTile(x, z, Scenes.TileMap.Map[x, z]);
+            }
         }
     }
 
-	private void InitializeGrid()
+    private void VisualizeTile(int x, int z, Tile tile)
+    {
+        // Determine which 3D model to use based on the tile type
+        PackedScene modelScene = null;
+        switch (tile.Type)
+        {
+            case TileType.Grass:
+                GD.Print("Loaded Grass");
+                break;
+            case TileType.Road:
+                GD.Print("Loaded Road");
+                break;
+            case TileType.Water:
+                GD.Print("Loaded Water");
+                break;
+            case TileType.Mountain:
+                GD.Print("Loaded Mountain");
+                break;
+        }
+
+        if (modelScene != null)
+        {
+            // Instantiate the 3D model
+            var modelInstance = modelScene.Instantiate<MeshInstance3D>();
+
+            // Position the model in 3D space
+            modelInstance.Position = new Vector3(x * GridPositionConverter, 0, z * GridPositionConverter);
+
+            // Add the model to the scene
+            AddChild(modelInstance);
+
+            // Store the model in the Tile object
+            tile.TileMesh = modelInstance;
+        }
+        tile.TileMesh = null;
+    }
+
+	private void InitializeGridLegacy()
     {
         Scenes.TileMap.Map = new Tile[MapWidth, MapHeight];
 
@@ -141,15 +124,14 @@ public partial class TilesMap : Node3D, IMapInitializable
                 // Randomize tile types for variety
                 TileType type = (TileType)GD.RandRange(0, 4); // Randomly assign a tile type
                 Scenes.TileMap.Map[x, z] = new Tile(type);
-                VisualizeTile(x, z);
+                VisualizeTileLegacy(x, z);
             }
         }
     }
 
-	private void VisualizeTile(int x, int z)
+	private void VisualizeTileLegacy(int x, int z)
     {
 
-        var tile = Scenes.TileMap.Map[x, z];
         // Create a visual representation for the tile
         var meshInstance = new MeshInstance3D();
         meshInstance.Mesh = new QuadMesh();

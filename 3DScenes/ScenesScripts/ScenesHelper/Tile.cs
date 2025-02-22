@@ -22,6 +22,9 @@ public class Tile
 
         var material = new StandardMaterial3D();
         material.AlbedoTexture = texture; // Set the texture from the TileMap
+
+        // Stretch the texture to fit the tile
+        material.Uv1Scale = new Vector3(0.25f, 0.25f, 1); // Scale the texture to cover the entire tile
         TileMesh.MaterialOverride = material;
 
     }

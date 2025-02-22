@@ -8,14 +8,16 @@ namespace Scenes;
 
 public partial class TileMap : Node3D
 {
-	[Export] public int MapWidth { get; set; } = 50; // Example map size
-    [Export] public int MapHeight { get; set; } = 50;
-	[Export] public float GridPositionConverter { get; set; } = 2f;	
+	[Export] public int MapWidth { get; set; }
+    [Export] public int MapHeight { get; set; }
+    [Export] public GridMap GridMapT { get; set; }
     public static Tile[,] Map { get; set; } 
 
+    private float GridPositionConverter { get; set; } = 2f;
 
 	public override void _Ready()
 	{	
+        AdjustGridMapCellSize();
 		InitializeMap();
 		InitializeChildren();
 		Pathfinder3D.Initialize(Map);
@@ -65,4 +67,21 @@ public partial class TileMap : Node3D
 		CharacterHelper.MapHeight = MapHeight;
 		CharacterHelper.GridPositionConverter = GridPositionConverter;
 	}
+
+    private void AdjustGridMapCellSize()
+    {
+        if (GridMapT == null)
+        {
+            GD.PrintErr("GridMap is not assigned!");
+            return;
+        }
+
+        if(!GridMapT.CellSize.X.Equals(GridMapT.CellSize.Z))
+        {
+            GD.PrintErr($"GridMap x and z axis should be equal. Actual X: {GridMapT.CellSize.X}, Z: {GridMapT.CellSize.Z}. Default set: {GridPositionConverter}");
+            return;
+        }
+
+        GridPositionConverter = GridMapT.CellSize.X;
+    }
 }

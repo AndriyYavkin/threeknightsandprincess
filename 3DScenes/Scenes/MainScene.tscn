@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://v246ih4rqt23"]
+[gd_scene load_steps=15 format=3 uid="uid://v246ih4rqt23"]
 
 [ext_resource type="PackedScene" uid="uid://balc5ja7v6yda" path="res://Characters/CharactersNodes/CharacterTest.tscn" id="1_5352l"]
 [ext_resource type="PackedScene" uid="uid://pos74ns0mk3e" path="res://3DScenes/Scenes/floor_test.tscn" id="2_rcurs"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://d1ibgmayrxbse" path="res://3DScenes/Scenes/tile_map.tscn" id="5_6apj6"]
 [ext_resource type="PackedScene" uid="uid://c1m3w4e2n7r00" path="res://3DScenes/TileScenes/tiles_map.tscn" id="5_d08vo"]
 [ext_resource type="PackedScene" uid="uid://ebv8c5j0wpum" path="res://3DScenes/TileScenes/objects_map.tscn" id="6_0pdk1"]
+[ext_resource type="PackedScene" uid="uid://bft44fbgpraii" path="res://3DScenes/TileScenes/grid_map.tscn" id="6_2lp8x"]
 [ext_resource type="PackedScene" uid="uid://chhib8hcmpig0" path="res://Characters/CharactersNodes/Entities/entityTest.tscn" id="6_d0rmp"]
 [ext_resource type="PackedScene" uid="uid://bykmw0r3iiq8u" path="res://3DScenes/Objects/TestObject.tscn" id="6_iy2th"]
 [ext_resource type="PackedScene" uid="uid://cdgmbhmcqccev" path="res://3DScenes/Objects/test_decoration.tscn" id="7_sn06o"]
@@ -28,14 +29,23 @@ omni_range = 527.098
 omni_attenuation = 1.16
 
 [node name="FloorTest" parent="." instance=ExtResource("2_rcurs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0154343, -0.251927, -1.49215)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0154343, -0.453357, -1.49215)
 
 [node name="MeshInstance3D" parent="." instance=ExtResource("3_eociv")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.610164, 2.30358)
 
-[node name="TileMap" parent="." instance=ExtResource("5_6apj6")]
+[node name="TileMap" parent="." node_paths=PackedStringArray("GridMapT") instance=ExtResource("5_6apj6")]
+MapWidth = 50
+MapHeight = 50
+GridMapT = NodePath("TilesMap/GridMap")
 
-[node name="TilesMap" parent="TileMap" instance=ExtResource("5_d08vo")]
+[node name="TilesMap" parent="TileMap" node_paths=PackedStringArray("GridMap") instance=ExtResource("5_d08vo")]
+GridMap = NodePath("GridMap")
+
+[node name="GridMap" parent="TileMap/TilesMap" instance=ExtResource("6_2lp8x")]
+data = {
+"cells": PackedInt32Array(0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 65535, 0, 1, 65535, 0, 2, 65535, 0, 2, 0, 0, 2, 1, 0, 1, 2, 0, 0, 2, 0, 65535, 2, 0, 65535, 1, 0, 65534, 1, 0, 65534, 0, 0, 65535, 65535, 0, 65535, 65534, 0, 0, 65534, 0, 1, 65534, 0, 2, 65534, 0, 3, 0, 0, 3, 1, 0, 2, 2, 0, 65535, 0, 0, 3, 65535, 0, 1, 3, 0, 2, 3, 0, 3, 3, 0, 3, 2, 0, 3, 4, 0, 3, 5, 0)
+}
 
 [node name="DecorationsMap" parent="TileMap" instance=ExtResource("5_4tluh")]
 
