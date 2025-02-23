@@ -60,6 +60,8 @@ public static class TileMapHelper
                 if (x >= 0 && x < MapWidth && z >= 0 && z < MapHeight)
                 {
                     var tile = Scenes.TileMap.Map[x, z];
+                    GD.Print(tile);
+                    GD.Print(x,z);
                     if(tile.IsPassable)
                     {
                         tile.IsPassable = false;

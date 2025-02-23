@@ -5,6 +5,7 @@ namespace ScenesHelper;
 /// </summary>
 public enum TileType
 {
+    NotDefined,
     Grass,
     Water,
     Mountain,

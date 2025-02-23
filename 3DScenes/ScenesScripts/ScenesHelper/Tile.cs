@@ -11,21 +11,22 @@ public class Tile
     public bool IsEntity { get; set; } = false;
 
     public Tile(TileType type, Texture2D texture = null)
-    {
+    {   
         Type = type;
-        IsPassable = type != TileType.Water && type != TileType.Mountain; 
+        IsPassable = type != TileType.Water && type != TileType.Mountain && type != TileType.NotDefined; 
 
         TileMesh = new MeshInstance3D();
-        TileMesh.Mesh = new QuadMesh(); // Default to a quad mesh
-        TileMesh.RotateX(Mathf.DegToRad(-90));
 
+        if (type == TileType.NotDefined)
+        {
+            // Use a QuadMesh for undefined tiles
+            TileMesh.Mesh = new QuadMesh();
+            TileMesh.RotateX(Mathf.DegToRad(-90)); // Rotate to lie flat on the ground
 
-        var material = new StandardMaterial3D();
-        material.AlbedoTexture = texture; // Set the texture from the TileMap
-
-        // Stretch the texture to fit the tile
-        material.Uv1Scale = new Vector3(0.25f, 0.25f, 1); // Scale the texture to cover the entire tile
-        TileMesh.MaterialOverride = material;
-
+            // Apply a default material (optional)
+            var material = new StandardMaterial3D();
+            material.AlbedoColor = new Color(0.5f, 0.5f, 0.5f); // Gray color for undefined tiles
+            TileMesh.MaterialOverride = material;
+        }
     }
 }
