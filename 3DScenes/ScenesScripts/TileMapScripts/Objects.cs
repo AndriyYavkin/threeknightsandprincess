@@ -27,21 +27,6 @@ public partial class Objects : Node3D , IMapInitializable
         AssignObjectsToTiles();
     }
 
-    public void HandleObjectInteraction(Vector3 characterPosition)
-    {
-        int gridX = (int)Math.Round(characterPosition.X / GridPositionConverter);
-        int gridZ = (int)Math.Round(characterPosition.Z / GridPositionConverter);
-
-        if (gridX >= 0 && gridX < MapWidth && gridZ >= 0 && gridZ < MapHeight)
-        {
-            var tile = Scenes.TileMap.Map[gridX, gridZ];
-            if (tile.Object is IInteractable interactable)
-            {
-                interactable.Interact(CharacterHelper.Character);
-            }
-        }
-    }
-
     private void AssignObjectsToTiles()
     {
         foreach (Node child in GetChildren())

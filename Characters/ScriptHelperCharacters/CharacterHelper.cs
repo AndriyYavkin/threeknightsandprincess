@@ -162,6 +162,28 @@ namespace GameHelperCharacters
             }
         }
 
+        public static void PickUpItem(Tile tile)
+        {
+            if (tile.Object != null)
+            {
+                if (tile.Object is IItem item)
+                {
+                    Character.Inventory.AddItem(item);
+                    GD.Print($"{Character.Name} picked up {item.Name}.");
+
+                    // Remove the object from the tile
+                    tile.Object.QueueFree();
+                    tile.Object = null;
+
+                    Pathfinder3D.UpdateTileState(tile.PositionGrid, true);
+                }
+                else
+                {
+                    GD.PrintErr("Tile object is not an IItem.");
+                }
+            }
+        }
+
         /// <summary>
         /// Method made in order to maintain readability of HandleCharacterMovements
         /// </summary>
