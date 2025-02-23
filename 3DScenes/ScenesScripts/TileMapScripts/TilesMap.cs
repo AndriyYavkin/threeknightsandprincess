@@ -33,6 +33,13 @@ public partial class TilesMap : Node3D, IMapInitializable
                 // Get the tile ID from the GridMap
                 int tileId = GridMap.GetCellItem(new Vector3I(x, 0, z));
 
+                if(tileId == -1)
+                {
+                    Scenes.TileMap.Map[x, z] = new Tile(TileType.NotDefined);
+                    VisualizeTile(x, z, Scenes.TileMap.Map[x, z]);
+                    continue;
+                }
+
                 string tileName = GridMap.MeshLibrary.GetItemName(tileId);
                 // Convert the tile ID to a TileType
                 TileType type = tileName switch
