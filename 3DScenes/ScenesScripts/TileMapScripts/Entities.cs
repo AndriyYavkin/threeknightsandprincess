@@ -51,7 +51,7 @@ public partial class Entities : Node3D, IMapInitializable
             var tile = Scenes.TileMap.Map[gridX, gridZ];
             tile.Object = entityNode;
             tile.IsEntity = true;
-            entityNode.Position = new Vector3(gridX * 2, 1 , gridZ * 2);
+            entityNode.Position = new Vector3(gridX * GridPositionConverter, 1 , gridZ * GridPositionConverter);
         }
         else
         {

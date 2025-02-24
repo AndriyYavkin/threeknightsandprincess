@@ -164,23 +164,34 @@ namespace GameHelperCharacters
 
         public static void PickUpItem(Tile tile)
         {
-            if (tile.Object != null)
+            if (tile == null || tile.Object == null)
+                return;
+
+            // Ensure the character is standing exactly on the tile before picking up
+            if (Character.GridPosition != tile.PositionGrid)
+                return; // Ignore items from tiles we are not actually standing on
+
+            if (tile.Object is IItem item)
             {
-                if (tile.Object is IItem item)
+                if (Character.Inventory == null)
                 {
-                    Character.Inventory.AddItem(item);
-                    GD.Print($"{Character.Name} picked up {item.Name}.");
-
-                    // Remove the object from the tile
-                    tile.Object.QueueFree();
-                    tile.Object = null;
-
-                    Pathfinder3D.UpdateTileState(tile.PositionGrid, true);
+                    GD.PrintErr("Character inventory is null!");
+                    return;
                 }
-                else
-                {
-                    GD.PrintErr("Tile object is not an IItem.");
-                }
+
+                Character.Inventory.AddItem(item);
+                GD.Print($"{Character.Name} picked up {item.Name}.");
+
+                // Remove the object from the world
+                tile.Object.QueueFree();
+                tile.Object = null;
+
+                // Update pathfinding to mark tile as passable
+                Pathfinder3D.UpdateTileState(tile.PositionGrid, true);
+            }
+            else
+            {
+                GD.PrintErr($"Tile object is not an IItem. Type: {tile.Object.GetType().Name}");
             }
         }
 
@@ -218,6 +229,17 @@ namespace GameHelperCharacters
             {
                 GD.Print("Not enough movement points or target is unreachable!");
             }
+        }
+
+        private static Tile GetCharacterCurrentTile()
+        {
+            if (Character.GridPosition.X >= 0 && Character.GridPosition.X < Scenes.TileMap.Map.GetLength(0) &&
+                Character.GridPosition.Z >= 0 && Character.GridPosition.Z < Scenes.TileMap.Map.GetLength(1))
+            {
+                return Scenes.TileMap.Map[Character.GridPosition.X, Character.GridPosition.Z];
+            }
+
+            return null;
         }
 
         /// <summary>

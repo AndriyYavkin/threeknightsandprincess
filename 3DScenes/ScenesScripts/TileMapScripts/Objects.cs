@@ -49,7 +49,7 @@ public partial class Objects : Node3D , IMapInitializable
                 var tile = Scenes.TileMap.Map[gridX, gridZ];
                 tile.Object = obj;
                 tile.IsEntity = false;
-                obj.Position = new Vector3(gridX * 2, 0 , gridZ * 2);
+                obj.Position = new Vector3(gridX * GridPositionConverter, 0 , gridZ * GridPositionConverter);
             }
             else
             {

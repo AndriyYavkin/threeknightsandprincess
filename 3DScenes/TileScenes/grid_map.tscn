@@ -76,6 +76,7 @@ item/5/navigation_layers = 1
 
 [node name="GridMap" type="GridMap"]
 mesh_library = SubResource("MeshLibrary_pegt2")
+cell_size = Vector3(1, 2, 1)
 cell_center_x = false
 cell_center_y = false
 cell_center_z = false
