@@ -54,7 +54,7 @@ public partial class TilesMap : Node3D, IMapInitializable
         }
 
         // Iterate over each cell in the GridMap
-        Parallel.For(0, MapWidth, x =>
+        for(int x = 0; x < MapWidth; x++)
         {
             for (int z = 0; z < MapHeight; z++)
             {
@@ -82,7 +82,7 @@ public partial class TilesMap : Node3D, IMapInitializable
                 Scenes.TileMap.Map[x, z] = new Tile(type);
                 VisualizeTile(x, z, Scenes.TileMap.Map[x, z]);
             }
-        });
+        }
     }
 
     /// <summary>
