@@ -1,325 +1,353 @@
-using System;
 using System.Collections.Generic;
 using Characters;
 using Godot;
 using Godot.Collections;
 using ScenesHelper;
+using ObjectsScripts;
+using System;
 
-namespace GameHelperCharacters
+namespace GameHelperCharacters;
+
+/// <summary>
+/// Provides helper methods for character movement, pathfinding, and interaction.
+/// </summary>
+public static class CharacterHelper
 {
     /// <summary>
-    /// Class to help with basics characters features. moving character, path finding. Only player's characters should use this class!
+    /// Event triggered when the character starts moving.
     /// </summary>
-    public static class CharacterHelper
+    public static event Action OnMovementStarted;
+
+    /// <summary>
+    /// Event triggered when the character stops moving.
+    /// </summary>
+    public static event Action OnMovementStopped;
+
+    /// <summary>
+    /// Event triggered when a path is calculated.
+    /// </summary>
+    public static event Action<List<Vector3I>> OnPathCalculated;
+
+    /// <summary>
+    /// The speed of the character.
+    /// </summary>
+    public static float Speed { get; set; }
+
+    /// <summary>
+    /// The width of the map in tiles.
+    /// </summary>
+    public static int MapWidth { get; set; }
+
+    /// <summary>
+    /// The height of the map in tiles.
+    /// </summary>
+    public static int MapHeight { get; set; }
+
+    /// <summary>
+    /// The size of each grid cell in world units.
+    /// </summary>
+    public static float GridPositionConverter { get; set;} 
+
+    private static Camera3D _mainCamera { get; set; }
+    private static CharacterTest3D _character { get; set; }
+    private static PackedScene _pathMarkerScene { get; set; } // Scene for path markers
+    private static List<Node3D> _pathMarkers = new(); // Store path markers
+    private static List<Vector3I> _pathPoints = new(); // Store path points
+    private static int _currentPathIndex = 0;
+    private static bool _isTargetSelected = false; // Track if a target is selected
+    private static bool _isMoving = false; 
+    private static bool _stopAfterNextPoint = false;
+
+    /// <summary>
+    /// Initializes the CharacterHelper with the main camera and character.
+    /// </summary>
+    /// <param name="mainCamera">The main camera.</param>
+    /// <param name="character">The character.</param>
+    /// <param name="pathMarkerScene">The scene used for path markers.</param>
+    public static void Initialize(Camera3D mainCamera, CharacterTest3D character, PackedScene pathMarkerScene)
     {
-        public static Camera3D mainCamera { get; set; }
-        public static CharacterTest3D Character { get; set; }
-        public static PackedScene pathMarkerScene { get; set; } // Scene for path markers
-        public static float Speed { get; set; }
-        public static int MapWidth { get; set; }
-        public static int MapHeight { get; set; }
-        public static float GridPositionConverter { get; set;} 
+        _mainCamera = mainCamera ?? throw new ArgumentNullException(nameof(mainCamera));
+        _character = character ?? throw new ArgumentNullException(nameof(character));
+        _pathMarkerScene = pathMarkerScene ?? throw new ArgumentNullException(nameof(pathMarkerScene));
+    }
 
-        private static List<Node3D> _pathMarkers = new(); // Store path markers
-        private static List<Vector3I> _pathPoints = new(); // Store path points
-        private static int _currentPathIndex = 0;
-        private static bool _isTargetSelected = false; // Track if a target is selected
-        private static bool _isMoving = false; 
-        private static bool _stopAfterNextPoint = false;
 
-        ///<summary>
-        ///<para>Returns Vector3 velocity. Works with movements</para>
-        ///<para> <b>Note:</b> Should be usen in _PhysicsProcess</para>
-        ///</summary>
-        public static Vector3 HandlePlayerMovementsPhysics()
+    /// <summary>
+    /// Handles character movement physics.
+    /// </summary>
+    /// <returns>The velocity vector for the character.</returns>
+    public static Vector3 HandlePlayerMovementsPhysics()
+    {
+        Vector3 velocity = _character.Velocity;
+
+        if (_isMoving && _currentPathIndex < _pathPoints.Count)
         {
-            Vector3 velocity = Character.Velocity;
-            // Handle movement toward target position
+            var targetGridPosition = _pathPoints[_currentPathIndex];
+            var targetPosition = GridToWorldPosition(targetGridPosition, _character.Position.Y);
 
-            // If there is only 1 pathpoint, we should set our path index to 0 so our next if statement will work
-            if(_pathPoints.Count == 1)
+            Vector3 direction = (targetPosition - _character.GlobalPosition).Normalized();
+            velocity = direction * Speed;
+
+            float distanceToTarget = _character.GlobalPosition.DistanceTo(targetPosition);
+
+            if (distanceToTarget <= 0.1f)
             {
-                _currentPathIndex = 0;
-            }
-            
-            if (_isMoving && _currentPathIndex < _pathPoints.Count)
-            {
-                var targetGridPosition = _pathPoints[_currentPathIndex];
-                var targetPosition = new Vector3(
-                    targetGridPosition.X * GridPositionConverter,
-                    Character.Position.Y, // Keep the character's Y position
-                    targetGridPosition.Z * GridPositionConverter
-                );
+                GD.Print("Reached point: ", targetGridPosition);
+                GD.Print("Index: ", _currentPathIndex);
+                ClearPassedPathMarkers(_currentPathIndex);
+                _character.GlobalPosition = targetPosition;
 
-                Vector3 direction = new Vector3(
-                    targetPosition.X - Character.GlobalPosition.X,
-                    0, // Ignore Y-axis
-                    targetPosition.Z - Character.GlobalPosition.Z
-                ).Normalized();
-
-                velocity = direction * Speed;
-                float distanceToTarget = Character.GlobalPosition.DistanceTo(targetPosition);
-
-                // If the character is close to the target, move directly to it
-                if (distanceToTarget <= 0.1f)
+                if (_stopAfterNextPoint)
                 {
-                    GD.Print("Reached point: ", targetGridPosition);
-                    GD.Print("index:", _currentPathIndex);
-                    ClearPassedPathMarkers(_currentPathIndex);
-                    // Snap to the exact target position
-                    Character.GlobalPosition = targetPosition;
+                    StopMovement();
+                }
+                else
+                {
+                    _currentPathIndex++;
 
-                    if(_stopAfterNextPoint)
-                    {   
-                        velocity = Vector3.Zero;
-                        _isMoving = false;
-                        _stopAfterNextPoint = false;
-                        _currentPathIndex = 0;
-                        ClearPathMarkers();
-                    }
-                    else
+                    if (_currentPathIndex >= _pathPoints.Count)
                     {
-                        // Move to the next point in the path
-                        _currentPathIndex++;
-                        // If the character has reached the end of the path, stop moving
-                        if (_currentPathIndex >= _pathPoints.Count)
-                        {
-                            // Ensure the character is exactly at the center of the last tile
-                            Character.GlobalPosition = new Vector3(
-                                _pathPoints[_pathPoints.Count - 1].X * GridPositionConverter,
-                                Character.Position.Y,
-                                _pathPoints[_pathPoints.Count - 1].Z * GridPositionConverter
-                            );
-
-                            // Reset all the movement
-                            velocity = Vector3.Zero;
-                            _isMoving = false;
-                            _stopAfterNextPoint = false;
-                            _currentPathIndex = 0;
-                            ClearPathMarkers();
-                            GD.Print("Movement stopped!");
-                        }
+                        _character.GlobalPosition = GridToWorldPosition(_pathPoints[^1], _character.Position.Y);
+                        StopMovement();
+                        GD.Print("Movement stopped!");
                     }
-
                 }
+            }
+        }
+        else
+        {
+            velocity.X = Mathf.MoveToward(_character.Velocity.X, 0, Speed);
+            velocity.Z = Mathf.MoveToward(_character.Velocity.Z, 0, Speed);
+        }
+
+        return velocity;
+    }
+
+    /// <summary>
+    /// Picks up an item from the current tile.
+    /// </summary>
+    /// <param name="tile">The tile containing the item.</param>
+    public static void PickUpItem(Tile tile)
+    {
+        if (tile == null || tile.Object == null || _character == null)
+            return;
+
+        if (_character.GridPosition != tile.PositionGrid)
+            return;
+
+        if (tile.Object is IItem item)
+        {
+            if (_character.Inventory == null)
+            {
+                GD.PrintErr("Character inventory is null!");
+                return;
+            }
+
+            _character.Inventory.AddItem(item);
+            GD.Print($"{_character.Name} picked up {item.ItemName}.");
+
+            tile.Object.QueueFree();
+            tile.Object = null;
+
+            Pathfinder3D.UpdateTileState(tile.PositionGrid, true);
+        }
+        else
+        {
+            GD.PrintErr($"Tile object is not an IItem. Type: {tile.Object.GetType().Name}");
+        }
+    }
+
+    /// <summary>
+    /// Handles character movement input based on mouse position.
+    /// </summary>
+    /// <param name="mousePos">The mouse position.</param>
+    /// <param name="space">The physics space state.</param>
+    public static void HandleCharacterMovements(Vector2 mousePos, PhysicsDirectSpaceState3D space)
+    {
+        if (_mainCamera == null)
+        {
+            GD.PrintErr("Camera is null!");
+            return;
+        }
+
+        if (_isMoving)
+        {
+            _stopAfterNextPoint = true;
+            GD.Print("Movement interrupted!");
+            return;
+        }
+
+        // Create a ray from the camera
+        Vector3 from = _mainCamera.ProjectRayOrigin(mousePos);
+        Vector3 to = from + _mainCamera.ProjectRayNormal(mousePos) * 100f; // Ray length
+
+        PhysicsRayQueryParameters3D query = PhysicsRayQueryParameters3D.Create(from, to);
+        Dictionary result = space.IntersectRay(query);
+
+        if (result.Count > 0)
+        {
+            // Snap the target position to the grid
+            var hitPosition = (Vector3)result["position"];
+            var targetGridPosition = WorldToGridPosition(hitPosition);
+
+            // Check if the target position is valid and passable
+            if (IsPositionValid(targetGridPosition) && Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z].IsPassable)
+            {
+                // Calculate path using the pathfinder
+                PathingAndMoving(targetGridPosition);
             }
             else
             {
-                // Stop movement if no target
-                velocity.X = Mathf.MoveToward(Character.Velocity.X, 0, Speed);
-                velocity.Z = Mathf.MoveToward(Character.Velocity.Z, 0, Speed);
-            }
-            
-            return velocity;
-        }
-
-        ///<summary>
-        ///<para>Finds what position player clicked, translating position to tiles</para>
-        ///<para> <b>Note:</b> Should be usen in _UnhandledEvents</para>
-        ///</summary>
-        public static void HandleCharacterMovements(Vector2 mousePos, PhysicsDirectSpaceState3D space)
-        {
-            if (mainCamera == null)
-            {
-                GD.PrintErr("Camera is null!");
-                return;
-            }
-
-            if (_isMoving)
-            {
-                _stopAfterNextPoint = true;
-                GD.Print("Movement interrupted!");
-                return;
-            }
-
-            // Create a ray from the camera
-            Vector3 from = mainCamera.ProjectRayOrigin(mousePos);
-            Vector3 to = from + mainCamera.ProjectRayNormal(mousePos) * 100f; // Ray length
-
-            PhysicsRayQueryParameters3D query = PhysicsRayQueryParameters3D.Create(from, to);
-            Dictionary result = space.IntersectRay(query);
-
-            if (result.Count > 0)
-            {
-                // Snap the target position to the grid
-                var hitPosition = (Vector3)result["position"];
-                var targetGridPosition = new Vector3I(
-                    Mathf.RoundToInt(hitPosition.X / GridPositionConverter), // Adjust scaling as needed
-                    0,
-                    Mathf.RoundToInt(hitPosition.Z / GridPositionConverter)
-                );
-
-                // Check if the target position is valid and passable
-                if (IsPositionValid(targetGridPosition) && Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z].IsPassable)
-                {
-                    // Calculate path using the pathfinder
-                    PathingAndMovingRf(targetGridPosition);
-                }
-                else
-                {
-                    GD.Print("Cannot move to this tile!");
-                }
+                GD.Print("Cannot move to this tile!");
             }
         }
+    }
 
-        public static void PickUpItem(Tile tile)
+    /// <summary>
+    /// Calculates and visualizes a path to the target position.
+    /// </summary>
+    /// <param name="targetGridPosition">The target grid position.</param>
+    private static void PathingAndMoving(Vector3I targetGridPosition)
+    {
+        var startGridPosition = WorldToGridPosition(_character.GlobalPosition);
+        var path = Pathfinder3D.FindPath(startGridPosition, targetGridPosition);
+
+        if (path.Count > 0 && path.Count <= _character.RemainingMovement)
         {
-            if (tile == null || tile.Object == null)
-                return;
-
-            // Ensure the character is standing exactly on the tile before picking up
-            if (Character.GridPosition != tile.PositionGrid)
-                return; // Ignore items from tiles we are not actually standing on
-
-            if (tile.Object is IItem item)
+            if (!_isTargetSelected || (_isTargetSelected && _pathPoints[^1] != targetGridPosition))
             {
-                if (Character.Inventory == null)
-                {
-                    GD.PrintErr("Character inventory is null!");
-                    return;
-                }
-
-                Character.Inventory.AddItem(item);
-                GD.Print($"{Character.Name} picked up {item.Name}.");
-
-                // Remove the object from the world
-                tile.Object.QueueFree();
-                tile.Object = null;
-
-                // Update pathfinding to mark tile as passable
-                Pathfinder3D.UpdateTileState(tile.PositionGrid, true);
+                ClearPathMarkers();
+                VisualizePath(path);
+                _isTargetSelected = true;
             }
             else
             {
-                GD.PrintErr($"Tile object is not an IItem. Type: {tile.Object.GetType().Name}");
+                StartMovement(targetGridPosition);
             }
         }
-
-        /// <summary>
-        /// Method made in order to maintain readability of HandleCharacterMovements
-        /// </summary>
-        private static void PathingAndMovingRf(Vector3I targetGridPosition)
+        else
         {
-            var path = Pathfinder3D.FindPath(new Vector3I(
-                Mathf.RoundToInt(Character.GlobalPosition.X / GridPositionConverter),
-                0,
-                Mathf.RoundToInt(Character.GlobalPosition.Z / GridPositionConverter)
-            ), targetGridPosition);
-
-            if (path.Count > 0 && path.Count <= Character.RemainingMovement)
-            {
-                if (!_isTargetSelected || (_isTargetSelected && _pathPoints[^1] != targetGridPosition))
-                {
-                    // First click: Select the target and visualize the path
-                    ClearPathMarkers();
-                    VisualizePath(path);
-                    _isTargetSelected = true;
-                }
-                else
-                {
-                    _isMoving = true;
-                    Character.GridPosition = targetGridPosition;
-                    _isTargetSelected = false; // Reset target selection
-                    _stopAfterNextPoint = false;
-                    GD.Print($"Path: {string.Join(" -> ", _pathPoints)}");
-                    _currentPathIndex = 0;
-                }
-            }
-            else
-            {
-                GD.Print("Not enough movement points or target is unreachable!");
-            }
+            GD.Print("Not enough movement points or target is unreachable!");
         }
+    }
 
-        private static Tile GetCharacterCurrentTile()
+    /// <summary>
+    /// Visualizes the calculated path using markers.
+    /// </summary>
+    /// <param name="path">The path to visualize.</param>
+    private static void VisualizePath(List<Vector3I> path)
+    {
+        _pathPoints.Clear();
+        _pathPoints.AddRange(path);
+
+        for (int i = 0; i < path.Count; i++)
         {
-            if (Character.GridPosition.X >= 0 && Character.GridPosition.X < Scenes.TileMap.Map.GetLength(0) &&
-                Character.GridPosition.Z >= 0 && Character.GridPosition.Z < Scenes.TileMap.Map.GetLength(1))
+            Vector3 worldPosition = GridToWorldPosition(path[i], 0);
+            var marker = _pathMarkerScene.Instantiate<Node3D>();
+            _character.GetTree().CurrentScene.AddChild(marker);
+            marker.GlobalPosition = worldPosition;
+
+            if (i < path.Count - 1)
             {
-                return Scenes.TileMap.Map[Character.GridPosition.X, Character.GridPosition.Z];
+                Vector3 nextPosition = GridToWorldPosition(path[i + 1], 0);
+                Vector3 direction = (nextPosition - worldPosition).Normalized();
+                marker.LookAt(worldPosition + direction, Vector3.Up);
             }
 
-            return null;
+            _pathMarkers.Add(marker);
         }
 
-        /// <summary>
-        /// Visualize path of the character to the point player chose.
-        /// </summary>
-        /// <param name="path">Need it to be Pathfinder3D.FindPath(...)</param>
-        private static void VisualizePath(List<Vector3I> path)
+        OnPathCalculated?.Invoke(path);
+    }
+
+    /// <summary>
+    /// Starts character movement along the calculated path.
+    /// </summary>
+    /// <param name="targetGridPosition">The target grid position.</param>
+    private static void StartMovement(Vector3I targetGridPosition)
+    {
+        _isMoving = true;
+        _character.GridPosition = targetGridPosition;
+        _isTargetSelected = false;
+        _stopAfterNextPoint = false;
+        GD.Print($"Path: {string.Join(" -> ", _pathPoints)}");
+        _currentPathIndex = 0;
+        OnMovementStarted?.Invoke();
+    }
+
+    /// <summary>
+    /// Stops character movement.
+    /// </summary>
+    private static void StopMovement()
+    {
+        _isMoving = false;
+        _stopAfterNextPoint = false;
+        _currentPathIndex = 0;
+        ClearPathMarkers();
+        OnMovementStopped?.Invoke();
+    }
+
+    /// <summary>
+    /// Converts a grid position to a world position.
+    /// </summary>
+    /// <param name="gridPosition">The grid position.</param>
+    /// <param name="yPosition">The Y position in the world.</param>
+    /// <returns>The world position.</returns>
+    private static Vector3 GridToWorldPosition(Vector3I gridPosition, float yPosition)
+    {
+        return new Vector3(
+            gridPosition.X * GridPositionConverter,
+            yPosition,
+            gridPosition.Z * GridPositionConverter
+        );
+    }
+
+    /// <summary>
+    /// Converts a world position to a grid position.
+    /// </summary>
+    /// <param name="worldPosition">The world position.</param>
+    /// <returns>The grid position.</returns>
+    private static Vector3I WorldToGridPosition(Vector3 worldPosition)
+    {
+        return new Vector3I(
+            Mathf.RoundToInt(worldPosition.X / GridPositionConverter),
+            0,
+            Mathf.RoundToInt(worldPosition.Z / GridPositionConverter)
+        );
+    }
+
+    /// <summary>
+    /// Clears path markers up to the specified index.
+    /// </summary>
+    /// <param name="index">The index up to which markers should be cleared.</param>
+    private static void ClearPassedPathMarkers(int index)
+    {
+        for (int i = 0; i < index; i++)
         {
-            if (pathMarkerScene == null)
-            {
-                GD.PrintErr("Path marker scene is not set!");
-                return;
-            }
-
-            // Store the path points
-            _pathPoints = path;
-
-            for (int i = 0; i < path.Count; i++)
-            {
-                // Convert grid position to world position
-                Vector3 worldPosition = new Vector3(
-                    path[i].X * GridPositionConverter,
-                    0, // Y position for markers
-                    path[i].Z * GridPositionConverter
-                );
-
-                // Spawn a path marker
-                var marker = pathMarkerScene.Instantiate<Node3D>();
-                Character.GetTree().CurrentScene.AddChild(marker);
-                marker.GlobalPosition = worldPosition;
-
-                // Rotate the arrow to face the next point in the path
-                if (i < path.Count - 1)
-                {
-                    Vector3 nextPosition = new Vector3(
-                        path[i + 1].X * GridPositionConverter,
-                        0,
-                        path[i + 1].Z * GridPositionConverter
-                    );
-                    Vector3 direction = (nextPosition - worldPosition).Normalized();
-                    marker.LookAt(worldPosition + direction, Vector3.Up);
-                }
-
-                // Store the marker for later removal
-                _pathMarkers.Add(marker);
-            }
+            _pathMarkers[i].Visible = false;
         }
+    }
 
-        /// <summary>
-        /// Clears path markers as character moves 
-        /// </summary>
-        private static void ClearPassedPathMarkers(int index)
+    /// <summary>
+    /// Clears all path markers.
+    /// </summary>
+    private static void ClearPathMarkers()
+    {
+        foreach (var marker in _pathMarkers)
         {
-            for(int i = 0; i < index; i++)
-            {
-                _pathMarkers[i].Visible = false;
-            }
+            marker.QueueFree();
         }
-
-        /// <summary>
-        /// Clear all path markers character has
-        /// </summary>
-        private static void ClearPathMarkers()
-        {
-            foreach (var marker in _pathMarkers)
-            {
-                marker.QueueFree();
-            }
-            _pathMarkers.Clear();
-        }
-        
-        /// <summary>
-        ///  Checks if the position is inside of the boundaries of the map
-        /// </summary>
-        /// <param name="position"></param>
-        /// <returns></returns>
-        private static bool IsPositionValid(Vector3I position)
-        {
-            return position.X >= 0 && position.X < MapWidth &&
-                   position.Z >= 0 && position.Z < MapHeight;
-        }
+        _pathMarkers.Clear();
+    }
+    
+    /// <summary>
+    /// Checks if a grid position is valid.
+    /// </summary>
+    /// <param name="position">The grid position to check.</param>
+    /// <returns>True if the position is valid, otherwise false.</returns>
+    private static bool IsPositionValid(Vector3I position)
+    {
+        return position.X >= 0 && position.X < MapWidth &&
+                position.Z >= 0 && position.Z < MapHeight;
     }
 }

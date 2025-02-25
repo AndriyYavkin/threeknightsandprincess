@@ -1,6 +1,5 @@
 using System;
 using Godot;
-using ScenesHelper.TileMapScripts;
 
 namespace Characters.EntityModularNodesScripts;
 public partial class Entity : Node3D, IInteractable
@@ -8,20 +7,47 @@ public partial class Entity : Node3D, IInteractable
     [Export] public string EntityName { get; set; }
     [Export] public EntitiesTypes Type { get; set; }
 
+    /// <summary>
+    /// Event triggered when the entity is interacted with.
+    /// </summary>
+    public event Action<CharacterBody3D> OnInteracted;
+
+    /// <summary>
+    /// Event triggered when the entity is initialized.
+    /// </summary>
+    public event Action OnInitialized;
+
     public void Interact(CharacterBody3D character)
     {
-        GD.Print($"Hello from {Name}");
+        if (character == null)
+        {
+            GD.PrintErr("Cannot interact with a null character.");
+            throw new ArgumentNullException(nameof(character));
+        }
+
+        GD.Print($"Hello from {EntityName}");
+        OnInteracted?.Invoke(character);
     }
 
     public void Initialize()
     {
-        TypeCheck();
+        if (string.IsNullOrEmpty(EntityName))
+        {
+            GD.PrintErr("Entity name is not set!");
+            EntityName = "Unnamed Entity";
+        }
+
+        CheckType();
         GetAllModules();
+        OnInitialized?.Invoke();
     }
 
-    private void TypeCheck()
+    /// <summary>
+    /// Checks the entity's type and assigns a default type if not defined.
+    /// </summary>
+    private void CheckType()
     {
-        if(Type == EntitiesTypes.NotDefined)
+        if (Type == EntitiesTypes.NotDefined)
         {
             GD.PrintErr($"Type of Entity is not defined! Entity name: {EntityName}, type of it: {Type}. Neutral type is assigned!");
             Type = EntitiesTypes.Neutral;
@@ -29,16 +55,18 @@ public partial class Entity : Node3D, IInteractable
         else
         {
             GD.Print($"Entity is properly initialized named {EntityName}, with type {Type}");
-            //Initialize
         }
     }
 
+    /// <summary>
+    /// Gathers all child nodes (modules) of the entity.
+    /// </summary>
     private void GetAllModules()
     {
-        for(int i = 0; i < GetChildCount(); i++)
+        for (int i = 0; i < GetChildCount(); i++)
         {
             Node child = GetChild(i);
-            GD.Print($"Module with index {i} and name {child.Name} exist in {EntityName}. Type of it {child.GetType()}");
+            GD.Print($"Module with index {i} and name {child.Name} exists in {EntityName}. Type of it: {child.GetType()}");
         }
     }
 }

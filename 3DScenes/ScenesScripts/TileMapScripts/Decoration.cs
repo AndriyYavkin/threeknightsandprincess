@@ -1,8 +1,10 @@
-using System;
 using Godot;
 
 namespace ScenesHelper.TileMapScripts;
 
+/// <summary>
+/// Manages the placement and behavior of decorations on the tile map.
+/// </summary>
 public partial class Decoration : Node3D, IMapInitializable
 {
     public int MapWidth { get; set; }
@@ -19,6 +21,9 @@ public partial class Decoration : Node3D, IMapInitializable
         InitializeChildDecorations();
     }
 
+    /// <summary>
+    /// Initializes all child decorations and processes their properties.
+    /// </summary>
     private void InitializeChildDecorations()
     {
         foreach (Node child in GetChildren())
@@ -31,8 +36,18 @@ public partial class Decoration : Node3D, IMapInitializable
         }
     }
 
+    /// <summary>
+    /// Processes a decoration node, checking if it blocks movement and marking tiles accordingly.
+    /// </summary>
+    /// <param name="decorationNode">The decoration node to process.</param>
     private static void ProcessDecoration(MeshInstance3D decorationNode)
     {
+        if (!decorationNode.HasMeta("BlocksMovement"))
+        {
+            GD.Print($"Decoration {decorationNode.Name} does not have the 'BlocksMovement' meta. Assuming it does not block movement.");
+            return;
+        }
+
         bool blocksMovement = (bool)decorationNode.GetMeta("BlocksMovement", false);
 
         if (blocksMovement)
@@ -50,8 +65,10 @@ public partial class Decoration : Node3D, IMapInitializable
     }
 
     /// <summary>
-    /// Debug method to visualize what tiles were blocked via decorations
+    /// Debug method to visualize what tiles were blocked via decorations.
     /// </summary>
+    /// <param name="x">The x-coordinate of the tile in the grid.</param>
+    /// <param name="z">The z-coordinate of the tile in the grid.</param>
     private void VisualizeTile(int x, int z)
     {
         // Create a visual representation for the tile

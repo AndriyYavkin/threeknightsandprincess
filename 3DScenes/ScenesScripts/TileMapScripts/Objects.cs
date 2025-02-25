@@ -1,10 +1,11 @@
 using System;
-using GameHelperCharacters;
 using Godot;
 
 namespace ScenesHelper.TileMapScripts;
 
-
+/// <summary>
+/// Manages the placement of objects on the tile map.
+/// </summary>
 public partial class Objects : Node3D , IMapInitializable
 {
     public int MapWidth { get; set; }
@@ -27,6 +28,9 @@ public partial class Objects : Node3D , IMapInitializable
         AssignObjectsToTiles();
     }
 
+    /// <summary>
+    /// Assigns all child objects to their corresponding tiles on the map.
+    /// </summary>
     private void AssignObjectsToTiles()
     {
         foreach (Node child in GetChildren())
@@ -38,29 +42,32 @@ public partial class Objects : Node3D , IMapInitializable
         }
     }
 
+    /// <summary>
+    /// Assigns a specific object to a tile on the map.
+    /// </summary>
+    /// <param name="obj">The object to assign to a tile.</param>
     private void AssignObjectToTile(Node3D obj)
     {
         int gridX = (int)Math.Round(obj.Position.X / GridPositionConverter);
         int gridZ = (int)Math.Round(obj.Position.Z / GridPositionConverter);
-        if(Scenes.TileMap.Map[gridX,gridZ].Object is null)
+
+        if (gridX < 0 || gridX >= MapWidth || gridZ < 0 || gridZ >= MapHeight)
         {
-            if (gridX >= 0 && gridX < MapWidth && gridZ >= 0 && gridZ < MapHeight)
-            {
-                var tile = Scenes.TileMap.Map[gridX, gridZ];
-                tile.Object = obj;
-                tile.IsEntity = false;
-                obj.Position = new Vector3(gridX * GridPositionConverter, 0 , gridZ * GridPositionConverter);
-            }
-            else
-            {
-                GD.PrintErr($"Object {obj.Name} is outside the map boundaries! Object was deleted");
-                obj.QueueFree();
-            }
-        }
-        else
-        {
-            GD.PrintErr($"Object {obj.Name} can't be assigned! tile is already taken! Object was deleted");
+            GD.PrintErr($"Object {obj.Name} is outside the map boundaries! Object was deleted");
             obj.QueueFree();
+            return;
         }
+
+        var tile = Scenes.TileMap.Map[gridX, gridZ];
+        if (tile.Object != null)
+        {
+            GD.PrintErr($"Object {obj.Name} can't be assigned! Tile is already taken! Object was deleted");
+            obj.QueueFree();
+            return;
+        }
+
+        tile.Object = obj;
+        tile.IsEntity = false;
+        obj.Position = new Vector3(gridX * GridPositionConverter, 0, gridZ * GridPositionConverter);
     }
 }

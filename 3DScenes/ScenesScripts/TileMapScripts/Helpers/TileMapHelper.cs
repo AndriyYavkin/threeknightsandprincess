@@ -11,12 +11,18 @@ public static class TileMapHelper
 
 
     /// <summary>
-    /// Calculates what size will be decoration or object. 
+    /// Calculates the scaled size of a decoration or object based on its mesh.
     /// </summary>
-    /// <param name="decorationNode"></param>
-    /// <returns> Scaled size to maintain Aabb mesh</returns>
+    /// <param name="decorationNode">The node representing the decoration or object.</param>
+    /// <returns>The scaled size of the node's mesh.</returns>
     public static Vector3 CalculateSize(Node3D decorationNode)
     {
+        if (decorationNode == null)
+        {
+            GD.PrintErr("Decoration node is null.");
+            return Vector3.Zero;
+        }
+
         // Try to get the size from a MeshInstance3D
         var meshInstance = decorationNode.GetNodeOrNull<MeshInstance3D>("MeshInstance3D");
         if (meshInstance != null && meshInstance.Mesh != null)
@@ -40,8 +46,25 @@ public static class TileMapHelper
         return new Vector3(1, 1, 1) * decorationNode.Scale; // Apply scaling to default size
     }
 
+    /// <summary>
+    /// Marks tiles as non-passable based on the position and size of a decoration or object.
+    /// </summary>
+    /// <param name="usedNode">The node representing the decoration or object.</param>
+    /// <param name="size">The size of the decoration or object.</param>
     public static void MarkTilesAsNonPassable(Node3D usedNode, Vector3 size)
     {
+        if (usedNode == null)
+        {
+            GD.PrintErr("Used node is null.");
+            return;
+        }
+
+        if (size == Vector3.Zero)
+        {
+            GD.PrintErr("Size is zero.");
+            return;
+        }
+
         // Calculate the grid position of the decoration's center
         int centerX = (int)Math.Round(usedNode.Position.X / GridPositionConverter);
         int centerZ = (int)Math.Round(usedNode.Position.Z / GridPositionConverter);
@@ -60,10 +83,9 @@ public static class TileMapHelper
                 if (x >= 0 && x < MapWidth && z >= 0 && z < MapHeight)
                 {
                     var tile = Scenes.TileMap.Map[x, z];
-                    if(tile.IsPassable)
+                    if (tile.IsPassable)
                     {
-                        tile.IsPassable = false;
-                        // VisualizeTile(x,z); // 
+                        tile.SetPassable(false);
                         GD.Print($"Marked tile at ({x}, {z}) as non-passable due to decoration or object {usedNode.Name}");
                     }
                     GD.Print($"Tile at ({x}, {z}) was already not passable!");

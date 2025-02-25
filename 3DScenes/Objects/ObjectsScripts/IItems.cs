@@ -1,13 +1,13 @@
 using Godot;
 
-namespace GameHelperCharacters;
+namespace ObjectsScripts;
 
 public interface IItem
 {
     /// <summary>
     /// Name of the Item
     /// </summary>
-    string Name { get; }
+    string ItemName { get; }
 
     /// <summary>
     /// Method to pick up the item

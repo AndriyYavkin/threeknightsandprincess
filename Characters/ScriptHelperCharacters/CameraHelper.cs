@@ -1,44 +1,90 @@
+using System;
 using Godot;
 
 namespace GameHelperCharacters;
 
+/// <summary>
+/// Provides functionality for handling camera rotation and zooming in a 3D game.
+/// </summary>
 public static class GameHelperCamera
 {
-    public static Camera3D mainCamera { get; set; }
-    public static CharacterBody3D Character { get; set; }
-    public static float MinRotationXAxis { get; set; }
-    public static float MaxRotationXAxis { get; set; }
-    public static float MinRotationYAxis { get; set; }
-    public static float MaxRotationYAxis { get; set; }
-    public static float ZoomSpeed { get; set; }
-    public static float minZoomDistance { get; set; }  // Closest zoom distance
-    public static float maxZoomDistance { get; set; } // Farthest zoom distance
+    /// <summary>
+    /// The main camera used for player perspective.
+    /// </summary>
+    private static Camera3D _mainCamera;
 
     /// <summary>
-    /// Handles camera rotation using mouse wheel. If you want to change minimum and maximum degree of rotation, you will need to change values inside of a method
-    /// <para> <b>Note:</b> Should be used in Unhandled Events </para>
+    /// The character associated with the camera.
     /// </summary>
-    /// <param name="event">Unhandled events mostly. Not tested if it will work with other type of events</param>
+    private static CharacterBody3D _character;
+
+    /// <summary>
+    /// The minimum rotation angle around the X-axis (in degrees).
+    /// </summary>
+    public static float MinRotationXAxis { get; set; }
+
+    /// <summary>
+    /// The maximum rotation angle around the X-axis (in degrees).
+    /// </summary>
+    public static float MaxRotationXAxis { get; set; }
+
+    /// <summary>
+    /// The minimum rotation angle around the Y-axis (in degrees).
+    /// </summary>
+    public static float MinRotationYAxis { get; set; }
+
+    /// <summary>
+    /// The maximum rotation angle around the Y-axis (in degrees).
+    /// </summary>
+    public static float MaxRotationYAxis { get; set; }
+
+    /// <summary>
+    /// The speed at which the camera zooms in and out.
+    /// </summary>
+    public static float ZoomSpeed { get; set; }
+
+    /// <summary>
+    /// The closest zoom distance.
+    /// </summary>
+    public static float MinZoomDistance { get; set; }  // Closest zoom distance
+
+    /// <summary>
+    /// The farthest zoom distance.
+    /// </summary>
+    public static float MaxZoomDistance { get; set; } // Farthest zoom distance
+
+    /// <summary>
+    /// A constant for scaling mouse movement to camera rotation.
+    /// </summary>
+    private const float RotationSensitivity = 0.005f;
+
+    /// <summary>
+    /// Initializes the camera helper with the main camera and character.
+    /// </summary>
+    /// <param name="mainCamera">The main camera.</param>
+    /// <param name="character">The character associated with the camera.</param>
+    public static void Initialize(Camera3D mainCamera, CharacterBody3D character)
+    {
+        _mainCamera = mainCamera ?? throw new ArgumentNullException(nameof(mainCamera));
+        _character = character ?? throw new ArgumentNullException(nameof(character));
+    }
+
+    /// <summary>
+    /// Handles camera rotation based on mouse movement.
+    /// </summary>
+    /// <param name="event">The input event, typically from unhandled input.</param>
     public static void HandlePlayerCameraRotation(InputEvent @event)
     {
-        if(Input.IsMouseButtonPressed(MouseButton.Middle) && @event is InputEventMouseMotion ev)
+        if (Input.IsMouseButtonPressed(MouseButton.Middle) && @event is InputEventMouseMotion ev)
         {
-            // Rotate Y (left/right)
-            float newYRotation = mainCamera.Rotation.Y - ev.Relative.X * 0.005f; // Subtract ot invert axis
-            newYRotation = Mathf.Clamp(newYRotation, Mathf.DegToRad(MinRotationYAxis), Mathf.DegToRad(MaxRotationYAxis)); // The best option is min and max
-
-            // Rotate X (up/down) but clamp the angle
-            float newXRotation = mainCamera.Rotation.X - ev.Relative.Y * 0.005f; // Subtract to invert axis
-            newXRotation = Mathf.Clamp(newXRotation, Mathf.DegToRad(MinRotationXAxis), Mathf.DegToRad(MaxRotationXAxis)); // The best option is min -90 and max -60
-                
-            mainCamera.Rotation = new Vector3(newXRotation, newYRotation, mainCamera.Rotation.Z);
+            RotateCamera(ev.Relative);
         }
     }
 
     /// <summary>
-    /// If used, user will be able to zoom in and zoom out using his mouse wheel. Takes 3 parameters
+    /// Handles camera zooming based on mouse wheel input.
     /// </summary>
-    /// <param name="event">Unhandled events mostly. Not tested if it will work with other type of events</param>
+    /// <param name="event">The input event, typically from unhandled input.</param>
     public static void HandleZooming(InputEvent @event)
     {
         if (@event is InputEventMouseButton mouseEvent)
@@ -55,26 +101,46 @@ public static class GameHelperCamera
     }
 
     /// <summary>
-    /// Makes all the magic with zooming. Takes two arguments
+    /// Rotates the camera based on mouse movement.
     /// </summary>
-    /// <param name="zoomAmount">How much we will zoom in, zoom out(it is better to keep it lower then 1)</param>
+    /// <param name="relativeMovement">The relative movement of the mouse.</param>
+    private static void RotateCamera(Vector2 relativeMovement)
+    {
+        // Rotate Y (left/right)
+        float newYRotation = _mainCamera.Rotation.Y - relativeMovement.X * RotationSensitivity;
+        newYRotation = Mathf.Clamp(newYRotation, Mathf.DegToRad(MinRotationYAxis), Mathf.DegToRad(MaxRotationYAxis));
+
+        // Rotate X (up/down) but clamp the angle
+        float newXRotation = _mainCamera.Rotation.X - relativeMovement.Y * RotationSensitivity;
+        newXRotation = Mathf.Clamp(newXRotation, Mathf.DegToRad(MinRotationXAxis), Mathf.DegToRad(MaxRotationXAxis));
+
+        _mainCamera.Rotation = new Vector3(newXRotation, newYRotation, _mainCamera.Rotation.Z);
+    }
+
+    /// <summary>
+    /// Adjusts the camera's zoom level.
+    /// </summary>
+    /// <param name="zoomAmount">The amount to zoom in or out.</param>
     private static void AdjustZoom(float zoomAmount)
     {
-        // Get current camera position
-        Vector3 cameraPosition = mainCamera.GlobalTransform.Origin;
+        // Cache the camera transform and character position
+        var cameraTransform = _mainCamera.GlobalTransform;
+        Vector3 cameraPosition = cameraTransform.Origin;
+        Vector3 characterPosition = _character.Position;
 
         // Get forward direction (negative Z in local space)
-        Vector3 forward = -mainCamera.GlobalTransform.Basis.Z;
+        Vector3 forward = -cameraTransform.Basis.Z;
 
         // Calculate new position
         Vector3 newPosition = new Vector3(cameraPosition.X, cameraPosition.Y + forward.Y * zoomAmount, cameraPosition.Z);
 
         // Clamp distance to prevent extreme zooming
-        float distance = (newPosition - Character.Position).Length();
-        if (distance < minZoomDistance || distance > maxZoomDistance)
+        float distance = (newPosition - characterPosition).Length();
+        if (distance < MinZoomDistance || distance > MaxZoomDistance)
             return; // Don't apply zoom if out of bounds
 
-        mainCamera.GlobalTransform = new Transform3D(mainCamera.GlobalTransform.Basis, newPosition);
+        _mainCamera.GlobalTransform = new Transform3D(cameraTransform.Basis, newPosition);
+
     }
 
 }
