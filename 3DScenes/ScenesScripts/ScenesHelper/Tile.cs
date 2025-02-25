@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Godot;
 
 namespace ScenesHelper;
@@ -21,7 +20,7 @@ public class Tile
     /// <summary>
     /// The mesh instance representing the tile's visual appearance.
     /// </summary>
-    public MeshInstance3D TileMesh { get; private set; }
+    public MeshInstance3D TileMesh { get; set; }
 
     /// <summary>
     /// Indicates whether the tile represents an entity.
@@ -55,28 +54,25 @@ public class Tile
         IsPassable = TileProperties.IsPassable(type);
     }
 
+    /// <summary>
+    /// Resets the tile to its default state.
+    /// </summary>
+    public void Reset()
+    {
+        Object = null;
+        IsEntity = false;
+        TileMesh.Visible = false;
+    }
+
+     /// <summary>
+    /// Sets whether the tile is passable.
+    /// </summary>
+    /// <param name="isPassable">True if the tile is passable; otherwise, false.</param>
     public void SetPassable(bool isPassable) => IsPassable = isPassable;
+
+    /// <summary>
+    /// Retrieves the movement cost for this tile.
+    /// </summary>
+    /// <returns>The movement cost of the tile.</returns>
     public float GetMovementCost() => TileProperties.GetMovementCost(Type);
-}
-
-public static class TileProperties
-{
-    private static readonly Dictionary<TileType, bool> PassableLookup = new()
-    {
-        { TileType.NotDefined, false }, { TileType.Grass, true }, { TileType.Water, false },
-        { TileType.Mountain, false }, { TileType.Forest, true }, { TileType.Town, true },
-        { TileType.Road, true }
-    };
-
-    private static readonly Dictionary<TileType, float> MovementCostLookup = new()
-    {
-        { TileType.Road, 0.75f }, { TileType.Grass, 1.0f }, { TileType.Forest, 1.25f },
-        { TileType.Town, 1.0f }
-    };
-
-    public static bool IsPassable(TileType type) => 
-        PassableLookup.TryGetValue(type, out bool passable) ? passable : false;
-
-    public static float GetMovementCost(TileType type) => 
-        MovementCostLookup.TryGetValue(type, out float cost) ? cost : 1.0f;
 }

@@ -80,12 +80,21 @@ public partial class TilesMap : Node3D, IMapInitializable
         VisualizeNotDefinedTiles(notDefinedPositions);
     }
 
+    /// <summary>
+    /// Retrieves the TileType corresponding to a tile ID.
+    /// </summary>
+    /// <param name="tileId">The ID of the tile.</param>
+    /// <returns>The TileType corresponding to the tile ID, or TileType.NotDefined if not found.</returns>
     private TileType GetTileTypeFromId(int tileId)
     {
         string tileName = GridMap.MeshLibrary.GetItemName(tileId);
         return TileTypeMapping.TryGetValue(tileName, out var type) ? type : TileType.NotDefined;
     }
 
+    /// <summary>
+    /// Visualizes tiles that are marked as "NotDefined" in the grid.
+    /// </summary>
+    /// <param name="positions">The positions of the "NotDefined" tiles.</param>
     private void VisualizeNotDefinedTiles(List<Vector3> positions)
     {
         if (positions.Count == 0) return;
@@ -112,22 +121,5 @@ public partial class TilesMap : Node3D, IMapInitializable
         };
 
         AddChild(multiMeshInstance);
-    }
-
-    /// <summary>
-    /// Visualizes a tile in 3D space by positioning its mesh and adding it to the scene.
-    /// </summary>
-    /// <param name="x">The x-coordinate of the tile in the grid.</param>
-    /// <param name="z">The z-coordinate of the tile in the grid.</param>
-    /// <param name="tile">The tile to visualize.</param>
-    private void VisualizeTile(int x, int z, Tile tile)
-    {
-        return;
-        /*// Position the tile in 3D space
-        tile.PositionGrid = new Vector3I(x, 0, z);
-        tile.TileMesh.Position = new Vector3(x * GridPositionConverter, 0, z * GridPositionConverter);
-
-        // Use CallDeferred to add the child on the main thread
-        CallDeferred("add_child", tile.TileMesh);*/
     }
 }
