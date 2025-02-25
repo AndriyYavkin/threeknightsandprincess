@@ -95,7 +95,6 @@ public partial class TilesMap : Node3D, IMapInitializable
     {
         // Position the tile in 3D space
         tile.PositionGrid = new Vector3I(x, 0, z);
-        tile.Position = new Vector3(x * GridPositionConverter, 0, z* GridPositionConverter);
         tile.TileMesh.Position = new Vector3(x * GridPositionConverter, 0, z * GridPositionConverter);
 
         // Use CallDeferred to add the child on the main thread

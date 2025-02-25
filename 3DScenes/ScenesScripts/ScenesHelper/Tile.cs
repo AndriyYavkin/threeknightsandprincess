@@ -44,11 +44,6 @@ public class Tile
     public Vector3I PositionGrid { get; set; }
 
     /// <summary>
-    /// The position of the tile in world coordinates.
-    /// </summary>
-    public Vector3 Position { get; set; }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="Tile"/> class.
     /// </summary>
     /// <param name="type">The type of the tile.</param>
