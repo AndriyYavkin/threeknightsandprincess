@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c1m3w4e2n7r00"]
+
+[ext_resource type="Script" path="res://3DScenes/ScenesScripts/TileMapScripts/TilesMap.cs" id="1_ngqtk"]
+
+[node name="TilesMap" type="Node3D"]
+script = ExtResource("1_ngqtk")

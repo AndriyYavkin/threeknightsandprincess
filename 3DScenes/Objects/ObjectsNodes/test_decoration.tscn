@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://cdgmbhmcqccev"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_c5gwj"]
+
+[node name="test_decoration" type="MeshInstance3D"]
+transform = Transform3D(23.8339, 0, 0, 0, 0.985424, 0, 0, 0, 16.2195, 0, 0, 0)
+mesh = SubResource("CylinderMesh_c5gwj")
+metadata/BlocksMovement = true

@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://d0lkgi3m63qhr"]
+
+[ext_resource type="Script" path="res://3DScenes/ScenesScripts/TileMapScripts/TilesMap.cs" id="1_4trqa"]
+[ext_resource type="PackedScene" uid="uid://pos74ns0mk3e" path="res://3DScenes/Scenes/floor_test.tscn" id="2_olf5i"]
+
+[node name="GlobalMap" type="Node3D"]
+visible = false
+script = ExtResource("1_4trqa")
+
+[node name="FloorTest" parent="." instance=ExtResource("2_olf5i")]

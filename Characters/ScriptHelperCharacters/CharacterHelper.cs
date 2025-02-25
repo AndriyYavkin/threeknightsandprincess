@@ -1,111 +1,353 @@
-using System;
+using System.Collections.Generic;
+using Characters;
 using Godot;
+using Godot.Collections;
+using ScenesHelper;
+using ObjectsScripts;
+using System;
 
-namespace GameHelperCharacters
+namespace GameHelperCharacters;
+
+/// <summary>
+/// Provides helper methods for character movement, pathfinding, and interaction.
+/// </summary>
+public static class CharacterHelper
 {
-    public static class CharacterHelper
+    /// <summary>
+    /// Event triggered when the character starts moving.
+    /// </summary>
+    public static event Action OnMovementStarted;
+
+    /// <summary>
+    /// Event triggered when the character stops moving.
+    /// </summary>
+    public static event Action OnMovementStopped;
+
+    /// <summary>
+    /// Event triggered when a path is calculated.
+    /// </summary>
+    public static event Action<List<Vector3I>> OnPathCalculated;
+
+    /// <summary>
+    /// The speed of the character.
+    /// </summary>
+    public static float Speed { get; set; }
+
+    /// <summary>
+    /// The width of the map in tiles.
+    /// </summary>
+    public static int MapWidth { get; set; }
+
+    /// <summary>
+    /// The height of the map in tiles.
+    /// </summary>
+    public static int MapHeight { get; set; }
+
+    /// <summary>
+    /// The size of each grid cell in world units.
+    /// </summary>
+    public static float GridPositionConverter { get; set;} 
+
+    private static Camera3D _mainCamera { get; set; }
+    private static CharacterTest3D _character { get; set; }
+    private static PackedScene _pathMarkerScene { get; set; } // Scene for path markers
+    private static List<Node3D> _pathMarkers = new(); // Store path markers
+    private static List<Vector3I> _pathPoints = new(); // Store path points
+    private static int _currentPathIndex = 0;
+    private static bool _isTargetSelected = false; // Track if a target is selected
+    private static bool _isMoving = false; 
+    private static bool _stopAfterNextPoint = false;
+
+    /// <summary>
+    /// Initializes the CharacterHelper with the main camera and character.
+    /// </summary>
+    /// <param name="mainCamera">The main camera.</param>
+    /// <param name="character">The character.</param>
+    /// <param name="pathMarkerScene">The scene used for path markers.</param>
+    public static void Initialize(Camera3D mainCamera, CharacterTest3D character, PackedScene pathMarkerScene)
     {
-        /// <summary>
-        /// Wee need it to be set from the character's class to the mainCamera. Otherwise, in the best scenario, most features with camera won't work properly
-        /// </summary>
-        public static Camera3D mainCamera { get; set; }
+        _mainCamera = mainCamera ?? throw new ArgumentNullException(nameof(mainCamera));
+        _character = character ?? throw new ArgumentNullException(nameof(character));
+        _pathMarkerScene = pathMarkerScene ?? throw new ArgumentNullException(nameof(pathMarkerScene));
+    }
 
-        ///<summary>
-        ///<para>Takes 3 parameters: Camera3D, mouse position(viewport) and speed.</para>
-        ///<para>Returns normalized Vector3 velocity.</para>
-        ///<para> <b>Note:</b> Should be used only with CharacterBody3D and player controlled characters. </para>
-        ///<para> <b>Note 2: Moving camera away from the character will break movements</b></para>
-        ///</summary>
-        public static Vector3 HandlePlayerMovementToMouse(Vector2 mouseViewport, float Speed)
+
+    /// <summary>
+    /// Handles character movement physics.
+    /// </summary>
+    /// <returns>The velocity vector for the character.</returns>
+    public static Vector3 HandlePlayerMovementsPhysics()
+    {
+        Vector3 velocity = _character.Velocity;
+
+        if (_isMoving && _currentPathIndex < _pathPoints.Count)
         {
-            Vector3 from = mainCamera.ProjectRayOrigin(mouseViewport);
-            Vector3 to = from + mainCamera.ProjectRayNormal(mouseViewport);
+            var targetGridPosition = _pathPoints[_currentPathIndex];
+            var targetPosition = GridToWorldPosition(targetGridPosition, _character.Position.Y);
 
-            Vector3 velocity = Vector3.Zero;
-            
-            velocity.X = to.X - from.X;
-            velocity.Z = to.Z - from.Z;
+            Vector3 direction = (targetPosition - _character.GlobalPosition).Normalized();
+            velocity = direction * Speed;
 
-            return velocity.Normalized() * Speed;
-        }
-        
-        /// <summary>
-        /// Handles camera rotation using mouse wheel. If you want to change minimum and maximum degree of rotation, you will need to change values inside of a method
-        /// </summary>
-        /// <param name="event">Unhandled events mostly. Not tested if it will work with other type of events</param>
-        public static void HandlePlayerCameraRotation(InputEvent @event)
-        {
-            if(Input.IsMouseButtonPressed(MouseButton.Middle) && @event is InputEventMouseMotion ev)
+            float distanceToTarget = _character.GlobalPosition.DistanceTo(targetPosition);
+
+            if (distanceToTarget <= 0.1f)
             {
-                // Rotate Y (left/right)
-                float newYRotation = mainCamera.Rotation.Y - ev.Relative.X * 0.005f; // Subtract ot invert axis
-                newYRotation = Mathf.Clamp(newYRotation, Mathf.DegToRad(-60), Mathf.DegToRad(60)); // The best option is min and max
+                GD.Print("Reached point: ", targetGridPosition);
+                GD.Print("Index: ", _currentPathIndex);
+                ClearPassedPathMarkers(_currentPathIndex);
+                _character.GlobalPosition = targetPosition;
 
-                // Rotate X (up/down) but clamp the angle
-                float newXRotation = mainCamera.Rotation.X - ev.Relative.Y * 0.005f; // Subtract to invert axis
-                newXRotation = Mathf.Clamp(newXRotation, Mathf.DegToRad(-90), Mathf.DegToRad(-60)); // The best option is min -90 and max -60
-                    
-                mainCamera.Rotation = new Vector3(newXRotation, newYRotation, mainCamera.Rotation.Z);
-            }
-        }
-
-        /// <summary>
-        /// If used, user will be able to zoom in and zoom out using his mouse wheel. Takes 3 parameters
-        /// </summary>
-        /// <param name="event">Unhandled events mostly. Not tested if it will work with other type of events</param>
-        /// <param name="zoomSpeed">How fast we will zoom in and zoom out. Better to keep it less then 1f</param>
-        /// <param name="CharacterPosition">Position of a character whose camera this is</param>
-        public static void HandleZooming(InputEvent @event, float zoomSpeed, Vector3 CharacterPosition)
-        {
-            if (@event is InputEventMouseButton mouseEvent)
-            {
-                if (mouseEvent.ButtonIndex == MouseButton.WheelUp)
+                if (_stopAfterNextPoint)
                 {
-                    AdjustZoom(zoomSpeed, CharacterPosition);
+                    StopMovement();
                 }
-                else if (mouseEvent.ButtonIndex == MouseButton.WheelDown)
+                else
                 {
-                    AdjustZoom(-zoomSpeed, CharacterPosition);
+                    _currentPathIndex++;
+
+                    if (_currentPathIndex >= _pathPoints.Count)
+                    {
+                        _character.GlobalPosition = GridToWorldPosition(_pathPoints[^1], _character.Position.Y);
+                        StopMovement();
+                        GD.Print("Movement stopped!");
+                    }
                 }
             }
         }
-
-        ///<summary>
-        ///<para>Takes 4 parameters: global mouse position, position of character, speed, limit of pixels where we need acceleration.</para>
-        ///<para>Returns normalized Vector2 velocity.</para>
-        ///<para> <b>Note:</b> Should be used only with CharacterBody2D and player controlled characters. </para>
-        ///<para> <b>Note 2:</b> It is not implemented yet! Using this method will result in NotImplementedException</para>
-        ///</summary>
-        public static Vector2 HandlePlayerMovementToMouseWithAcceleration(Vector2 MousePosition, Vector2 CharacterPosition, float Speed)
+        else
         {
-            throw new NotImplementedException();
+            velocity.X = Mathf.MoveToward(_character.Velocity.X, 0, Speed);
+            velocity.Z = Mathf.MoveToward(_character.Velocity.Z, 0, Speed);
         }
 
-        /// <summary>
-        /// Makes all the magic with zooming. Takes two arguments
-        /// </summary>
-        /// <param name="zoomAmount">How much we will zoom in, zoom out(it is better to keep it lower then 1)</param>
-        /// <param name="targetPosition">Position of a character, who's camera this is</param>
-        private static void AdjustZoom(float zoomAmount, Vector3 targetPosition)
+        return velocity;
+    }
+
+    /// <summary>
+    /// Picks up an item from the current tile.
+    /// </summary>
+    /// <param name="tile">The tile containing the item.</param>
+    public static void PickUpItem(Tile tile)
+    {
+        if (tile == null || tile.Object == null || _character == null)
+            return;
+
+        if (_character.GridPosition != tile.PositionGrid)
+            return;
+
+        if (tile.Object is IItem item)
         {
-            float minZoomDistance = 2f;  // Closest zoom distance
-            float maxZoomDistance = 7f; // Farthest zoom distance
+            if (_character.Inventory == null)
+            {
+                GD.PrintErr("Character inventory is null!");
+                return;
+            }
 
-            // Get current camera position
-            Vector3 cameraPosition = mainCamera.GlobalTransform.Origin;
+            _character.Inventory.AddItem(item);
+            GD.Print($"{_character.Name} picked up {item.ItemName}.");
 
-            // Get forward direction (negative Z in local space)
-            Vector3 forward = -mainCamera.GlobalTransform.Basis.Z;
+            tile.Object.QueueFree();
+            tile.Object = null;
 
-            // Calculate new position
-            Vector3 newPosition = new Vector3(cameraPosition.X, cameraPosition.Y + forward.Y * zoomAmount, cameraPosition.Z);
-
-            // Clamp distance to prevent extreme zooming
-            float distance = (newPosition - targetPosition).Length();
-            if (distance < minZoomDistance || distance > maxZoomDistance)
-                return; // Don't apply zoom if out of bounds
-
-            mainCamera.GlobalTransform = new Transform3D(mainCamera.GlobalTransform.Basis, newPosition);
+            Pathfinder3D.UpdateTileState(tile.PositionGrid, true);
         }
+        else
+        {
+            GD.PrintErr($"Tile object is not an IItem. Type: {tile.Object.GetType().Name}");
+        }
+    }
+
+    /// <summary>
+    /// Handles character movement input based on mouse position.
+    /// </summary>
+    /// <param name="mousePos">The mouse position.</param>
+    /// <param name="space">The physics space state.</param>
+    public static void HandleCharacterMovements(Vector2 mousePos, PhysicsDirectSpaceState3D space)
+    {
+        if (_mainCamera == null)
+        {
+            GD.PrintErr("Camera is null!");
+            return;
+        }
+
+        if (_isMoving)
+        {
+            _stopAfterNextPoint = true;
+            GD.Print("Movement interrupted!");
+            return;
+        }
+
+        // Create a ray from the camera
+        Vector3 from = _mainCamera.ProjectRayOrigin(mousePos);
+        Vector3 to = from + _mainCamera.ProjectRayNormal(mousePos) * 100f; // Ray length
+
+        PhysicsRayQueryParameters3D query = PhysicsRayQueryParameters3D.Create(from, to);
+        Dictionary result = space.IntersectRay(query);
+
+        if (result.Count > 0)
+        {
+            // Snap the target position to the grid
+            var hitPosition = (Vector3)result["position"];
+            var targetGridPosition = WorldToGridPosition(hitPosition);
+
+            // Check if the target position is valid and passable
+            if (IsPositionValid(targetGridPosition) && Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z].IsPassable)
+            {
+                // Calculate path using the pathfinder
+                PathingAndMoving(targetGridPosition);
+            }
+            else
+            {
+                GD.Print("Cannot move to this tile!");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Calculates and visualizes a path to the target position.
+    /// </summary>
+    /// <param name="targetGridPosition">The target grid position.</param>
+    private static void PathingAndMoving(Vector3I targetGridPosition)
+    {
+        var startGridPosition = WorldToGridPosition(_character.GlobalPosition);
+        var path = Pathfinder3D.FindPath(startGridPosition, targetGridPosition);
+
+        if (path.Count > 0 && path.Count <= _character.RemainingMovement)
+        {
+            if (!_isTargetSelected || (_isTargetSelected && _pathPoints[^1] != targetGridPosition))
+            {
+                ClearPathMarkers();
+                VisualizePath(path);
+                _isTargetSelected = true;
+            }
+            else
+            {
+                StartMovement(targetGridPosition);
+            }
+        }
+        else
+        {
+            GD.Print("Not enough movement points or target is unreachable!");
+        }
+    }
+
+    /// <summary>
+    /// Visualizes the calculated path using markers.
+    /// </summary>
+    /// <param name="path">The path to visualize.</param>
+    private static void VisualizePath(List<Vector3I> path)
+    {
+        _pathPoints.Clear();
+        _pathPoints.AddRange(path);
+
+        for (int i = 0; i < path.Count; i++)
+        {
+            Vector3 worldPosition = GridToWorldPosition(path[i], 0);
+            var marker = _pathMarkerScene.Instantiate<Node3D>();
+            _character.GetTree().CurrentScene.AddChild(marker);
+            marker.GlobalPosition = worldPosition;
+
+            if (i < path.Count - 1)
+            {
+                Vector3 nextPosition = GridToWorldPosition(path[i + 1], 0);
+                Vector3 direction = (nextPosition - worldPosition).Normalized();
+                marker.LookAt(worldPosition + direction, Vector3.Up);
+            }
+
+            _pathMarkers.Add(marker);
+        }
+
+        OnPathCalculated?.Invoke(path);
+    }
+
+    /// <summary>
+    /// Starts character movement along the calculated path.
+    /// </summary>
+    /// <param name="targetGridPosition">The target grid position.</param>
+    private static void StartMovement(Vector3I targetGridPosition)
+    {
+        _isMoving = true;
+        _character.GridPosition = targetGridPosition;
+        _isTargetSelected = false;
+        _stopAfterNextPoint = false;
+        GD.Print($"Path: {string.Join(" -> ", _pathPoints)}");
+        _currentPathIndex = 0;
+        OnMovementStarted?.Invoke();
+    }
+
+    /// <summary>
+    /// Stops character movement.
+    /// </summary>
+    private static void StopMovement()
+    {
+        _isMoving = false;
+        _stopAfterNextPoint = false;
+        _currentPathIndex = 0;
+        ClearPathMarkers();
+        OnMovementStopped?.Invoke();
+    }
+
+    /// <summary>
+    /// Converts a grid position to a world position.
+    /// </summary>
+    /// <param name="gridPosition">The grid position.</param>
+    /// <param name="yPosition">The Y position in the world.</param>
+    /// <returns>The world position.</returns>
+    private static Vector3 GridToWorldPosition(Vector3I gridPosition, float yPosition)
+    {
+        return new Vector3(
+            gridPosition.X * GridPositionConverter,
+            yPosition,
+            gridPosition.Z * GridPositionConverter
+        );
+    }
+
+    /// <summary>
+    /// Converts a world position to a grid position.
+    /// </summary>
+    /// <param name="worldPosition">The world position.</param>
+    /// <returns>The grid position.</returns>
+    private static Vector3I WorldToGridPosition(Vector3 worldPosition)
+    {
+        return new Vector3I(
+            Mathf.RoundToInt(worldPosition.X / GridPositionConverter),
+            0,
+            Mathf.RoundToInt(worldPosition.Z / GridPositionConverter)
+        );
+    }
+
+    /// <summary>
+    /// Clears path markers up to the specified index.
+    /// </summary>
+    /// <param name="index">The index up to which markers should be cleared.</param>
+    private static void ClearPassedPathMarkers(int index)
+    {
+        for (int i = 0; i < index; i++)
+        {
+            _pathMarkers[i].Visible = false;
+        }
+    }
+
+    /// <summary>
+    /// Clears all path markers.
+    /// </summary>
+    private static void ClearPathMarkers()
+    {
+        foreach (var marker in _pathMarkers)
+        {
+            marker.QueueFree();
+        }
+        _pathMarkers.Clear();
+    }
+    
+    /// <summary>
+    /// Checks if a grid position is valid.
+    /// </summary>
+    /// <param name="position">The grid position to check.</param>
+    /// <returns>True if the position is valid, otherwise false.</returns>
+    private static bool IsPositionValid(Vector3I position)
+    {
+        return position.X >= 0 && position.X < MapWidth &&
+                position.Z >= 0 && position.Z < MapHeight;
     }
 }
