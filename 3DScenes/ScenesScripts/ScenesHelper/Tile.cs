@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 
 namespace ScenesHelper;
@@ -51,50 +52,31 @@ public class Tile
     public Tile(TileType type)
     {
         Type = type;
-        TileMesh = new MeshInstance3D();
-        InitializeTileProperties(type);
-        InitializeTileMesh();
+        IsPassable = TileProperties.IsPassable(type);
     }
 
-    public void SetPassable(bool isPassable)
-    {
-        IsPassable = isPassable;
-    }
+    public void SetPassable(bool isPassable) => IsPassable = isPassable;
+    public float GetMovementCost() => TileProperties.GetMovementCost(Type);
+}
 
-    /// <summary>
-    /// A default material for undefined tiles.
-    /// </summary>
-    private static readonly StandardMaterial3D DefaultMaterial = new()
+public static class TileProperties
+{
+    private static readonly Dictionary<TileType, bool> PassableLookup = new()
     {
-        AlbedoColor = new Color(0.5f, 0.5f, 0.5f) // Gray color for undefined tiles
+        { TileType.NotDefined, false }, { TileType.Grass, true }, { TileType.Water, false },
+        { TileType.Mountain, false }, { TileType.Forest, true }, { TileType.Town, true },
+        { TileType.Road, true }
     };
 
-    /// <summary>
-    /// Initializes tile properties such as passability and movement cost based on the tile type.
-    /// </summary>
-    private void InitializeTileProperties(TileType type)
+    private static readonly Dictionary<TileType, float> MovementCostLookup = new()
     {
-        IsPassable = type != TileType.Water && type != TileType.Mountain && type != TileType.NotDefined;
+        { TileType.Road, 0.75f }, { TileType.Grass, 1.0f }, { TileType.Forest, 1.25f },
+        { TileType.Town, 1.0f }
+    };
 
-        MovementCost = type switch
-        {
-            TileType.Road => 0.75f,
-            TileType.Grass => 1.0f,
-            TileType.Forest => 1.25f,
-            _ => 1.0f // Default cost for other tiles
-        };
-    }
+    public static bool IsPassable(TileType type) => 
+        PassableLookup.TryGetValue(type, out bool passable) ? passable : false;
 
-    /// <summary>
-    /// Initializes the tile mesh based on the tile type.
-    /// </summary>
-    private void InitializeTileMesh()
-    {
-        if (Type == TileType.NotDefined)
-        {
-            TileMesh.Mesh = new QuadMesh();
-            TileMesh.RotateX(Mathf.DegToRad(-90)); // Rotate to lie flat on the ground
-            TileMesh.MaterialOverride = DefaultMaterial;
-        }
-    }
+    public static float GetMovementCost(TileType type) => 
+        MovementCostLookup.TryGetValue(type, out float cost) ? cost : 1.0f;
 }
