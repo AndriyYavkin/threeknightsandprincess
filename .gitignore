@@ -3,3 +3,4 @@
 /android/
 .vs/
 *.TMP
+/addons/godot-git-plugin
