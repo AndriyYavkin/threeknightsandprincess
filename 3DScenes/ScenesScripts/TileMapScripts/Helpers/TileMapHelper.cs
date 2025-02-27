@@ -83,7 +83,7 @@ public static class TileMapHelper
                 if (x >= 0 && x < MapWidth && z >= 0 && z < MapHeight)
                 {
                     var tile = Scenes.TileMap.Map[x, z];
-                    if (tile.IsPassable)
+                    if (tile.GetPassable())
                     {
                         tile.SetPassable(false);
                         GD.Print($"Marked tile at ({x}, {z}) as non-passable due to decoration or object {usedNode.Name}");

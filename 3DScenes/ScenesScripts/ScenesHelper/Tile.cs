@@ -15,7 +15,7 @@ public class Tile
     /// <summary>
     /// The 3D object associated with the tile. Can be a resource or an entity.
     /// </summary>
-    public Node3D Object { get; set; } = null;
+    public Node3D ContainsObject { get; set; }
 
     /// <summary>
     /// The mesh instance representing the tile's visual appearance.
@@ -25,18 +25,12 @@ public class Tile
     /// <summary>
     /// Indicates whether the tile represents an entity.
     /// </summary>
-    public bool IsEntity { get; set; } = false;
+    public bool IsEntity { get; set; }
 
     /// <summary>
     /// Indicates whether the tile can be passed through by entities.
     /// </summary>
     public bool IsPassable { get; private set; }
-
-
-    /// <summary>
-    /// The cost of moving through this tile. Higher values indicate more difficult terrain.
-    /// </summary>
-    public float MovementCost { get; private set; } = 1.0f;
 
     /// <summary>
     /// The position of the tile in grid coordinates.
@@ -59,16 +53,22 @@ public class Tile
     /// </summary>
     public void Reset()
     {
-        Object = null;
+        ContainsObject = null;
         IsEntity = false;
         TileMesh.Visible = false;
     }
 
-     /// <summary>
+    /// <summary>
     /// Sets whether the tile is passable.
     /// </summary>
     /// <param name="isPassable">True if the tile is passable; otherwise, false.</param>
     public void SetPassable(bool isPassable) => IsPassable = isPassable;
+
+    /// <summary>
+    /// Retrieves whether the tile is passable.
+    /// </summary>
+    /// <returns>The passability of the tile.</returns>>
+    public bool GetPassable() => TileProperties.IsPassable(Type);
 
     /// <summary>
     /// Retrieves the movement cost for this tile.

@@ -59,14 +59,14 @@ public partial class Objects : Node3D , IMapInitializable
         }
 
         var tile = Scenes.TileMap.Map[gridX, gridZ];
-        if (tile.Object != null)
+        if (tile.ContainsObject != null)
         {
             GD.PrintErr($"Object {obj.Name} can't be assigned! Tile is already taken! Object was deleted");
             obj.QueueFree();
             return;
         }
 
-        tile.Object = obj;
+        tile.ContainsObject = obj;
         tile.IsEntity = false;
         obj.Position = new Vector3(gridX * GridPositionConverter, 0, gridZ * GridPositionConverter);
     }

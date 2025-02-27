@@ -65,7 +65,7 @@ public partial class Entities : Node3D, IMapInitializable
         }
 
         var tile = Scenes.TileMap.Map[gridX, gridZ];
-        tile.Object = entityNode;
+        tile.ContainsObject = entityNode;
         tile.IsEntity = true;
         entityNode.Position = new Vector3(gridX * GridPositionConverter, EntityYPosition, gridZ * GridPositionConverter);
     }
@@ -82,7 +82,7 @@ public partial class Entities : Node3D, IMapInitializable
         if (gridX >= 0 && gridX < MapWidth && gridZ >= 0 && gridZ < MapHeight)
         {
             var tile = Scenes.TileMap.Map[gridX, gridZ];
-            if (tile.Object != null && tile.IsEntity)
+            if (tile.ContainsObject != null && tile.IsEntity)
             {
                 //entity.Interact(CharacterHelper.Character); // Not implemented yet
             }
