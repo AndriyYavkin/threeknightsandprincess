@@ -29,6 +29,11 @@ public partial class TilesMap : Node3D, IMapInitializable
         InitializeGrid();
     }
 
+    private static readonly StandardMaterial3D DefaultMaterial = new()
+    {
+        AlbedoColor = new Color(0.5f, 0.5f, 0.5f)
+    };
+
     /// <summary>
     /// A dictionary to map tile names to TileType.
     /// </summary>
@@ -53,51 +58,68 @@ public partial class TilesMap : Node3D, IMapInitializable
             return;
         }
 
-        // Iterate over each cell in the GridMap
-        Parallel.For(0, MapWidth, x =>
+        List<Vector3> notDefinedPositions = new();
+
+        for (int x = 0; x < MapWidth; x++)
         {
             for (int z = 0; z < MapHeight; z++)
             {
                 int tileId = GridMap.GetCellItem(new Vector3I(x, 0, z));
+                TileType type = tileId == -1 ? TileType.NotDefined : GetTileTypeFromId(tileId);
 
-                if (tileId == -1)
-                {
-                    Scenes.TileMap.Map[x, z] = new Tile(TileType.NotDefined);
-                    VisualizeTile(x, z, Scenes.TileMap.Map[x, z]);
-                    continue;
-                }
+                Scenes.TileMap.Map[x, z] = new Tile(type) 
+                { 
+                    PositionGrid = new Vector3I(x, 0, z) 
+                };
 
-                string tileName = GridMap.MeshLibrary.GetItemName(tileId);
-                if (string.IsNullOrEmpty(tileName))
-                {
-                    GD.PrintErr($"Tile at ({x}, {z}) has no name in MeshLibrary!");
-                    Scenes.TileMap.Map[x, z] = new Tile(TileType.NotDefined);
-                    VisualizeTile(x, z, Scenes.TileMap.Map[x, z]);
-                    continue;
-                }
-
-                TileType type = TileTypeMapping.TryGetValue(tileName, out var tileType) ? tileType : TileType.NotDefined;
-                GD.Print($"Tile at ({x}, {z}) is of type: {type}");
-
-                Scenes.TileMap.Map[x, z] = new Tile(type);
-                VisualizeTile(x, z, Scenes.TileMap.Map[x, z]);
+                if (type == TileType.NotDefined)
+                    notDefinedPositions.Add(new Vector3(x * GridPositionConverter, 0, z * GridPositionConverter));
             }
-        });
+        }
+
+        VisualizeNotDefinedTiles(notDefinedPositions);
     }
 
     /// <summary>
-    /// Visualizes a tile in 3D space by positioning its mesh and adding it to the scene.
+    /// Retrieves the TileType corresponding to a tile ID.
     /// </summary>
-    /// <param name="x">The x-coordinate of the tile in the grid.</param>
-    /// <param name="z">The z-coordinate of the tile in the grid.</param>
-    /// <param name="tile">The tile to visualize.</param>
-    private void VisualizeTile(int x, int z, Tile tile)
+    /// <param name="tileId">The ID of the tile.</param>
+    /// <returns>The TileType corresponding to the tile ID, or TileType.NotDefined if not found.</returns>
+    private TileType GetTileTypeFromId(int tileId)
     {
-        // Position the tile in 3D space
-        tile.PositionGrid = new Vector3I(x, 0, z);
-        tile.TileMesh.Position = new Vector3(x * GridPositionConverter, 0, z * GridPositionConverter);
+        string tileName = GridMap.MeshLibrary.GetItemName(tileId);
+        return TileTypeMapping.TryGetValue(tileName, out var type) ? type : TileType.NotDefined;
+    }
 
-        // Use CallDeferred to add the child on the main thread
-        CallDeferred("add_child", tile.TileMesh);
+    /// <summary>
+    /// Visualizes tiles that are marked as "NotDefined" in the grid.
+    /// </summary>
+    /// <param name="positions">The positions of the "NotDefined" tiles.</param>
+    private void VisualizeNotDefinedTiles(List<Vector3> positions)
+    {
+        if (positions.Count == 0) return;
+
+        var multiMesh = new MultiMesh
+        {
+            Mesh = new QuadMesh(),
+            TransformFormat = MultiMesh.TransformFormatEnum.Transform3D,
+            InstanceCount = positions.Count
+        };
+
+        for (int i = 0; i < positions.Count; i++)
+        {
+            Transform3D transform = Transform3D.Identity
+                .TranslatedLocal(positions[i])
+                .RotatedLocal(Vector3.Right, Mathf.DegToRad(-90));
+            multiMesh.SetInstanceTransform(i, transform);
+        }
+
+        var multiMeshInstance = new MultiMeshInstance3D
+        {
+            Multimesh = multiMesh,
+            MaterialOverride = DefaultMaterial
+        };
+
+        AddChild(multiMeshInstance);
     }
 }

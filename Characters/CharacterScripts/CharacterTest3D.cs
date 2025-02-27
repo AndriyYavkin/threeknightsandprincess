@@ -67,7 +67,7 @@ public partial class CharacterTest3D : CharacterBody3D, ICharacterTemplate
 		MoveAndSlide();
 
 		var currentTile = GetCurrentTile();
-        if (currentTile != null && currentTile.Object != null)
+        if (currentTile != null && currentTile.ContainsObject != null)
         {
             CharacterHelper.PickUpItem(currentTile);
         }

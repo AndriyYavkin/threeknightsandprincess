@@ -39,7 +39,7 @@ public static class Pathfinder3D
             for (int z = 0; z < map.GetLength(1); z++)
             {
                 Vector3I position = new Vector3I(x, 0, z);
-                if (map[x, z].IsPassable && map[x, z].Object == null)
+                if (map[x, z].GetPassable() && map[x, z].ContainsObject == null)
                 {
                     try
                     {
@@ -50,7 +50,7 @@ public static class Pathfinder3D
                         GD.PrintErr(ex);
                     }
                 }
-                else if (map[x, z].Object != null)
+                else if (map[x, z].ContainsObject != null)
                 {
                     tilesWithObjects.Add(position);
                 }
@@ -136,7 +136,7 @@ public static class Pathfinder3D
         astar.AddPoint(id, new Vector3(x, 0, z)); // Y-axis is always 0
 
         // Set the movement cost for the tile
-        astar.SetPointWeightScale(id, map[x, z].MovementCost);
+        astar.SetPointWeightScale(id, map[x, z].GetMovementCost());
 
         ConnectOrthogonalNeighbors(x, z, map);
         ConnectDiagonalNeighbors(x, z, map);
@@ -201,14 +201,11 @@ public static class Pathfinder3D
         if (tilesWithObjects.Contains(new Vector3I(x2, 0, z2)))
             return; // Don't connect to tiles with objects
 
-        if (!map[x2, z2].IsPassable)
+        if (!map[x2, z2].GetPassable())
             return; // Don't connect to impassable tiles
 
-        if (diagonal)
-        {
-            if (!map[x1, z2].IsPassable || !map[x2, z1].IsPassable)
-                return; // Ensure both adjacent orthogonal tiles are passable for diagonal movement
-        }
+        if (diagonal && !map[x1, z2].GetPassable() || !map[x2, z1].GetPassable())
+            return;
 
         int id1 = GetId(x1, z1);
         int id2 = GetId(x2, z2);

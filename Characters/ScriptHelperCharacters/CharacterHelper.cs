@@ -129,13 +129,13 @@ public static class CharacterHelper
     /// <param name="tile">The tile containing the item.</param>
     public static void PickUpItem(Tile tile)
     {
-        if (tile == null || tile.Object == null || _character == null)
+        if (tile == null || tile.ContainsObject == null || _character == null)
             return;
 
         if (_character.GridPosition != tile.PositionGrid)
             return;
 
-        if (tile.Object is IItem item)
+        if (tile.ContainsObject is IItem item)
         {
             if (_character.Inventory == null)
             {
@@ -146,14 +146,14 @@ public static class CharacterHelper
             _character.Inventory.AddItem(item);
             GD.Print($"{_character.Name} picked up {item.ItemName}.");
 
-            tile.Object.QueueFree();
-            tile.Object = null;
+            tile.ContainsObject.QueueFree();
+            tile.ContainsObject = null;
 
             Pathfinder3D.UpdateTileState(tile.PositionGrid, true);
         }
         else
         {
-            GD.PrintErr($"Tile object is not an IItem. Type: {tile.Object.GetType().Name}");
+            GD.PrintErr($"Tile object is not an IItem. Type: {tile.ContainsObject.GetType().Name}");
         }
     }
 
@@ -191,7 +191,7 @@ public static class CharacterHelper
             var targetGridPosition = WorldToGridPosition(hitPosition);
 
             // Check if the target position is valid and passable
-            if (IsPositionValid(targetGridPosition) && Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z].IsPassable)
+            if (IsPositionValid(targetGridPosition) && Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z].GetPassable())
             {
                 // Calculate path using the pathfinder
                 PathingAndMoving(targetGridPosition);
@@ -211,7 +211,7 @@ public static class CharacterHelper
     {
         var startGridPosition = WorldToGridPosition(_character.GlobalPosition);
         var path = Pathfinder3D.FindPath(startGridPosition, targetGridPosition);
-
+        
         if (path.Count > 0 && path.Count <= _character.RemainingMovement)
         {
             if (!_isTargetSelected || (_isTargetSelected && _pathPoints[^1] != targetGridPosition))

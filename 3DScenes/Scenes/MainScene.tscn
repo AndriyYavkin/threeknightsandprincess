@@ -35,8 +35,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0154343, -0.453357, -1.492
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.610164, 2.30358)
 
 [node name="TileMap" parent="." node_paths=PackedStringArray("GridMapT") instance=ExtResource("5_6apj6")]
-MapWidth = 50
-MapHeight = 50
+MapWidth = 200
+MapHeight = 200
 GridMapT = NodePath("TilesMap/GridMap")
 
 [node name="TilesMap" parent="TileMap" node_paths=PackedStringArray("GridMap") instance=ExtResource("5_d08vo")]
