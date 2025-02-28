@@ -1,19 +1,22 @@
 using Godot;
+using ScenesHelper.ObjectsHelper;
 
 namespace ObjectsScripts;
 
-public partial class TestObject : MeshInstance3D, IItem
+public partial class TestObject : ObjectModel
 {
-	public string ItemName { get; set; }
+    /// <summary>
+    /// The type of the object.
+    /// </summary>
+    [Export] public override ObjectType Type {get; set;}
 
-	public void PickUp(CharacterBody3D character)
-	{
-		GD.Print("Picked up");
-	}
+    /// <summary>
+    /// The specific artifact type.
+    /// </summary>
+    [Export] public override ArtifactType Artifact { get; set; }
 
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
-		ItemName = "Name";
-	}
+    /// <summary>
+    /// The specific resource type.
+    /// </summary>
+    [Export] public override ResourceType Resource { get; set; }
 }

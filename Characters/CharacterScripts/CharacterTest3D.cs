@@ -1,6 +1,7 @@
 using Godot;
 using GameHelperCharacters;
 using ScenesHelper;
+using ScenesHelper.ObjectsHelper;
 
 namespace Characters;
 
@@ -55,7 +56,7 @@ public partial class CharacterTest3D : CharacterBody3D, ICharacterTemplate
     public override void _UnhandledInput(InputEvent @event)
     {
         HandleQuitInput(@event);
-        HandleInventoryInput(@event);
+        HandleInventoryInput();
         HandleSceneChangeInput(@event);
         HandleMovementInput(@event);
         HandleCameraInput(@event);
@@ -112,7 +113,7 @@ public partial class CharacterTest3D : CharacterBody3D, ICharacterTemplate
     /// Handles the "Inventory" input action.
     /// </summary>
     /// <param name="event">The input event.</param>
-    private void HandleInventoryInput(InputEvent @event)
+    private void HandleInventoryInput()
     {
         if (Input.IsKeyPressed(Key.I))
         {

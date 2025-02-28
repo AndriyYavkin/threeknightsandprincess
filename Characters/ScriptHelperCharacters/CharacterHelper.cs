@@ -3,8 +3,9 @@ using Characters;
 using Godot;
 using Godot.Collections;
 using ScenesHelper;
-using ObjectsScripts;
 using System;
+using ScenesHelper.TileMapScripts;
+using ScenesHelper.ObjectsHelper;
 
 namespace GameHelperCharacters;
 
@@ -135,7 +136,7 @@ public static class CharacterHelper
         if (_character.GridPosition != tile.PositionGrid)
             return;
 
-        if (tile.ContainsObject is IItem item)
+        if (tile.ContainsObject is IObjectPickable item)
         {
             if (_character.Inventory == null)
             {
@@ -143,8 +144,8 @@ public static class CharacterHelper
                 return;
             }
 
-            _character.Inventory.AddItem(item);
-            GD.Print($"{_character.Name} picked up {item.ItemName}.");
+            _character.Inventory.AddItem(item.LinkedItem);
+            GD.Print($"{_character.Name} picked up {item.LinkedItem.ItemName}.");
 
             tile.ContainsObject.QueueFree();
             tile.ContainsObject = null;

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using ObjectsScripts;
 using Godot;
+using ScenesHelper.ObjectsHelper;
 
 namespace GameHelperCharacters;
 
@@ -39,13 +39,12 @@ public class Inventory
     /// Adds an item to the inventory.
     /// </summary>
     /// <param name="item">The item to add.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the item is null.</exception>
     public void AddItem(IItem item)
     {
         if (item == null)
         {
             GD.PrintErr("Cannot add a null item to the inventory.");
-            throw new ArgumentNullException(nameof(item));
+            return;
         }
 
         _items.Add(item);
@@ -120,7 +119,7 @@ public class Inventory
     /// <param name="item">The item to use.</param>
     /// <param name="character">The character using the item.</param>
     /// <exception cref="ArgumentNullException">Thrown if the item or character is null.</exception>
-    public void UseItem(IItem item, CharacterBody3D character)
+    public void UseItem(ArtifactModel item, CharacterBody3D character)
     {
         if (item == null)
         {
@@ -136,7 +135,7 @@ public class Inventory
 
         if (_items.Contains(item))
         {
-            item.PickUp(character);
+            item.OnUse(character);
             RemoveItem(item);
             OnItemUsed?.Invoke(item);
         }

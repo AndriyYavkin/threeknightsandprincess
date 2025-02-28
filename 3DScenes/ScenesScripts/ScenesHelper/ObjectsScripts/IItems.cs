@@ -1,6 +1,7 @@
+using System.Runtime.CompilerServices;
 using Godot;
 
-namespace ObjectsScripts;
+namespace ScenesHelper.ObjectsHelper;
 
 public interface IItem
 {
