@@ -13,5 +13,8 @@ public interface IObjectPickable
     /// <param name="character">The character that picked up the object.</param>
     void OnPickUp(CharacterBody3D character);
 
+    /// <summary>
+    /// The linked item that will be added to the inventory when picked up.
+    /// </summary>
     public IItem LinkedItem { get; set; }
 }

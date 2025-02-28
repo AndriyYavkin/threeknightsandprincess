@@ -4,7 +4,7 @@ using ScenesHelper.ObjectsHelper;
 namespace Objects;
 
 /// <summary>
-/// Represents a first artifact that can be picked up and used by a character.
+/// Represents a gold that can be picked up and used by a character.
 /// </summary>
 public partial class ResourceGold : ResourceModel
 {
