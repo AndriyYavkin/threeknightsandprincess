@@ -3,6 +3,9 @@ using GameHelperCharacters;
 
 namespace ScenesHelper.ObjectsHelper;
 
+/// <summary>
+/// Represents an object that can be picked up by a character and added to their inventory.
+/// </summary>
 public abstract partial class ObjectModel : ItemRegistry, IObjectPickable
 {
     /// <summary>
@@ -30,6 +33,10 @@ public abstract partial class ObjectModel : ItemRegistry, IObjectPickable
         GetLinkedItem();
     }
 
+    /// <summary>
+    /// Called when the object is picked up by a character.
+    /// </summary>
+    /// <param name="character">The character that picked up the object.</param>
     public void OnPickUp(CharacterBody3D character)
     {
         if (character is ICharacterTemplate characterTemplate && LinkedItem != null)
@@ -41,6 +48,10 @@ public abstract partial class ObjectModel : ItemRegistry, IObjectPickable
         }
     }
 
+    /// <summary>
+    /// Returns a string representation of the object.
+    /// </summary>
+    /// <returns>A string describing the object's type and name.</returns>
     public override string ToString()
     {
         switch(Type)
@@ -52,6 +63,9 @@ public abstract partial class ObjectModel : ItemRegistry, IObjectPickable
         return base.ToString();
     }
 
+    /// <summary>
+    /// Initializes the linked item based on the object's type.
+    /// </summary>
     protected void GetLinkedItem()
     {
         // Initialize the linked item based on the type
@@ -65,6 +79,10 @@ public abstract partial class ObjectModel : ItemRegistry, IObjectPickable
         GD.PrintErr("Failed to initialize the linked item.");
     }
 
+    /// <summary>
+    /// Gets the key for the linked item based on the object's type.
+    /// </summary>
+    /// <returns>The key for the linked item.</returns>
     private object GetKey()
     {
         object key = Type switch

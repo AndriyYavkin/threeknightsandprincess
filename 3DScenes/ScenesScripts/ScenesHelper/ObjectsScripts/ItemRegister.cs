@@ -6,7 +6,7 @@ using Objects;
 namespace ScenesHelper.ObjectsHelper;
 
 /// <summary>
-/// Register of all the items
+/// Represents a registry of all items in the game, including artifacts and resources.
 /// </summary>
 public abstract partial class ItemRegistry : MeshInstance3D
 {

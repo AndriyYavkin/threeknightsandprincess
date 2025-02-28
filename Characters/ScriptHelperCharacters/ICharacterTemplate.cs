@@ -8,12 +8,12 @@ namespace GameHelperCharacters;
 public interface ICharacterTemplate
 {
     /// <summary>
-    /// The character's inventory.
+    /// Gets or sets the character's inventory.
     /// </summary>
     public Inventory Inventory { get; set; }
 
     /// <summary>
-    /// The current grid position of the character.
+    /// Gets or sets the current grid position of the character.
     /// </summary>
     public Vector3I GridPosition { get; set; }
 }

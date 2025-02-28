@@ -6,6 +6,9 @@ using System;
 
 namespace Scenes;
 
+/// <summary>
+/// Manages the tile map in the game, including initialization, grid adjustments, and child initialization.
+/// </summary>
 public partial class TileMap : Node3D
 {
 	[Export] public int MapWidth { get; set; }

@@ -3,10 +3,24 @@ using Godot;
 
 namespace ScenesHelper.TileMapScripts;
 
+/// <summary>
+/// Provides helper methods for tile map operations, such as calculating object sizes and marking tiles as non-passable.
+/// </summary>
 public static class TileMapHelper
 {
+    /// <summary>
+    /// Gets or sets the width of the map in tiles.
+    /// </summary>
     public static int MapWidth { get; set; }
+
+    /// <summary>
+    /// Gets or sets the height of the map in tiles.
+    /// </summary>
     public static int MapHeight { get; set; }
+
+    /// <summary>
+    /// Gets or sets the size of each grid cell in world units.
+    /// </summary>
     public static float GridPositionConverter { get; set;} 
 
 

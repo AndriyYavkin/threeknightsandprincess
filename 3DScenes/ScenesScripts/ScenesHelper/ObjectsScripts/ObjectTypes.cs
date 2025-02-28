@@ -20,7 +20,7 @@ public enum ArtifactType
 }
 
 /// <summary>
-/// Represents the type of resource
+/// Represents the type of resource.
 /// </summary>
 public enum ResourceType
 {
