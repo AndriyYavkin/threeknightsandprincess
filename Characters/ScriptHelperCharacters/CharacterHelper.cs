@@ -1,39 +1,16 @@
 using System.Collections.Generic;
-using Characters;
 using Godot;
 using Godot.Collections;
 using ScenesHelper;
 using System;
-using ScenesHelper.TileMapScripts;
 using ScenesHelper.ObjectsHelper;
-
 namespace GameHelperCharacters;
 
 /// <summary>
 /// Provides helper methods for character movement, pathfinding, and interaction.
 /// </summary>
-public static class CharacterHelper
+public class CharacterHelper
 {
-    /// <summary>
-    /// Event triggered when the character starts moving.
-    /// </summary>
-    public static event Action OnMovementStarted;
-
-    /// <summary>
-    /// Event triggered when the character stops moving.
-    /// </summary>
-    public static event Action OnMovementStopped;
-
-    /// <summary>
-    /// Event triggered when a path is calculated.
-    /// </summary>
-    public static event Action<List<Vector3I>> OnPathCalculated;
-
-    /// <summary>
-    /// The speed of the character.
-    /// </summary>
-    public static float Speed { get; set; }
-
     /// <summary>
     /// The width of the map in tiles.
     /// </summary>
@@ -49,49 +26,51 @@ public static class CharacterHelper
     /// </summary>
     public static float GridPositionConverter { get; set;} 
 
-    private static Camera3D _mainCamera { get; set; }
-    private static CharacterTest3D _character { get; set; }
-    private static PackedScene _pathMarkerScene { get; set; } // Scene for path markers
-    private static List<Node3D> _pathMarkers = new(); // Store path markers
-    private static List<Vector3I> _pathPoints = new(); // Store path points
-    private static int _currentPathIndex = 0;
-    private static bool _isTargetSelected = false; // Track if a target is selected
-    private static bool _isMoving = false; 
-    private static bool _stopAfterNextPoint = false;
+    /// <summary>
+    /// Event triggered when the character starts moving.
+    /// </summary>
+    public event Action OnMovementStarted;
 
     /// <summary>
-    /// Initializes the CharacterHelper with the main camera and character.
+    /// Event triggered when the character stops moving.
     /// </summary>
-    /// <param name="mainCamera">The main camera.</param>
-    /// <param name="character">The character.</param>
-    /// <param name="pathMarkerScene">The scene used for path markers.</param>
-    public static void Initialize(Camera3D mainCamera, CharacterTest3D character, PackedScene pathMarkerScene)
-    {
-        _mainCamera = mainCamera ?? throw new ArgumentNullException(nameof(mainCamera));
-        _character = character ?? throw new ArgumentNullException(nameof(character));
-        _pathMarkerScene = pathMarkerScene ?? throw new ArgumentNullException(nameof(pathMarkerScene));
-    }
+    public event Action OnMovementStopped;
 
+    public bool IsMoving {get; private set;} = false; 
+
+    private readonly MainCharacterTemplate _character;
+    private readonly Camera3D _mainCamera;
+    private readonly PackedScene _pathMarkerScene;
+    private readonly List<Node3D> _pathMarkers = new(); // Store path markers
+    private readonly List<Vector3I> _pathPoints = new(); // Store path points
+    
+    private int _currentPathIndex = 0;
+    private bool _isTargetSelected = false; // Track if a target is selected
+    private bool _stopAfterNextPoint = false;
+
+    public CharacterHelper(Camera3D mainCamera, MainCharacterTemplate character, PackedScene pathMarkerScene)
+    {
+        _mainCamera = mainCamera;
+        _character = character;
+        _pathMarkerScene = pathMarkerScene;
+    }
 
     /// <summary>
     /// Handles character movement physics.
     /// </summary>
-    /// <returns>The velocity vector for the character.</returns>
-    public static Vector3 HandlePlayerMovementsPhysics()
+    public void HandleMovementPhysics()
     {
         Vector3 velocity = _character.Velocity;
 
-        if (_isMoving && _currentPathIndex < _pathPoints.Count)
+        if (IsMoving && _currentPathIndex < _pathPoints.Count)
         {
             var targetGridPosition = _pathPoints[_currentPathIndex];
             var targetPosition = GridToWorldPosition(targetGridPosition, _character.Position.Y);
 
             Vector3 direction = (targetPosition - _character.GlobalPosition).Normalized();
-            velocity = direction * Speed;
+            velocity = direction * _character.Speed;
 
-            float distanceToTarget = _character.GlobalPosition.DistanceTo(targetPosition);
-
-            if (distanceToTarget <= 0.1f)
+            if (_character.GlobalPosition.DistanceTo(targetPosition) <= 0.1f)
             {
                 GD.Print("Reached point: ", targetGridPosition);
                 GD.Print("Index: ", _currentPathIndex);
@@ -101,34 +80,76 @@ public static class CharacterHelper
                 if (_stopAfterNextPoint)
                 {
                     StopMovement();
+                    return;
                 }
-                else
-                {
-                    _currentPathIndex++;
+                _currentPathIndex++;
 
-                    if (_currentPathIndex >= _pathPoints.Count)
-                    {
-                        _character.GlobalPosition = GridToWorldPosition(_pathPoints[^1], _character.Position.Y);
-                        StopMovement();
-                        GD.Print("Movement stopped!");
-                    }
+                if (_currentPathIndex >= _pathPoints.Count)
+                {
+                    _character.GlobalPosition = GridToWorldPosition(_pathPoints[^1], _character.Position.Y);
+                    StopMovement();
+                    GD.Print("Movement stopped!");
                 }
             }
         }
         else
         {
-            velocity.X = Mathf.MoveToward(_character.Velocity.X, 0, Speed);
-            velocity.Z = Mathf.MoveToward(_character.Velocity.Z, 0, Speed);
+            velocity.X = Mathf.MoveToward(_character.Velocity.X, 0, _character.Speed);
+            velocity.Z = Mathf.MoveToward(_character.Velocity.Z, 0, _character.Speed);
+        }
+        _character.Velocity = velocity;
+    }
+
+    /// <summary>
+    /// Handles character movement input based on mouse position.
+    /// </summary>
+    /// <param name="mousePos">The mouse position.</param>
+    /// <param name="space">The physics space state.</param>
+    public void HandleInput(Vector2 mousePos, PhysicsDirectSpaceState3D space)
+    {
+        if (_mainCamera == null)
+        {
+            GD.PrintErr("Camera is null!");
+            return;
         }
 
-        return velocity;
+        if (IsMoving)
+        {
+            _stopAfterNextPoint = true;
+            GD.Print("Movement interrupted!");
+            return;
+        }
+
+        // Create a ray from the camera
+        Vector3 from = _mainCamera.ProjectRayOrigin(mousePos);
+        Vector3 to = from + _mainCamera.ProjectRayNormal(mousePos) * 100f; // Ray length
+
+        PhysicsRayQueryParameters3D query = PhysicsRayQueryParameters3D.Create(from, to);
+        Dictionary result = space.IntersectRay(query);
+
+        if (result.Count > 0)
+        {
+            // Snap the target position to the grid
+            var hitPosition = (Vector3)result["position"];
+            var targetGridPosition = WorldToGridPosition(hitPosition);
+
+            // Check if the target position is valid and passable
+            if (IsPositionValid(targetGridPosition) && Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z].GetPassable())
+            {
+                PathingAndMoving(targetGridPosition);
+            }
+            else
+            {
+                GD.Print("Cannot move to this tile!");
+            }
+        }
     }
 
     /// <summary>
     /// Picks up an item from the current tile.
     /// </summary>
     /// <param name="tile">The tile containing the item.</param>
-    public static void PickUpItem(Tile tile)
+    public void PickUpItem(Tile tile)
     {
         if (tile == null || tile.ContainsObject == null || _character == null)
             return;
@@ -159,61 +180,15 @@ public static class CharacterHelper
     }
 
     /// <summary>
-    /// Handles character movement input based on mouse position.
-    /// </summary>
-    /// <param name="mousePos">The mouse position.</param>
-    /// <param name="space">The physics space state.</param>
-    public static void HandleCharacterMovements(Vector2 mousePos, PhysicsDirectSpaceState3D space)
-    {
-        if (_mainCamera == null)
-        {
-            GD.PrintErr("Camera is null!");
-            return;
-        }
-
-        if (_isMoving)
-        {
-            _stopAfterNextPoint = true;
-            GD.Print("Movement interrupted!");
-            return;
-        }
-
-        // Create a ray from the camera
-        Vector3 from = _mainCamera.ProjectRayOrigin(mousePos);
-        Vector3 to = from + _mainCamera.ProjectRayNormal(mousePos) * 100f; // Ray length
-
-        PhysicsRayQueryParameters3D query = PhysicsRayQueryParameters3D.Create(from, to);
-        Dictionary result = space.IntersectRay(query);
-
-        if (result.Count > 0)
-        {
-            // Snap the target position to the grid
-            var hitPosition = (Vector3)result["position"];
-            var targetGridPosition = WorldToGridPosition(hitPosition);
-
-            // Check if the target position is valid and passable
-            if (IsPositionValid(targetGridPosition) && Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z].GetPassable())
-            {
-                // Calculate path using the pathfinder
-                PathingAndMoving(targetGridPosition);
-            }
-            else
-            {
-                GD.Print("Cannot move to this tile!");
-            }
-        }
-    }
-
-    /// <summary>
     /// Calculates and visualizes a path to the target position.
     /// </summary>
     /// <param name="targetGridPosition">The target grid position.</param>
-    private static void PathingAndMoving(Vector3I targetGridPosition)
+    private void PathingAndMoving(Vector3I targetGridPosition)
     {
         var startGridPosition = WorldToGridPosition(_character.GlobalPosition);
         var path = Pathfinder3D.FindPath(startGridPosition, targetGridPosition);
         
-        if (path.Count > 0 && path.Count <= _character.RemainingMovement)
+        if (path.Count > 0)
         {
             if (!_isTargetSelected || (_isTargetSelected && _pathPoints[^1] != targetGridPosition))
             {
@@ -236,7 +211,7 @@ public static class CharacterHelper
     /// Visualizes the calculated path using markers.
     /// </summary>
     /// <param name="path">The path to visualize.</param>
-    private static void VisualizePath(List<Vector3I> path)
+    private void VisualizePath(List<Vector3I> path)
     {
         _pathPoints.Clear();
         _pathPoints.AddRange(path);
@@ -257,17 +232,15 @@ public static class CharacterHelper
 
             _pathMarkers.Add(marker);
         }
-
-        OnPathCalculated?.Invoke(path);
     }
 
     /// <summary>
     /// Starts character movement along the calculated path.
     /// </summary>
     /// <param name="targetGridPosition">The target grid position.</param>
-    private static void StartMovement(Vector3I targetGridPosition)
+    private void StartMovement(Vector3I targetGridPosition)
     {
-        _isMoving = true;
+        IsMoving = true;
         _character.GridPosition = targetGridPosition;
         _isTargetSelected = false;
         _stopAfterNextPoint = false;
@@ -279,13 +252,48 @@ public static class CharacterHelper
     /// <summary>
     /// Stops character movement.
     /// </summary>
-    private static void StopMovement()
+    private void StopMovement()
     {
-        _isMoving = false;
+        IsMoving = false;
         _stopAfterNextPoint = false;
         _currentPathIndex = 0;
         ClearPathMarkers();
         OnMovementStopped?.Invoke();
+    }
+
+    /// <summary>
+    /// Clears path markers up to the specified index.
+    /// </summary>
+    /// <param name="index">The index up to which markers should be cleared.</param>
+    private void ClearPassedPathMarkers(int index)
+    {
+        for (int i = 0; i < index; i++)
+        {
+            _pathMarkers[i].Visible = false;
+        }
+    }
+
+    /// <summary>
+    /// Clears all path markers.
+    /// </summary>
+    private void ClearPathMarkers()
+    {
+        foreach (var marker in _pathMarkers)
+        {
+            marker.QueueFree();
+        }
+        _pathMarkers.Clear();
+    }
+
+    // <summary>
+    /// Checks if a grid position is valid.
+    /// </summary>
+    /// <param name="position">The grid position to check.</param>
+    /// <returns>True if the position is valid, otherwise false.</returns>
+    private static bool IsPositionValid(Vector3I position)
+    {
+        return position.X >= 0 && position.X < MapWidth &&
+                position.Z >= 0 && position.Z < MapHeight;
     }
 
     /// <summary>
@@ -315,40 +323,5 @@ public static class CharacterHelper
             0,
             Mathf.RoundToInt(worldPosition.Z / GridPositionConverter)
         );
-    }
-
-    /// <summary>
-    /// Clears path markers up to the specified index.
-    /// </summary>
-    /// <param name="index">The index up to which markers should be cleared.</param>
-    private static void ClearPassedPathMarkers(int index)
-    {
-        for (int i = 0; i < index; i++)
-        {
-            _pathMarkers[i].Visible = false;
-        }
-    }
-
-    /// <summary>
-    /// Clears all path markers.
-    /// </summary>
-    private static void ClearPathMarkers()
-    {
-        foreach (var marker in _pathMarkers)
-        {
-            marker.QueueFree();
-        }
-        _pathMarkers.Clear();
-    }
-    
-    /// <summary>
-    /// Checks if a grid position is valid.
-    /// </summary>
-    /// <param name="position">The grid position to check.</param>
-    /// <returns>True if the position is valid, otherwise false.</returns>
-    private static bool IsPositionValid(Vector3I position)
-    {
-        return position.X >= 0 && position.X < MapWidth &&
-                position.Z >= 0 && position.Z < MapHeight;
     }
 }

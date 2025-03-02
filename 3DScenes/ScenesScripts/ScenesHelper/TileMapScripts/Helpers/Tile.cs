@@ -18,11 +18,6 @@ public class Tile
     public Node3D ContainsObject { get; set; }
 
     /// <summary>
-    /// Gets or sets the mesh instance representing the tile's visual appearance.
-    /// </summary>
-    public MeshInstance3D TileMesh { get; set; }
-
-    /// <summary>
     /// Gets or sets a value indicating whether the tile represents an entity.
     /// </summary>
     public bool IsEntity { get; set; }
@@ -54,7 +49,6 @@ public class Tile
     {
         ContainsObject = null;
         IsEntity = false;
-        TileMesh.Visible = false;
     }
 
     /// <summary>
