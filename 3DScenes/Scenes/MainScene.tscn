@@ -11,12 +11,12 @@
 [ext_resource type="PackedScene" uid="uid://ebv8c5j0wpum" path="res://3DScenes/TileScenes/objects_map.tscn" id="6_0pdk1"]
 [ext_resource type="PackedScene" uid="uid://bft44fbgpraii" path="res://3DScenes/TileScenes/grid_map.tscn" id="6_2lp8x"]
 [ext_resource type="PackedScene" uid="uid://chhib8hcmpig0" path="res://Characters/CharactersNodes/Entities/entityTest.tscn" id="6_d0rmp"]
-[ext_resource type="PackedScene" uid="uid://bykmw0r3iiq8u" path="res://3DScenes/Objects/ObjectsNodes/FirstArtifact.tscn" id="6_iy2th"]
 [ext_resource type="PackedScene" uid="uid://cdgmbhmcqccev" path="res://3DScenes/Objects/ObjectsNodes/test_decoration.tscn" id="7_sn06o"]
 [ext_resource type="PackedScene" uid="uid://cf5ogisnx5iso" path="res://3DScenes/TileScenes/entities.tscn" id="10_23gll"]
-[ext_resource type="PackedScene" uid="uid://dxrj6ajs328ik" path="res://3DScenes/Objects/ObjectsNodes/Gold.tscn" id="11_21es6"]
 [ext_resource type="PackedScene" uid="uid://um2svxyes5bt" path="res://3DScenes/TileScenes/EntitiesModules/ai_component.tscn" id="12_4vxoc"]
+[ext_resource type="PackedScene" uid="uid://dr4uka3o1yr65" path="res://3DScenes/Objects/ObjectsNodes/first_artifact.tscn" id="12_8b3l4"]
 [ext_resource type="PackedScene" uid="uid://b5pqd047fvovi" path="res://3DScenes/TileScenes/EntitiesModules/movement_component.tscn" id="13_eld4r"]
+[ext_resource type="PackedScene" uid="uid://yrrmnmyqijqi" path="res://3DScenes/Objects/ObjectsNodes/gold.tscn" id="13_x8cpu"]
 [ext_resource type="Script" path="res://UI/Scripts/UIHandler.cs" id="16_bpon4"]
 
 [node name="Node3D" type="Node3D"]
@@ -60,11 +60,11 @@ transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 16.739, 0, 7.50914)
 
 [node name="ObjectsMap" parent="TileMap" instance=ExtResource("6_0pdk1")]
 
-[node name="FirstArtifact" parent="TileMap/ObjectsMap" instance=ExtResource("6_iy2th")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.40816, 0, 4.03435)
+[node name="FirstArtifact" parent="TileMap/ObjectsMap" instance=ExtResource("12_8b3l4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.96444, 0, 4.27972)
 
-[node name="Gold" parent="TileMap/ObjectsMap" instance=ExtResource("11_21es6")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.1261, 0, 3.94003)
+[node name="Gold" parent="TileMap/ObjectsMap" instance=ExtResource("13_x8cpu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.01416, 0, 2.69733)
 
 [node name="Entities" parent="TileMap" instance=ExtResource("10_23gll")]
 

@@ -3,7 +3,7 @@ using ScenesHelper.ObjectsHelper;
 
 namespace ObjectsScripts;
 
-public partial class TestObject : ObjectModel
+public partial class ObjectBaseScript : ObjectModel
 {
     /// <summary>
     /// The type of the object.

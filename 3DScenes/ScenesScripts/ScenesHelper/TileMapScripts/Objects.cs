@@ -35,7 +35,7 @@ public partial class Objects : Node3D , IMapInitializable
     {
         foreach (Node child in GetChildren())
         {
-            if (child is MeshInstance3D node3D)
+            if (child is Node3D node3D)
             {
                 AssignObjectToTile(node3D);
             }

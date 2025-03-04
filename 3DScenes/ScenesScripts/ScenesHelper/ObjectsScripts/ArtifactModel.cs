@@ -22,11 +22,6 @@ public abstract class ArtifactModel : IItem
     /// </summary>
     public abstract string Ability { get; }
 
-    public string GetTitleUI() => "Artifact Info";
-    public string GetNameUI() => ItemName;
-    public Texture2D GetIconUI() => new Texture2D();/*GD.Load<Texture2D>("res://Textures/Character.png")*/
-    public string GetDescriptionUI() => Description + "It's ability:" + Ability;
-
     /// <summary>
     /// Indicates whether the artifact can be picked up.
     /// </summary>

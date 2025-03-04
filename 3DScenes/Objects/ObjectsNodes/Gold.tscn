@@ -1,15 +1,22 @@
-[gd_scene load_steps=4 format=3 uid="uid://c5ml2sr51qg7y"]
+[gd_scene load_steps=5 format=3 uid="uid://yrrmnmyqijqi"]
 
-[ext_resource type="Script" path="res://3DScenes/Objects/ObjectsScripts/TestObject.cs" id="1_sfjnd"]
+[ext_resource type="Script" path="res://3DScenes/Objects/ObjectsScripts/ObjectBaseScript.cs" id="1_ugp1y"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2qip5"]
-albedo_color = Color(0.692237, 0.692237, 0, 1)
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_brbsm"]
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_7vfn6"]
-material = SubResource("StandardMaterial3D_2qip5")
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_21hht"]
+albedo_color = Color(1, 1, 0, 1)
 
-[node name="Gold" type="MeshInstance3D"]
-mesh = SubResource("CapsuleMesh_7vfn6")
-script = ExtResource("1_sfjnd")
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ayatm"]
+material = SubResource("StandardMaterial3D_21hht")
+
+[node name="Gold" type="StaticBody3D"]
+script = ExtResource("1_ugp1y")
 Type = 2
 Resource = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_brbsm")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_ayatm")

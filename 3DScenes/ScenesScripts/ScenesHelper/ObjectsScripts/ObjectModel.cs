@@ -77,11 +77,9 @@ public abstract partial class ObjectModel : ItemRegistry, IObjectPickable
         if (TypeLookup.TryGetValue(Type, out var lookup) && lookup.TryGetValue(GetKey(), out var item))
         {
             LinkedItem = item;
-            GD.Print($"{LinkedItem.ItemName} is ready for pickup.");
             return;
         }
-
-        GD.PrintErr("Failed to initialize the linked item.");
+        GD.PrintErr($"Failed to initialize the linked item. {Type}");
     }
 
     /// <summary>
