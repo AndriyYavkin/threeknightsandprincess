@@ -5,7 +5,7 @@ namespace Characters.EntityModularNodesScripts;
 /// <summary>
 /// Represents an entity that can be interacted with in the game.
 /// </summary>
-public interface IInteractable
+public interface IInteractableEntity
 {
     /// <summary>
     /// The name of the entity.

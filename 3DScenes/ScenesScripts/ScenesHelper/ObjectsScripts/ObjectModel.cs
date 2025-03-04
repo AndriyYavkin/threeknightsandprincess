@@ -1,11 +1,12 @@
-using System.Collections.Generic;
-using Objects;
 using Godot;
 using GameHelperCharacters;
 
 namespace ScenesHelper.ObjectsHelper;
 
-public abstract partial class ObjectModel : MeshInstance3D, IObjectPickable
+/// <summary>
+/// Represents an object that can be picked up by a character and added to their inventory.
+/// </summary>
+public abstract partial class ObjectModel : ItemRegistry, IObjectPickable
 {
     /// <summary>
     /// The type of the object.
@@ -13,12 +14,12 @@ public abstract partial class ObjectModel : MeshInstance3D, IObjectPickable
     public abstract ObjectType Type { get; set; }
 
     /// <summary>
-    /// The specific artifact type (visible only if Type is Artifact).
+    /// The specific artifact type.
     /// </summary>
     public abstract ArtifactType Artifact { get; set; }
 
     /// <summary>
-    /// The specific resource type (visible only if Type is Resource).
+    /// The specific resource type.
     /// </summary>
     public abstract ResourceType Resource { get; set; }
 
@@ -27,27 +28,15 @@ public abstract partial class ObjectModel : MeshInstance3D, IObjectPickable
     /// </summary>
     public IItem LinkedItem { get; set; }
 
-    /// <summary>
-    /// A dictionary to map artifact types to their corresponding item instances.
-    /// </summary>
-    protected static readonly Dictionary<ArtifactType, IItem> ArtifactLookup = new()
-    {
-        { ArtifactType.FirstArtifact, new FirstArtifact() },
-    };
-
-    /// <summary>
-    /// A dictionary to map resource types to their corresponding item instances.
-    /// </summary>
-    protected static readonly Dictionary<ResourceType, IItem> ResourceLookup = new()
-    {
-        { ResourceType.Gold, new ResourceGold() },
-    };
-
     public override void _Ready()
     {
         GetLinkedItem();
     }
 
+    /// <summary>
+    /// Called when the object is picked up by a character.
+    /// </summary>
+    /// <param name="character">The character that picked up the object.</param>
     public void OnPickUp(CharacterBody3D character)
     {
         if (character is ICharacterTemplate characterTemplate && LinkedItem != null)
@@ -59,6 +48,10 @@ public abstract partial class ObjectModel : MeshInstance3D, IObjectPickable
         }
     }
 
+    /// <summary>
+    /// Returns a string representation of the object.
+    /// </summary>
+    /// <returns>A string describing the object's type and name.</returns>
     public override string ToString()
     {
         switch(Type)
@@ -70,33 +63,35 @@ public abstract partial class ObjectModel : MeshInstance3D, IObjectPickable
         return base.ToString();
     }
 
+    /// <summary>
+    /// Initializes the linked item based on the object's type.
+    /// </summary>
     protected void GetLinkedItem()
     {
         // Initialize the linked item based on the type
-        switch (Type)
+        if (TypeLookup.TryGetValue(Type, out var lookup) && lookup.TryGetValue(GetKey(), out var item))
         {
-            case ObjectType.Artifact:
-                if (ArtifactLookup.TryGetValue(Artifact, out var artifact))
-                {
-                    LinkedItem = artifact;
-                }
-                break;
-
-            case ObjectType.Resource:
-                if (ResourceLookup.TryGetValue(Resource, out var resource))
-                {
-                    LinkedItem = resource;
-                }
-                break;
-        }
-
-        if (LinkedItem != null)
-        {
+            LinkedItem = item;
             GD.Print($"{LinkedItem.ItemName} is ready for pickup.");
+            return;
         }
-        else
+
+        GD.PrintErr("Failed to initialize the linked item.");
+    }
+
+    /// <summary>
+    /// Gets the key for the linked item based on the object's type.
+    /// </summary>
+    /// <returns>The key for the linked item.</returns>
+    private object GetKey()
+    {
+        object key = Type switch
         {
-            GD.PrintErr("Failed to initialize the linked item.");
-        }
+            ObjectType.Artifact => Artifact,
+            ObjectType.Resource => Resource,
+            _ => throw new System.ArgumentOutOfRangeException(nameof(Type), "Item was not defined!")
+         };
+
+         return key;
     }
 }

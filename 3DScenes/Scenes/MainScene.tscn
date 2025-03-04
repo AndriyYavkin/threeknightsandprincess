@@ -1,6 +1,7 @@
-[gd_scene load_steps=16 format=3 uid="uid://v246ih4rqt23"]
+[gd_scene load_steps=17 format=3 uid="uid://v246ih4rqt23"]
 
 [ext_resource type="PackedScene" uid="uid://balc5ja7v6yda" path="res://Characters/CharactersNodes/CharacterTest.tscn" id="1_5352l"]
+[ext_resource type="PackedScene" uid="uid://rd1llmi8nclu" path="res://3DScenes/Scenes/PathMarker.tscn" id="2_7ftq8"]
 [ext_resource type="PackedScene" uid="uid://pos74ns0mk3e" path="res://3DScenes/Scenes/floor_test.tscn" id="2_rcurs"]
 [ext_resource type="PackedScene" uid="uid://djr5c3wyal3bv" path="res://3DScenes/Scenes/ObjectTest.tscn" id="3_eociv"]
 [ext_resource type="PackedScene" uid="uid://byndnd1fggvh3" path="res://3DScenes/TileScenes/decorations_map.tscn" id="5_4tluh"]
@@ -20,6 +21,7 @@
 
 [node name="CharacterTest" parent="." instance=ExtResource("1_5352l")]
 transform = Transform3D(1, 0, 0, 0, 0.999887, -0.0150267, 0, 0.0150267, 0.999887, 4.65529, 1.0856, 6.02818)
+PathMarkerScene = ExtResource("2_7ftq8")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6068, 21.7297, 2.0579)

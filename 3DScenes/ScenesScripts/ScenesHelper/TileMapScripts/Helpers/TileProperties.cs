@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace ScenesHelper;
 
 /// <summary>
-/// Provides properties and behaviors for different tile types.
+/// Provides static methods and properties for determining tile characteristics such as passability and movement cost.
 /// </summary>
 public static class TileProperties
 {
@@ -28,7 +28,7 @@ public static class TileProperties
     public static bool IsPassable(TileType type) => 
         PassableLookup.TryGetValue(type, out bool passable) && passable;
 
-     /// <summary>
+    /// <summary>
     /// Retrieves the movement cost for a tile of the specified type.
     /// </summary>
     /// <param name="type">The type of the tile to check.</param>

@@ -19,6 +19,9 @@ public enum ArtifactType
     FirstArtifact,
 }
 
+/// <summary>
+/// Represents the type of resource.
+/// </summary>
 public enum ResourceType
 {
     NotDefined,

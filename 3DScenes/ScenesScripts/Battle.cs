@@ -3,6 +3,9 @@ using System;
 
 namespace Scenes;
 
+/// <summary>
+/// Represents a battle scene with a grid-based system for managing tiles and entities.
+/// </summary>
 public partial class Battle : Node3D
 {
 	private const int GridSize = 8;
@@ -13,6 +16,9 @@ public partial class Battle : Node3D
         CreateGrid();
     }
 
+    /// <summary>
+    /// Creates a grid for the battle scene using a MultiMeshInstance3D.
+    /// </summary>
     private void CreateGrid()
     {
         MultiMeshInstance3D multiMeshInstance = new MultiMeshInstance3D();

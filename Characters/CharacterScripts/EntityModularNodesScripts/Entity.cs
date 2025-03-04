@@ -2,7 +2,7 @@ using System;
 using Godot;
 
 namespace Characters.EntityModularNodesScripts;
-public partial class Entity : Node3D, IInteractable
+public partial class Entity : Node3D, IInteractableEntity
 {
     [Export] public string EntityName { get; set; }
     [Export] public EntitiesTypes Type { get; set; }

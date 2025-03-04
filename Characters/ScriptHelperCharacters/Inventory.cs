@@ -39,6 +39,7 @@ public class Inventory
     /// Adds an item to the inventory.
     /// </summary>
     /// <param name="item">The item to add.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the item is null.</exception>
     public void AddItem(IItem item)
     {
         if (item == null)

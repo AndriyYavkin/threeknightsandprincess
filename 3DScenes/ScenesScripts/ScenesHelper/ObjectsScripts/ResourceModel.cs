@@ -8,17 +8,17 @@ namespace ScenesHelper.ObjectsHelper;
 public abstract class ResourceModel : IItem
 {
     /// <summary>
-    /// The name of the resource.
+    /// Gets the name of the resource.
     /// </summary>
     public abstract string ItemName { get; }
 
     /// <summary>
-    /// The description of the resource.
+    /// Gets the description of the resource.
     /// </summary>
     public abstract string Description { get; }
 
     /// <summary>
-    /// Indicates whether the resource can be picked up.
+    /// Gets or sets a value indicating whether the resource can be picked up.
     /// </summary>
     public bool IsPickable { get; protected set; } = true;
 

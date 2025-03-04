@@ -5,7 +5,7 @@ namespace ScenesHelper.ObjectsHelper;
 /// <summary>
 /// Defines an interface for objects that can be interacted with.
 /// </summary>
-public interface IInteractable
+public interface IInteractableObject
 {
     /// <summary>
     /// Called when the object is interacted with.
