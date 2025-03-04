@@ -1,11 +1,12 @@
 using Godot;
+using UI;
 
 namespace ScenesHelper.ObjectsHelper;
 
 /// <summary>
 /// Represents an object that can be picked up by a character.
 /// </summary>
-public interface IObjectPickable
+public interface IObjectPickable : IUIDisplayable
 {
     /// <summary>
     /// Called when the object is picked up by a character.

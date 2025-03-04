@@ -18,6 +18,11 @@ public abstract class ResourceModel : IItem
     public abstract string Description { get; }
 
     /// <summary>
+    /// Gets quantity of the resource
+    /// </summary>
+    public abstract int Quantity { get; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether the resource can be picked up.
     /// </summary>
     public bool IsPickable { get; protected set; } = true;

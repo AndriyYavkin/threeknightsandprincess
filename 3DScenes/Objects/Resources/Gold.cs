@@ -10,6 +10,7 @@ public partial class ResourceGold : ResourceModel
 {
     public override string ItemName => "Gold";
     public override string Description => "What gold does";
+    public override int Quantity => GD.RandRange(1, 10);
 
     public override void PickUp(CharacterBody3D character)
     {

@@ -11,6 +11,7 @@ public partial class FirstArtifact : ArtifactModel
 {
     public override string ItemName => "First testing artifact";
     public override string Description => "Does something";
+    public override string Ability => "Some ability";
 
     public override void PickUp(CharacterBody3D character)
     {

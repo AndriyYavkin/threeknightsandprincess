@@ -28,6 +28,11 @@ public abstract partial class ObjectModel : ItemRegistry, IObjectPickable
     /// </summary>
     public IItem LinkedItem { get; set; }
 
+    public string GetTitleUI() => "Resource Info";
+    public string GetNameUI() => LinkedItem.ItemName;
+    //public Texture2D GetIconUI() => new Texture2D();/*GD.Load<Texture2D>("res://Textures/Character.png")*/
+    public string GetDescriptionUI() => LinkedItem.Description;
+
     public override void _Ready()
     {
         GetLinkedItem();
@@ -72,11 +77,9 @@ public abstract partial class ObjectModel : ItemRegistry, IObjectPickable
         if (TypeLookup.TryGetValue(Type, out var lookup) && lookup.TryGetValue(GetKey(), out var item))
         {
             LinkedItem = item;
-            GD.Print($"{LinkedItem.ItemName} is ready for pickup.");
             return;
         }
-
-        GD.PrintErr("Failed to initialize the linked item.");
+        GD.PrintErr($"Failed to initialize the linked item. {Type}");
     }
 
     /// <summary>

@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://dr4uka3o1yr65"]
+
+[ext_resource type="Script" path="res://3DScenes/Objects/ObjectsScripts/ObjectBaseScript.cs" id="1_11m1e"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_bd8hh"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_25xh6"]
+
+[node name="FirstArtifact" type="StaticBody3D"]
+script = ExtResource("1_11m1e")
+Type = 1
+Artifact = 1
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_bd8hh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_25xh6")

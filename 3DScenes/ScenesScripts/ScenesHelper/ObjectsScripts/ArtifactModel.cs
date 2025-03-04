@@ -18,6 +18,11 @@ public abstract class ArtifactModel : IItem
     public abstract string Description { get; }
 
     /// <summary>
+    /// Gets an ability of the artifact
+    /// </summary>
+    public abstract string Ability { get; }
+
+    /// <summary>
     /// Indicates whether the artifact can be picked up.
     /// </summary>
     public bool IsPickable { get; protected set; } = true;
