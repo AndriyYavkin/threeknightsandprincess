@@ -1,0 +1,60 @@
+[gd_scene load_steps=3 format=3 uid="uid://gyx1dmjuesqw"]
+
+[ext_resource type="Script" path="res://UI/Scripts/InfoPanelController.cs" id="1_3rery"]
+
+[sub_resource type="AnimatedTexture" id="AnimatedTexture_sqvir"]
+
+[node name="InfoPanel" type="Control"]
+z_index = 10
+custom_minimum_size = Vector2(300, 200)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+script = ExtResource("1_3rery")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = -73.0
+offset_top = -228.0
+offset_right = 122.0
+texture = SubResource("AnimatedTexture_sqvir")
+
+[node name="TitleLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = -73.0
+offset_top = -229.0
+offset_right = 3.0
+offset_bottom = -206.0
+text = "TitleLabel
+"
+
+[node name="IconTexture" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = -73.0
+offset_top = -229.0
+offset_right = -33.0
+offset_bottom = -189.0
+
+[node name="NameLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = -73.0
+offset_top = -181.0
+offset_right = 15.0
+offset_bottom = -158.0
+text = "NameLabel
+"
+
+[node name="DescriptionLabel" type="RichTextLabel" parent="."]
+layout_mode = 0
+offset_left = -73.0
+offset_top = -129.0
+offset_right = 77.0
+offset_bottom = 38.0
+text = "Desricption label
+"

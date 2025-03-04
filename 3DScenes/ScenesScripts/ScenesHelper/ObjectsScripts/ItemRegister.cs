@@ -8,7 +8,7 @@ namespace ScenesHelper.ObjectsHelper;
 /// <summary>
 /// Represents a registry of all items in the game, including artifacts and resources.
 /// </summary>
-public abstract partial class ItemRegistry : MeshInstance3D
+public abstract partial class ItemRegistry : Node3D
 {
     /// <summary>
     /// A dictionary to map artifact types to their corresponding item instances.

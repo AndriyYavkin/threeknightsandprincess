@@ -1,11 +1,12 @@
-[gd_scene load_steps=17 format=3 uid="uid://v246ih4rqt23"]
+[gd_scene load_steps=19 format=3 uid="uid://yv4exqbyw4ar"]
 
+[ext_resource type="Script" path="res://3DScenes/ScenesScripts/MainScene.cs" id="1_520ue"]
 [ext_resource type="PackedScene" uid="uid://balc5ja7v6yda" path="res://Characters/CharactersNodes/CharacterTest.tscn" id="1_5352l"]
-[ext_resource type="PackedScene" uid="uid://rd1llmi8nclu" path="res://3DScenes/Scenes/PathMarker.tscn" id="2_7ftq8"]
+[ext_resource type="PackedScene" path="res://3DScenes/Scenes/PathMarker.tscn" id="2_7ftq8"]
 [ext_resource type="PackedScene" uid="uid://pos74ns0mk3e" path="res://3DScenes/Scenes/floor_test.tscn" id="2_rcurs"]
 [ext_resource type="PackedScene" uid="uid://djr5c3wyal3bv" path="res://3DScenes/Scenes/ObjectTest.tscn" id="3_eociv"]
 [ext_resource type="PackedScene" uid="uid://byndnd1fggvh3" path="res://3DScenes/TileScenes/decorations_map.tscn" id="5_4tluh"]
-[ext_resource type="PackedScene" uid="uid://d1ibgmayrxbse" path="res://3DScenes/Scenes/tile_map.tscn" id="5_6apj6"]
+[ext_resource type="PackedScene" path="res://3DScenes/Scenes/tile_map.tscn" id="5_6apj6"]
 [ext_resource type="PackedScene" uid="uid://c1m3w4e2n7r00" path="res://3DScenes/TileScenes/tiles_map.tscn" id="5_d08vo"]
 [ext_resource type="PackedScene" uid="uid://ebv8c5j0wpum" path="res://3DScenes/TileScenes/objects_map.tscn" id="6_0pdk1"]
 [ext_resource type="PackedScene" uid="uid://bft44fbgpraii" path="res://3DScenes/TileScenes/grid_map.tscn" id="6_2lp8x"]
@@ -13,11 +14,13 @@
 [ext_resource type="PackedScene" uid="uid://bykmw0r3iiq8u" path="res://3DScenes/Objects/ObjectsNodes/FirstArtifact.tscn" id="6_iy2th"]
 [ext_resource type="PackedScene" uid="uid://cdgmbhmcqccev" path="res://3DScenes/Objects/ObjectsNodes/test_decoration.tscn" id="7_sn06o"]
 [ext_resource type="PackedScene" uid="uid://cf5ogisnx5iso" path="res://3DScenes/TileScenes/entities.tscn" id="10_23gll"]
-[ext_resource type="PackedScene" uid="uid://c5ml2sr51qg7y" path="res://3DScenes/Objects/ObjectsNodes/Gold.tscn" id="11_21es6"]
+[ext_resource type="PackedScene" uid="uid://dxrj6ajs328ik" path="res://3DScenes/Objects/ObjectsNodes/Gold.tscn" id="11_21es6"]
 [ext_resource type="PackedScene" uid="uid://um2svxyes5bt" path="res://3DScenes/TileScenes/EntitiesModules/ai_component.tscn" id="12_4vxoc"]
 [ext_resource type="PackedScene" uid="uid://b5pqd047fvovi" path="res://3DScenes/TileScenes/EntitiesModules/movement_component.tscn" id="13_eld4r"]
+[ext_resource type="Script" path="res://UI/Scripts/UIHandler.cs" id="16_bpon4"]
 
 [node name="Node3D" type="Node3D"]
+script = ExtResource("1_520ue")
 
 [node name="CharacterTest" parent="." instance=ExtResource("1_5352l")]
 transform = Transform3D(1, 0, 0, 0, 0.999887, -0.0150267, 0, 0.0150267, 0.999887, 4.65529, 1.0856, 6.02818)
@@ -72,3 +75,6 @@ Type = 1
 [node name="AIComponent" parent="TileMap/Entities/Entity" instance=ExtResource("12_4vxoc")]
 
 [node name="MovementComponent" parent="TileMap/Entities/Entity" instance=ExtResource("13_eld4r")]
+
+[node name="UIHandler" type="Node3D" parent="."]
+script = ExtResource("16_bpon4")

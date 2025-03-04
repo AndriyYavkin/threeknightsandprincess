@@ -24,6 +24,11 @@ public partial class MainCharacterTemplate : CharacterBody3D, ICharacterTemplate
     [Export] public PackedScene PathMarkerScene { get; set; }
 
     /// <summary>
+    /// Gets or sets character's name
+    /// </summary>
+    [Export] public string CharacterName { get; set; }
+
+    /// <summary>
     /// The character helper that manages movement, interaction, and state.
     /// </summary>
     protected CharacterHelper CharacterHelper;
@@ -40,6 +45,11 @@ public partial class MainCharacterTemplate : CharacterBody3D, ICharacterTemplate
 
     private Tween _tween; // for smooth effect
 	private bool _isHolding = false; // Track if the mouse is held down
+
+    public string GetTitleUI() => "Character Info";
+    public string GetNameUI() => CharacterName;
+    public Texture2D GetIconUI() => new Texture2D();/*GD.Load<Texture2D>("res://Textures/Character.png")*/
+    public string GetDescriptionUI() => "Some description. Big big big big big big big description.";
 
     /// <summary>
     /// Called when the node enters the scene tree. Initializes the character.

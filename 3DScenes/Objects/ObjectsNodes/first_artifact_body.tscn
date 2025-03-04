@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://pudncpstt454"]
+
+[ext_resource type="Script" path="res://3DScenes/Objects/ObjectsScripts/TestObject.cs" id="1_dfs3r"]
+[ext_resource type="PackedScene" uid="uid://bykmw0r3iiq8u" path="res://3DScenes/Objects/ObjectsNodes/FirstArtifact.tscn" id="1_ngolb"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_uilnh"]
+
+[node name="FirstArtifact" type="StaticBody3D"]
+script = ExtResource("1_dfs3r")
+Type = 1
+Artifact = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_uilnh")
+
+[node name="FirstArtifact" parent="." instance=ExtResource("1_ngolb")]
+script = null
