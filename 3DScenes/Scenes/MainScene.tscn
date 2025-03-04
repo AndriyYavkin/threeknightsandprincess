@@ -2,11 +2,11 @@
 
 [ext_resource type="Script" path="res://3DScenes/ScenesScripts/MainScene.cs" id="1_520ue"]
 [ext_resource type="PackedScene" uid="uid://balc5ja7v6yda" path="res://Characters/CharactersNodes/CharacterTest.tscn" id="1_5352l"]
-[ext_resource type="PackedScene" path="res://3DScenes/Scenes/PathMarker.tscn" id="2_7ftq8"]
+[ext_resource type="PackedScene" uid="uid://rd1llmi8nclu" path="res://3DScenes/Scenes/PathMarker.tscn" id="2_7ftq8"]
 [ext_resource type="PackedScene" uid="uid://pos74ns0mk3e" path="res://3DScenes/Scenes/floor_test.tscn" id="2_rcurs"]
 [ext_resource type="PackedScene" uid="uid://djr5c3wyal3bv" path="res://3DScenes/Scenes/ObjectTest.tscn" id="3_eociv"]
 [ext_resource type="PackedScene" uid="uid://byndnd1fggvh3" path="res://3DScenes/TileScenes/decorations_map.tscn" id="5_4tluh"]
-[ext_resource type="PackedScene" path="res://3DScenes/Scenes/tile_map.tscn" id="5_6apj6"]
+[ext_resource type="PackedScene" uid="uid://d1ibgmayrxbse" path="res://3DScenes/Scenes/tile_map.tscn" id="5_6apj6"]
 [ext_resource type="PackedScene" uid="uid://c1m3w4e2n7r00" path="res://3DScenes/TileScenes/tiles_map.tscn" id="5_d08vo"]
 [ext_resource type="PackedScene" uid="uid://ebv8c5j0wpum" path="res://3DScenes/TileScenes/objects_map.tscn" id="6_0pdk1"]
 [ext_resource type="PackedScene" uid="uid://bft44fbgpraii" path="res://3DScenes/TileScenes/grid_map.tscn" id="6_2lp8x"]
