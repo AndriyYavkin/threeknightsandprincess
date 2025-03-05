@@ -1,5 +1,7 @@
 using Godot;
 using Game.ScenesHelper;
+using Game.ScenesHelper.ObjectsHelper;
+using System.Linq;
 
 namespace Game.HelperCharacters;
 
@@ -48,7 +50,7 @@ public partial class MainCharacterTemplate : CharacterBody3D, ICharacterTemplate
 
     public string GetTitleUI() => "Character Info";
     public string GetNameUI() => CharacterName;
-    public Texture2D GetIconUI() => new Texture2D();/*GD.Load<Texture2D>("res://Textures/Character.png")*/
+    // public Texture2D GetIconUI() => new Texture2D();/*GD.Load<Texture2D>("res://Textures/Character.png")*/
     public string GetDescriptionUI() => "Some description. Big big big big big big big description.";
 
     /// <summary>
@@ -83,6 +85,7 @@ public partial class MainCharacterTemplate : CharacterBody3D, ICharacterTemplate
     public override void _UnhandledInput(InputEvent @event)
     {   
         HandleInventoryInput();
+        HandleRemoveLastItemInput();
         HandleCameraInput(@event);
 
         if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && mouseEvent.Pressed)
@@ -121,6 +124,14 @@ public partial class MainCharacterTemplate : CharacterBody3D, ICharacterTemplate
         if (Input.IsKeyPressed(Key.I))
         {
             Inventory.DebugPrint();
+        }
+    }
+
+    private void HandleRemoveLastItemInput()
+    {
+        if(Input.IsKeyPressed(Key.R))
+        {
+            Inventory.RemoveItem(Inventory.Items.First(), this);
         }
     }
 

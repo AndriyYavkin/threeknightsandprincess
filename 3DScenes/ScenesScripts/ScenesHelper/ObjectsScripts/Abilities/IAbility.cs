@@ -14,6 +14,12 @@ public interface IAbility
     void Apply(CharacterBody3D character);
 
     /// <summary>
+    /// Removes the ability from the character.
+    /// </summary>
+    /// <param name="character">The character to remove the ability from.</param>
+    void Remove(CharacterBody3D character);
+
+    /// <summary>
     /// Gets the description of the ability.
     /// </summary>
     string Description { get; }

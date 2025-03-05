@@ -35,20 +35,24 @@ public abstract class ArtifactModel : IItem
     /// <param name="character">The character that picked up the artifact.</param>
     public void PickUp(CharacterBody3D character)
     {
-        GD.Print($"{ItemName} picked up by {character.Name}.");
-    }
-
-    /// <summary>
-    /// Called when the artifact is used by a character.
-    /// </summary>
-    /// <param name="character">The character that used the artifact.</param>
-    public void OnUse(CharacterBody3D character)
-    {
-        GD.Print($"{ItemName} used by {character.Name}.");
         foreach (var ability in Abilities)
         {
             ability.Apply(character);
             GD.Print($"Applied ability: {ability.Description}");
+        }
+    }
+
+    /// <summary>
+    /// Called when the artifact is removed from the character's inventory.
+    /// </summary>
+    /// <param name="character">The character that removed the artifact.</param>
+    public void OnRemove(CharacterBody3D character)
+    {
+        GD.Print($"{ItemName} removed from {character.Name}.");
+        foreach (var ability in Abilities)
+        {
+            ability.Remove(character);
+            GD.Print($"Removed ability: {ability.Description}");
         }
     }
 }

@@ -4,6 +4,7 @@ using Godot.Collections;
 using Game.ScenesHelper;
 using System;
 using Game.ScenesHelper.ObjectsHelper;
+using Game.ScenesHelper.ObjectsHelper.Abilities;
 namespace Game.HelperCharacters;
 
 /// <summary>
@@ -164,7 +165,7 @@ public class CharacterHelper
                 GD.PrintErr("Character inventory is null!");
                 return;
             }
-
+            item.LinkedItem.PickUp(_character); // applies items effect on pick up
             _character.Inventory.AddItem(item.LinkedItem);
             GD.Print($"{_character.Name} picked up {item.LinkedItem.ItemName}.");
 

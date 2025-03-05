@@ -1,5 +1,6 @@
 using Game.ScenesHelper.ObjectsHelper;
 using Game.ScenesHelper.ObjectsHelper.Abilities;
+using Godot;
 
 namespace Game.Objects;
 
@@ -8,12 +9,12 @@ namespace Game.Objects;
 /// </summary>
 public partial class BootsOfSpeed : ArtifactModel
 {
-    public override string ItemName => "First testing artifact";
+    public override string ItemName => "Boots of Speed";
     public override string Description => "Does something";
     public BootsOfSpeed()
     {
         // Add a speed boost ability to this artifact
-        Abilities.Add(new SpeedBoostAbility(1.5f));
+        Abilities.Add(new SpeedBoostAbility(1.25f));
     }
 
     public override string ToString()
