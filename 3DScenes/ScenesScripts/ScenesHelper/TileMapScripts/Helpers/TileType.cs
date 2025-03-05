@@ -1,4 +1,4 @@
-namespace ScenesHelper;
+namespace Game.ScenesHelper;
 
 /// <summary>
 /// Represents the types of tiles available in the game.

@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace ScenesHelper.TileMapScripts;
+namespace Game.ScenesHelper.TileMapScripts;
 
 /// <summary>
 /// Provides helper methods for tile map operations, such as calculating object sizes and marking tiles as non-passable.

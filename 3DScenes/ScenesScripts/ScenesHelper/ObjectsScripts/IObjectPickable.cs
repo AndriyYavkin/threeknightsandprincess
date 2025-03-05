@@ -1,7 +1,7 @@
 using Godot;
-using UI;
+using Game.UI;
 
-namespace ScenesHelper.ObjectsHelper;
+namespace Game.ScenesHelper.ObjectsHelper;
 
 /// <summary>
 /// Represents an object that can be picked up by a character.

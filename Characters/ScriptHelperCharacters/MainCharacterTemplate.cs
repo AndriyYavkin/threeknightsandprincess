@@ -1,7 +1,7 @@
 using Godot;
-using ScenesHelper;
+using Game.ScenesHelper;
 
-namespace GameHelperCharacters;
+namespace Game.HelperCharacters;
 
 /// <summary>
 /// Represents the base template for a main character, including movement, interaction, and state management.

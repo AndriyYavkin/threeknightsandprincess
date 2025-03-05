@@ -1,7 +1,6 @@
-using System.Runtime.CompilerServices;
 using Godot;
 
-namespace ScenesHelper.ObjectsHelper;
+namespace Game.ScenesHelper.ObjectsHelper;
 
 /// <summary>
 /// Defines an interface for items that can be picked up and used by characters.

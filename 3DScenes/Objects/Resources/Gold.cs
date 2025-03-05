@@ -1,7 +1,7 @@
 using Godot;    
-using ScenesHelper.ObjectsHelper;
+using Game.ScenesHelper.ObjectsHelper;
 
-namespace Objects;
+namespace Game.Objects;
 
 /// <summary>
 /// Represents a gold resource that can be picked up and used by a character.

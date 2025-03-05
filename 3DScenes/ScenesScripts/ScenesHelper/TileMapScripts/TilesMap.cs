@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
 
-namespace ScenesHelper.TileMapScripts;
+namespace Game.ScenesHelper.TileMapScripts;
 
 /// <summary>
 /// Represents a tile-based map in the game. This class initializes the grid and visualizes tiles based on the GridMap.

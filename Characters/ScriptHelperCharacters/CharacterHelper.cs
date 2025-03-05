@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Godot;
 using Godot.Collections;
-using ScenesHelper;
+using Game.ScenesHelper;
 using System;
-using ScenesHelper.ObjectsHelper;
-namespace GameHelperCharacters;
+using Game.ScenesHelper.ObjectsHelper;
+namespace Game.HelperCharacters;
 
 /// <summary>
 /// Provides helper methods for character movement, pathfinding, and interaction.

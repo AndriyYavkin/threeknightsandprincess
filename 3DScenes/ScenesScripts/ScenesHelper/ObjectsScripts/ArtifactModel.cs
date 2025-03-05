@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using Godot;
+using Game.ScenesHelper.ObjectsHelper.Abilities;
 
-namespace ScenesHelper.ObjectsHelper;
+namespace Game.ScenesHelper.ObjectsHelper;
 
 /// <summary>
 /// Represents an artifact that can be picked up by a character.
@@ -20,7 +22,7 @@ public abstract class ArtifactModel : IItem
     /// <summary>
     /// Gets an ability of the artifact
     /// </summary>
-    public abstract string Ability { get; }
+    public List<IAbility> Abilities { get; protected set; } = new();
 
     /// <summary>
     /// Indicates whether the artifact can be picked up.
@@ -31,11 +33,22 @@ public abstract class ArtifactModel : IItem
     /// Called when the artifact is picked up by a character.
     /// </summary>
     /// <param name="character">The character that picked up the artifact.</param>
-    public abstract void PickUp(CharacterBody3D character);
+    public void PickUp(CharacterBody3D character)
+    {
+        GD.Print($"{ItemName} picked up by {character.Name}.");
+    }
 
     /// <summary>
     /// Called when the artifact is used by a character.
     /// </summary>
     /// <param name="character">The character that used the artifact.</param>
-    public abstract void OnUse(CharacterBody3D character);
+    public void OnUse(CharacterBody3D character)
+    {
+        GD.Print($"{ItemName} used by {character.Name}.");
+        foreach (var ability in Abilities)
+        {
+            ability.Apply(character);
+            GD.Print($"Applied ability: {ability.Description}");
+        }
+    }
 }

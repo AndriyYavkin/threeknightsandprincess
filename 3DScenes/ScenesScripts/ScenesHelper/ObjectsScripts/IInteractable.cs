@@ -1,6 +1,6 @@
 using Godot;
 
-namespace ScenesHelper.ObjectsHelper;
+namespace Game.ScenesHelper.ObjectsHelper;
 
 /// <summary>
 /// Defines an interface for objects that can be interacted with.

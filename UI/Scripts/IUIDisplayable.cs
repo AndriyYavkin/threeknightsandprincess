@@ -1,6 +1,6 @@
 using Godot;
 
-namespace UI;
+namespace Game.UI;
 
 public interface IUIDisplayable
 {

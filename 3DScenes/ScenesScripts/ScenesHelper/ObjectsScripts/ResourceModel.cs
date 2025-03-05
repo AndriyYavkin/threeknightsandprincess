@@ -1,6 +1,6 @@
 using Godot;
 
-namespace ScenesHelper.ObjectsHelper;
+namespace Game.ScenesHelper.ObjectsHelper;
 
 /// <summary>
 /// Represents a resource that can be picked up by a character.

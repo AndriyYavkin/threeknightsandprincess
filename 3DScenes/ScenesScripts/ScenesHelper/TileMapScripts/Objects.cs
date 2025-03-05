@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace ScenesHelper.TileMapScripts;
+namespace Game.ScenesHelper.TileMapScripts;
 
 /// <summary>
 /// Manages the placement of objects on the tile map.

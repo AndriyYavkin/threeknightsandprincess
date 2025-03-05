@@ -1,6 +1,6 @@
 using Godot;
 
-namespace ScenesHelper;
+namespace Game.ScenesHelper;
 
 /// <summary>
 /// Represents a tile in a grid-based system, containing properties and behaviors for different tile types.

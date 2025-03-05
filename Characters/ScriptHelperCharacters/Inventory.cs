@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using ScenesHelper.ObjectsHelper;
+using Game.ScenesHelper.ObjectsHelper;
 
-namespace GameHelperCharacters;
+namespace Game.HelperCharacters;
 
 /// <summary>
 /// Represents a character's inventory, allowing the storage and management of items.

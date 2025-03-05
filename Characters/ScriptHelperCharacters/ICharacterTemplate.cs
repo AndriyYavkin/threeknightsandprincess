@@ -1,7 +1,7 @@
 using Godot;
-using UI;
+using Game.UI;
 
-namespace GameHelperCharacters;
+namespace Game.HelperCharacters;
 
 /// <summary>
 /// Defines the common properties and methods for all characters in the game.

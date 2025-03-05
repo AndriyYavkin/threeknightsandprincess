@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using Objects;
+using Game.Objects;
 
-namespace ScenesHelper.ObjectsHelper;
+namespace Game.ScenesHelper.ObjectsHelper;
 
 /// <summary>
 /// Represents a registry of all items in the game, including artifacts and resources.
@@ -15,7 +15,8 @@ public abstract partial class ItemRegistry : Node3D
     /// </summary>
     protected static readonly Dictionary<ArtifactType, IItem> ArtifactLookup = new()
     {
-        { ArtifactType.FirstArtifact, new FirstArtifact() },
+        { ArtifactType.BootsOfSpeed, new BootsOfSpeed() },
+        { ArtifactType.SecondArtifact, new SecondArtifact() }, 
     };
 
     /// <summary>

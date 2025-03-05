@@ -1,4 +1,4 @@
-namespace ScenesHelper.ObjectsHelper;
+namespace Game.ScenesHelper.ObjectsHelper;
 
 /// <summary>
 /// Represents the type of an object.
@@ -16,7 +16,8 @@ public enum ObjectType
 public enum ArtifactType
 {
     NotDefined,
-    FirstArtifact,
+    BootsOfSpeed,
+    SecondArtifact,
 }
 
 /// <summary>

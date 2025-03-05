@@ -1,6 +1,6 @@
 using Godot;
 
-namespace ScenesHelper.TileMapScripts;
+namespace Game.ScenesHelper.TileMapScripts;
 
 /// <summary>
 /// Manages the placement and behavior of decorations on the tile map.

@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-namespace UI;
+namespace Game.UI;
 
 public partial class InfoPanelController : Control
 {

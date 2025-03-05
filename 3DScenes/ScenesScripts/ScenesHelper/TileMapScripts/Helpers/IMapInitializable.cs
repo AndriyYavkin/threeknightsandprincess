@@ -1,6 +1,6 @@
 using Godot;
 
-namespace ScenesHelper.TileMapScripts;
+namespace Game.ScenesHelper.TileMapScripts;
 
 /// <summary>
 /// Defines an interface for initializing a new tile map. Ensures that the TilesMap node is placed above other children in the Godot scene tree for proper initialization.

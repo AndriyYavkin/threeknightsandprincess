@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ScenesHelper;
+namespace Game.ScenesHelper;
 
 /// <summary>
 /// Provides static methods and properties for determining tile characteristics such as passability and movement cost.
