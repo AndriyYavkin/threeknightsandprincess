@@ -41,7 +41,7 @@ public partial class Entities : Node3D, IMapInitializable
                 // Assign entity to tile
                 AssignEntityToTile(entityNode);
                 //Initialize interacts with entities
-                if(child is Characters.EntityModularNodesScripts.IInteractableEntity initializableCharacter)
+                if(child is Game.Characters.EntityModularNodesScripts.IInteractableEntity initializableCharacter)
                 {
                     initializableCharacter.Initialize();
                 }

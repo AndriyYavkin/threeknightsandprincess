@@ -1,5 +1,5 @@
 using Godot;
-using ScenesHelper.ObjectsHelper;
+using Game.ScenesHelper.ObjectsHelper;
 
 namespace Game.ObjectsScripts;
 

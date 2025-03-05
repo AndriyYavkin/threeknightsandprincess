@@ -1,6 +1,6 @@
 using Godot;
 using Godot.Collections;
-using UI;
+using Game.UI;
 
 namespace Game.Scenes;
 
