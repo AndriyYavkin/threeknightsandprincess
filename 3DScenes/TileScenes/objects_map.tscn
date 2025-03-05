@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ebv8c5j0wpum"]
 
-[ext_resource type="Script" path="res://3DScenes/ScenesScripts/ScenesHelper/TileMapScripts/Objects.cs" id="1_2o20l"]
+[ext_resource type="Script" path="res://3DScenes/ScenesScripts/TileMapScripts/Objects.cs" id="1_2o20l"]
 
 [node name="ObjectsMap" type="Node3D"]
 script = ExtResource("1_2o20l")

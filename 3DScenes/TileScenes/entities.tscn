@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cf5ogisnx5iso"]
 
-[ext_resource type="Script" path="res://3DScenes/ScenesScripts/ScenesHelper/TileMapScripts/Entities.cs" id="1_8tiqr"]
+[ext_resource type="Script" path="res://3DScenes/ScenesScripts/TileMapScripts/Entities.cs" id="1_8tiqr"]
 
 [node name="Entities" type="Node3D"]
 script = ExtResource("1_8tiqr")

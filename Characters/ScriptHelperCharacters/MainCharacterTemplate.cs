@@ -8,13 +8,8 @@ namespace Game.HelperCharacters;
 /// <summary>
 /// Represents the base template for a main character, including movement, interaction, and state management.
 /// </summary>
-public partial class MainCharacterTemplate : CharacterBody3D, ICharacterTemplate
+public partial class MainCharacterTemplate : EntityTemplate
 {
-    /// <summary>
-    /// Gets or sets the speed of the character.
-    /// </summary>
-    [Export] public float Speed { get; set; } = 5.0f;
-
     /// <summary>
     /// Gets or sets the main camera used for player perspective.
     /// </summary>
@@ -26,24 +21,9 @@ public partial class MainCharacterTemplate : CharacterBody3D, ICharacterTemplate
     [Export] public PackedScene PathMarkerScene { get; set; }
 
     /// <summary>
-    /// Gets or sets character's name
-    /// </summary>
-    [Export] public string CharacterName { get; set; }
-
-    /// <summary>
     /// The character helper that manages movement, interaction, and state.
     /// </summary>
     protected CharacterHelper CharacterHelper;
-
-    /// <summary>
-    /// Gets or sets the character's inventory.
-    /// </summary>
-    public Inventory Inventory { get; set; }
-
-    /// <summary>
-    /// Gets or sets the current grid position of the character.
-    /// </summary>
-    public Vector3I GridPosition { get; set; }
 
     private Tween _tween; // for smooth effect
 	private bool _isHolding = false; // Track if the mouse is held down
@@ -58,7 +38,6 @@ public partial class MainCharacterTemplate : CharacterBody3D, ICharacterTemplate
     /// </summary>
     public override void _Ready()
     {
-        Inventory = new Inventory();
         CharacterHelper = new CharacterHelper(MainCamera, this, PathMarkerScene);
     }
 

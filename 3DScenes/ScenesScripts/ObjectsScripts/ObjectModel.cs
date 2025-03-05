@@ -42,12 +42,12 @@ public abstract partial class ObjectModel : ItemRegistry, IObjectPickable
     /// Called when the object is picked up by a character.
     /// </summary>
     /// <param name="character">The character that picked up the object.</param>
-    public void OnPickUp(CharacterBody3D character)
+    public void OnInteract(CharacterHeroTemplate character)
     {
-        if (character is ICharacterTemplate characterTemplate && LinkedItem != null)
+        if (LinkedItem != null)
         {
             // Add the linked item to the character's inventory
-            characterTemplate.Inventory.AddItem(LinkedItem);
+            character.Inventory.AddItem(LinkedItem);
             GD.Print($"{LinkedItem.ItemName} picked up by {character.Name}.");
             QueueFree();
         }
