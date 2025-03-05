@@ -10,13 +10,6 @@ namespace Game.Buildings;
 /// </summary>
 public interface IBuilding : IUIDisplayable , IInteractable
 {
-    /// <summary>
-    /// Gets or sets building name.
-    /// </summary>
-    string BuildingName { get; }
-
-    /// <summary>
-    /// Gets or sets building description.
-    /// </summary>
-    string BuildingDescription { get; }
+    public Buildings Building { get; set; }
+	public RecruitBuildingModel recruitBuildingModel{ get; set; }
 }

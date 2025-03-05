@@ -16,6 +16,11 @@ public class Unit
     public BattleStats Stats { get; set; }
 
     /// <summary>
+    /// The number of units in this stack.
+    /// </summary>
+    public int Count { get; set; } = 1;
+
+    /// <summary>
     /// Initializes a new unit with the specified name and stats.
     /// </summary>
     public Unit(string name, BattleStats stats)

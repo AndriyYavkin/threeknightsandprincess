@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://yv4exqbyw4ar"]
+[gd_scene load_steps=17 format=3 uid="uid://yv4exqbyw4ar"]
 
 [ext_resource type="Script" path="res://3DScenes/ScenesScripts/MainScene.cs" id="1_520ue"]
 [ext_resource type="PackedScene" uid="uid://balc5ja7v6yda" path="res://Characters/CharactersNodes/CharacterTest.tscn" id="1_5352l"]
@@ -13,13 +13,15 @@
 [ext_resource type="PackedScene" uid="uid://cf5ogisnx5iso" path="res://3DScenes/TileScenes/entities.tscn" id="10_23gll"]
 [ext_resource type="PackedScene" uid="uid://dr4uka3o1yr65" path="res://3DScenes/Objects/ObjectsNodes/first_artifact.tscn" id="12_8b3l4"]
 [ext_resource type="PackedScene" uid="uid://yrrmnmyqijqi" path="res://3DScenes/Objects/ObjectsNodes/gold.tscn" id="13_x8cpu"]
+[ext_resource type="PackedScene" uid="uid://5b8q6vus2ibc" path="res://3DScenes/TileScenes/buildings_node.tscn" id="14_bi36g"]
+[ext_resource type="PackedScene" uid="uid://qslfoiji4ysh" path="res://3DScenes/Buildings/BuildingsNodes/farm.tscn" id="15_itdwi"]
 [ext_resource type="Script" path="res://UI/Scripts/UIHandler.cs" id="16_bpon4"]
 
 [node name="Node3D" type="Node3D"]
 script = ExtResource("1_520ue")
 
 [node name="CharacterTest" parent="." instance=ExtResource("1_5352l")]
-transform = Transform3D(1, 0, 0, 0, 0.999887, -0.0150267, 0, 0.0150267, 0.999887, 4.65529, 1.0856, 6.02818)
+transform = Transform3D(1, 0, 0, 0, 0.999887, -0.0150267, 0, 0.0150267, 0.999887, 4.65529, 1.14969, 6.02818)
 PathMarkerScene = ExtResource("2_7ftq8")
 CharacterName = "TestCharacter"
 Speed = 5.0
@@ -63,7 +65,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.96444, 0, 4.27972)
 [node name="Gold" parent="TileMap/ObjectsMap" instance=ExtResource("13_x8cpu")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.01416, 0, 2.69733)
 
-[node name="Entities" parent="." instance=ExtResource("10_23gll")]
+[node name="Entities" parent="TileMap" instance=ExtResource("10_23gll")]
+
+[node name="BuildingsNode" parent="TileMap" instance=ExtResource("14_bi36g")]
+
+[node name="Farm" parent="TileMap/BuildingsNode" instance=ExtResource("15_itdwi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.63814, 0, 6.1792)
 
 [node name="UIHandler" type="Node3D" parent="."]
 script = ExtResource("16_bpon4")

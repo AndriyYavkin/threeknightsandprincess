@@ -8,7 +8,7 @@ namespace Game.HelperCharacters;
 /// <summary>
 /// Represents the base template for a main character, including movement, interaction, and state management.
 /// </summary>
-public partial class MainCharacterTemplate : EntityTemplate
+public partial class MainCharacterTemplate : CharacterHeroTemplate
 {
     /// <summary>
     /// Gets or sets the main camera used for player perspective.
@@ -27,11 +27,6 @@ public partial class MainCharacterTemplate : EntityTemplate
 
     private Tween _tween; // for smooth effect
 	private bool _isHolding = false; // Track if the mouse is held down
-
-    public string GetTitleUI() => "Character Info";
-    public string GetNameUI() => CharacterName;
-    // public Texture2D GetIconUI() => new Texture2D();/*GD.Load<Texture2D>("res://Textures/Character.png")*/
-    public string GetDescriptionUI() => "Some description. Big big big big big big big description.";
 
     /// <summary>
     /// Called when the node enters the scene tree. Initializes the character.

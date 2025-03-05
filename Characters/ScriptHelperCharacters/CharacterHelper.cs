@@ -39,7 +39,7 @@ public class CharacterHelper
 
     public bool IsMoving {get; private set;} = false; 
 
-    private readonly MainCharacterTemplate _character;
+    private readonly CharacterHeroTemplate _character;
     private readonly Camera3D _mainCamera;
     private readonly PackedScene _pathMarkerScene;
     private readonly List<Node3D> _pathMarkers = new(); // Store path markers
@@ -49,7 +49,7 @@ public class CharacterHelper
     private bool _isTargetSelected = false; // Track if a target is selected
     private bool _stopAfterNextPoint = false;
 
-    public CharacterHelper(Camera3D mainCamera, MainCharacterTemplate character, PackedScene pathMarkerScene)
+    public CharacterHelper(Camera3D mainCamera, CharacterHeroTemplate character, PackedScene pathMarkerScene)
     {
         _mainCamera = mainCamera;
         _character = character;
@@ -173,6 +173,10 @@ public class CharacterHelper
             tile.ContainsObject = null;
 
             Pathfinder3D.UpdateTileState(tile.PositionGrid, true);
+        }
+        else if(tile.ContainsObject is IInteractable interactable)
+        {
+            interactable.OnInteract(_character);
         }
         else
         {

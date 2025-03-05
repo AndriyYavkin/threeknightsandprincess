@@ -6,7 +6,7 @@ using Game.Objects;
 namespace Game.ScenesHelper.ObjectsHelper;
 
 /// <summary>
-/// Represents a registry of all items in the game, including artifacts and resources.
+/// Represents a registry of all objects in the game, including artifacts and resources.
 /// </summary>
 public abstract partial class ItemRegistry : Node3D
 {
