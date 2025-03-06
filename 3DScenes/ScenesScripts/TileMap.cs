@@ -1,10 +1,9 @@
 using Godot;
-using ScenesHelper;
-using GameHelperCharacters;
-using ScenesHelper.TileMapScripts;
-using System;
+using Game.ScenesHelper;
+using Game.HelperCharacters;
+using Game.ScenesHelper.TileMapScripts;
 
-namespace Scenes;
+namespace Game.Scenes;
 
 /// <summary>
 /// Manages the tile map in the game, including initialization, grid adjustments, and child initialization.

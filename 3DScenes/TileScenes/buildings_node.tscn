@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://5b8q6vus2ibc"]
+
+[ext_resource type="Script" uid="uid://x3yf7og1gd1j" path="res://3DScenes/ScenesScripts/TileMapScripts/BuildingIni.cs" id="1_om7qc"]
+
+[node name="BuildingsNode" type="Node3D"]
+script = ExtResource("1_om7qc")

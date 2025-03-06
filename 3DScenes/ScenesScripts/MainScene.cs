@@ -1,8 +1,8 @@
 using Godot;
 using Godot.Collections;
-using UI;
+using Game.UI;
 
-namespace Scenes;
+namespace Game.Scenes;
 
 public partial class MainScene : Node3D
 {

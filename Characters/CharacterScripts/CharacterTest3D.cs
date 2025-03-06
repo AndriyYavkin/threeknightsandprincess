@@ -1,7 +1,7 @@
 using Godot;
-using GameHelperCharacters;
+using Game.HelperCharacters;
 
-namespace Characters;
+namespace Game.Characters;
 
 /// <summary>
 /// Represents a 3D character in the game.

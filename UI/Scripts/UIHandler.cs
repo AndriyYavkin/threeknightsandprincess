@@ -1,9 +1,6 @@
-using GameHelperCharacters;
 using Godot;
-using Godot.Collections;
-using ScenesHelper.ObjectsHelper;
 
-namespace UI;
+namespace Game.UI;
 
 public partial class UIHandler : Node3D
 {

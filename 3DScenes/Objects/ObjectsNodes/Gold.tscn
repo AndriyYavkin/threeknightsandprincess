@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://yrrmnmyqijqi"]
 
-[ext_resource type="Script" path="res://3DScenes/Objects/ObjectsScripts/ObjectBaseScript.cs" id="1_ugp1y"]
+[ext_resource type="Script" uid="uid://c4sg2yqvpejtc" path="res://3DScenes/Objects/ObjectsScripts/ObjectBaseScript.cs" id="1_ugp1y"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_brbsm"]
 

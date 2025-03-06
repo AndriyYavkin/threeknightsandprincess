@@ -1,7 +1,7 @@
 using Godot;
-using ScenesHelper.ObjectsHelper;
+using Game.ScenesHelper.ObjectsHelper;
 
-namespace ObjectsScripts;
+namespace Game.ObjectsScripts;
 
 public partial class ObjectBaseScript : ObjectModel
 {

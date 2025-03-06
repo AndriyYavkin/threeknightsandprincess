@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Godot;
 using Godot.Collections;
-using ScenesHelper;
+using Game.ScenesHelper;
 using System;
-using ScenesHelper.ObjectsHelper;
-namespace GameHelperCharacters;
+using Game.ScenesHelper.ObjectsHelper;
+namespace Game.HelperCharacters;
 
 /// <summary>
 /// Provides helper methods for character movement, pathfinding, and interaction.
@@ -38,7 +38,7 @@ public class CharacterHelper
 
     public bool IsMoving {get; private set;} = false; 
 
-    private readonly MainCharacterTemplate _character;
+    private readonly CharacterHeroTemplate _character;
     private readonly Camera3D _mainCamera;
     private readonly PackedScene _pathMarkerScene;
     private readonly List<Node3D> _pathMarkers = new(); // Store path markers
@@ -48,7 +48,7 @@ public class CharacterHelper
     private bool _isTargetSelected = false; // Track if a target is selected
     private bool _stopAfterNextPoint = false;
 
-    public CharacterHelper(Camera3D mainCamera, MainCharacterTemplate character, PackedScene pathMarkerScene)
+    public CharacterHelper(Camera3D mainCamera, CharacterHeroTemplate character, PackedScene pathMarkerScene)
     {
         _mainCamera = mainCamera;
         _character = character;
@@ -82,6 +82,7 @@ public class CharacterHelper
                     StopMovement();
                     return;
                 }
+
                 _currentPathIndex++;
 
                 if (_currentPathIndex >= _pathPoints.Count)
@@ -149,7 +150,7 @@ public class CharacterHelper
     /// Picks up an item from the current tile.
     /// </summary>
     /// <param name="tile">The tile containing the item.</param>
-    public void PickUpItem(Tile tile)
+    public void InteractWithTile(Tile tile)
     {
         if (tile == null || tile.ContainsObject == null || _character == null)
             return;
@@ -164,7 +165,7 @@ public class CharacterHelper
                 GD.PrintErr("Character inventory is null!");
                 return;
             }
-
+            item.LinkedItem.PickUp(_character); // applies items effect on pick up
             _character.Inventory.AddItem(item.LinkedItem);
             GD.Print($"{_character.Name} picked up {item.LinkedItem.ItemName}.");
 
@@ -172,6 +173,10 @@ public class CharacterHelper
             tile.ContainsObject = null;
 
             Pathfinder3D.UpdateTileState(tile.PositionGrid, true);
+        }
+        else if(tile.ContainsObject is IInteractable interactable)
+        {
+            interactable.OnInteract(_character);
         }
         else
         {

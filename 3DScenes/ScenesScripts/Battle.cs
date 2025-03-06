@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-namespace Scenes;
+namespace Game.Scenes;
 
 /// <summary>
 /// Represents a battle scene with a grid-based system for managing tiles and entities.

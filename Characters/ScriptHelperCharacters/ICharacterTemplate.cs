@@ -1,7 +1,7 @@
 using Godot;
-using UI;
+using Game.UI;
 
-namespace GameHelperCharacters;
+namespace Game.HelperCharacters;
 
 /// <summary>
 /// Defines the common properties and methods for all characters in the game.
@@ -22,4 +22,19 @@ public interface ICharacterTemplate : IUIDisplayable
     /// Gets or sets the current grid position of the character.
     /// </summary>
     public Vector3I GridPosition { get; set; }
+
+    /// <summary>
+    /// Gets or sets the character's army.
+    /// </summary>
+    Army Army { get; set; }
+
+    /// <summary>
+    /// Called when the character is initialized.
+    /// </summary>
+    void Initialize();
+
+    /// <summary>
+    /// Called when the character is updated (e.g., during battle or movement).
+    /// </summary>
+    void Update();
 }

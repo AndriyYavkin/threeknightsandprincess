@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://gyx1dmjuesqw"]
 
-[ext_resource type="Script" path="res://UI/Scripts/InfoPanelController.cs" id="1_3rery"]
+[ext_resource type="Script" uid="uid://cpfnta7etu788" path="res://UI/Scripts/InfoPanelController.cs" id="1_3rery"]
 
 [sub_resource type="AnimatedTexture" id="AnimatedTexture_sqvir"]
 

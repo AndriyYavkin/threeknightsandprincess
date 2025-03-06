@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-namespace Characters.EntityModularNodesScripts;
+namespace Game.Characters.EntityModularNodesScripts;
 
 public partial class MovementComponent : Node3D
 {

@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Godot;
-using ScenesHelper.ObjectsHelper;
+using Game.ScenesHelper.ObjectsHelper;
+using Game.ScenesHelper.ObjectsHelper.Abilities;
 
-namespace GameHelperCharacters;
+namespace Game.HelperCharacters;
 
 /// <summary>
 /// Represents a character's inventory, allowing the storage and management of items.
@@ -19,11 +20,6 @@ public class Inventory
     /// Event triggered when an item is removed from the inventory.
     /// </summary>
     public event Action<IItem> OnItemRemoved;
-
-    /// <summary>
-    /// Event triggered when an item is used from the inventory.
-    /// </summary>
-    public event Action<IItem> OnItemUsed;
 
     /// <summary>
     /// Gets a read-only collection of items in the inventory.
@@ -76,7 +72,7 @@ public class Inventory
     /// </summary>
     /// <param name="item">The item to remove.</param>
     /// <exception cref="ArgumentNullException">Thrown if the item is null.</exception>
-    public void RemoveItem(IItem item)
+    public void RemoveItem(IItem item, MainCharacterTemplate character)
     {
         if (item == null)
         {
@@ -87,7 +83,12 @@ public class Inventory
         if (_items.Contains(item))
         {
             _items.Remove(item);
-            GD.Print($"Removed {item.ItemName} from inventory.");
+
+            if (item is ArtifactModel artifact)
+            {
+                artifact.OnRemove(character);
+            }
+
             OnItemRemoved?.Invoke(item);
         }
         else
@@ -100,7 +101,7 @@ public class Inventory
     /// Removes multiple items from the inventory.
     /// </summary>
     /// <param name="items">The items to remove.</param>
-    public void RemoveItems(IEnumerable<IItem> items)
+    public void RemoveItems(IEnumerable<IItem> items, MainCharacterTemplate character)
     {
         if (items == null)
         {
@@ -110,39 +111,7 @@ public class Inventory
 
         foreach (var item in items)
         {
-            RemoveItem(item);
-        }
-    }
-
-    /// <summary>
-    /// Uses an item from the inventory.
-    /// </summary>
-    /// <param name="item">The item to use.</param>
-    /// <param name="character">The character using the item.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the item or character is null.</exception>
-    public void UseItem(ArtifactModel item, CharacterBody3D character)
-    {
-        if (item == null)
-        {
-            GD.PrintErr("Cannot use a null item.");
-            throw new ArgumentNullException(nameof(item));
-        }
-
-        if (character == null)
-        {
-            GD.PrintErr("Cannot use an item with a null character.");
-            throw new ArgumentNullException(nameof(character));
-        }
-
-        if (_items.Contains(item))
-        {
-            item.OnUse(character);
-            RemoveItem(item);
-            OnItemUsed?.Invoke(item);
-        }
-        else
-        {
-            GD.PrintErr($"Item {item.ItemName} not found in inventory.");
+            RemoveItem(item, character);
         }
     }
 
@@ -171,6 +140,14 @@ public class Inventory
         foreach (var item in _items)
         {
             GD.Print(item.ToString());
+            if (item is ArtifactModel artifact)
+            {
+                GD.Print("Abilities:");
+                foreach (var ability in artifact.Abilities)
+                {
+                    GD.Print($"- {ability.Description}");
+                }
+            }
         }
     }
 }

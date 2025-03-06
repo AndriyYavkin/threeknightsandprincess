@@ -1,4 +1,4 @@
-namespace Characters.EntityModularNodesScripts;
+namespace Game.Characters.EntityModularNodesScripts;
 
 /// <summary>
 /// Represents the possible types of entities in the game.

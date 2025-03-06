@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
-using ScenesHelper;
+using Game.ScenesHelper;
 
-namespace GameHelperCharacters;
+namespace Game.HelperCharacters;
 
 /// <summary>
 /// Provides pathfinding functionality using the A* algorithm for a 3D grid-based map.

@@ -1,18 +1,15 @@
 using Godot;
-using ScenesHelper;
+using Game.ScenesHelper;
+using Game.ScenesHelper.ObjectsHelper;
+using System.Linq;
 
-namespace GameHelperCharacters;
+namespace Game.HelperCharacters;
 
 /// <summary>
 /// Represents the base template for a main character, including movement, interaction, and state management.
 /// </summary>
-public partial class MainCharacterTemplate : CharacterBody3D, ICharacterTemplate
+public partial class MainCharacterTemplate : CharacterHeroTemplate
 {
-    /// <summary>
-    /// Gets or sets the speed of the character.
-    /// </summary>
-    [Export] public float Speed { get; set; } = 5.0f;
-
     /// <summary>
     /// Gets or sets the main camera used for player perspective.
     /// </summary>
@@ -24,39 +21,18 @@ public partial class MainCharacterTemplate : CharacterBody3D, ICharacterTemplate
     [Export] public PackedScene PathMarkerScene { get; set; }
 
     /// <summary>
-    /// Gets or sets character's name
-    /// </summary>
-    [Export] public string CharacterName { get; set; }
-
-    /// <summary>
     /// The character helper that manages movement, interaction, and state.
     /// </summary>
     protected CharacterHelper CharacterHelper;
 
-    /// <summary>
-    /// Gets or sets the character's inventory.
-    /// </summary>
-    public Inventory Inventory { get; set; }
-
-    /// <summary>
-    /// Gets or sets the current grid position of the character.
-    /// </summary>
-    public Vector3I GridPosition { get; set; }
-
     private Tween _tween; // for smooth effect
 	private bool _isHolding = false; // Track if the mouse is held down
-
-    public string GetTitleUI() => "Character Info";
-    public string GetNameUI() => CharacterName;
-    public Texture2D GetIconUI() => new Texture2D();/*GD.Load<Texture2D>("res://Textures/Character.png")*/
-    public string GetDescriptionUI() => "Some description. Big big big big big big big description.";
 
     /// <summary>
     /// Called when the node enters the scene tree. Initializes the character.
     /// </summary>
     public override void _Ready()
     {
-        Inventory = new Inventory();
         CharacterHelper = new CharacterHelper(MainCamera, this, PathMarkerScene);
     }
 
@@ -72,7 +48,7 @@ public partial class MainCharacterTemplate : CharacterBody3D, ICharacterTemplate
         var currentTile = GetCurrentTile();
         if (currentTile != null && currentTile.ContainsObject != null)
         {
-            CharacterHelper.PickUpItem(currentTile);
+            CharacterHelper.InteractWithTile(currentTile);
         }
     }
 
@@ -83,6 +59,7 @@ public partial class MainCharacterTemplate : CharacterBody3D, ICharacterTemplate
     public override void _UnhandledInput(InputEvent @event)
     {   
         HandleInventoryInput();
+        HandleRemoveLastItemInput();
         HandleCameraInput(@event);
 
         if (@event is InputEventMouseButton mouseEvent && mouseEvent.ButtonIndex == MouseButton.Left && mouseEvent.Pressed)
@@ -121,6 +98,14 @@ public partial class MainCharacterTemplate : CharacterBody3D, ICharacterTemplate
         if (Input.IsKeyPressed(Key.I))
         {
             Inventory.DebugPrint();
+        }
+    }
+
+    private void HandleRemoveLastItemInput()
+    {
+        if(Input.IsKeyPressed(Key.R))
+        {
+            Inventory.RemoveItem(Inventory.Items.First(), this);
         }
     }
 

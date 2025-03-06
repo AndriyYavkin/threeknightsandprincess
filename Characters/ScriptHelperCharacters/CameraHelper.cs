@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace GameHelperCharacters;
+namespace Game.HelperCharacters;
 
 /// <summary>
 /// Provides functionality for handling camera rotation and zooming in a 3D game.

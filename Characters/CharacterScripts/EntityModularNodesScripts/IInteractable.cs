@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Characters.EntityModularNodesScripts;
+namespace Game.Characters.EntityModularNodesScripts;
 
 /// <summary>
 /// Represents an entity that can be interacted with in the game.
