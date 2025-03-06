@@ -12,7 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://cdgmbhmcqccev" path="res://3DScenes/Objects/ObjectsNodes/test_decoration.tscn" id="7_sn06o"]
 [ext_resource type="PackedScene" uid="uid://cf5ogisnx5iso" path="res://3DScenes/TileScenes/entities.tscn" id="10_23gll"]
 [ext_resource type="PackedScene" uid="uid://dr4uka3o1yr65" path="res://3DScenes/Objects/ObjectsNodes/first_artifact.tscn" id="12_8b3l4"]
-[ext_resource type="PackedScene" uid="uid://yrrmnmyqijqi" path="res://3DScenes/Objects/ObjectsNodes/gold.tscn" id="13_x8cpu"]
+[ext_resource type="PackedScene" uid="uid://b2kwd11m3fd4h" path="res://3DScenes/Objects/ObjectsNodes/gold.tscn" id="13_x8cpu"]
 [ext_resource type="PackedScene" uid="uid://5b8q6vus2ibc" path="res://3DScenes/TileScenes/buildings_node.tscn" id="14_bi36g"]
 [ext_resource type="PackedScene" uid="uid://qslfoiji4ysh" path="res://3DScenes/Buildings/BuildingsNodes/farm.tscn" id="15_itdwi"]
 [ext_resource type="Script" uid="uid://78vbqyyxm03f" path="res://UI/Scripts/UIHandler.cs" id="16_bpon4"]

@@ -60,43 +60,60 @@ public class CharacterHelper
     /// </summary>
     public void HandleMovementPhysics()
     {
+        GD.Print(IsMoving);
         Vector3 velocity = _character.Velocity;
 
-        if (IsMoving && _currentPathIndex < _pathPoints.Count)
+        if (_currentPathIndex < _pathPoints.Count)
         {
             var targetGridPosition = _pathPoints[_currentPathIndex];
             var targetPosition = GridToWorldPosition(targetGridPosition, _character.Position.Y);
 
-            Vector3 direction = (targetPosition - _character.GlobalPosition).Normalized();
-            velocity = direction * _character.Speed;
-
-            if (_character.GlobalPosition.DistanceTo(targetPosition) <= 0.1f)
+            // Check if the target tile has an object
+            var targetTile = Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z];
+            if (targetTile.ContainsObject != null)
             {
-                GD.Print("Reached point: ", targetGridPosition);
-                GD.Print("Index: ", _currentPathIndex);
-                ClearPassedPathMarkers(_currentPathIndex);
-                _character.GlobalPosition = targetPosition;
+                // Interact with the object
+                StopMovement();
+                InteractWithObject(targetGridPosition);
+            }
 
-                if (_stopAfterNextPoint)
+            if(IsMoving)
+            {
+                Vector3 direction = (targetPosition - _character.GlobalPosition).Normalized();
+                velocity = direction * _character.Speed;
+
+                float distanceToTarget = _character.GlobalPosition.DistanceTo(targetPosition);
+
+                if (distanceToTarget <= 0.1f)
                 {
-                    StopMovement();
-                    return;
-                }
+                    GD.Print("Reached point: ", targetGridPosition);
+                    GD.Print("Index: ", _currentPathIndex);
 
-                _currentPathIndex++;
+                    // Clear passed path markers
+                    ClearPassedPathMarkers(_currentPathIndex);
+                    _character.GlobalPosition = targetPosition;
 
-                if (_currentPathIndex >= _pathPoints.Count)
-                {
-                    _character.GlobalPosition = GridToWorldPosition(_pathPoints[^1], _character.Position.Y);
-                    StopMovement();
-                    GD.Print("Movement stopped!");
+                    if (_stopAfterNextPoint)
+                    {
+                        StopMovement();
+                        return;
+                    }
+
+                    _currentPathIndex++;
+
+                    if (_currentPathIndex >= _pathPoints.Count)
+                    {
+                        _character.GlobalPosition = GridToWorldPosition(_pathPoints[^1], _character.Position.Y);
+                        StopMovement();
+                        GD.Print("Movement stopped!");
+                    }
                 }
             }
-        }
-        else
-        {
-            velocity.X = Mathf.MoveToward(_character.Velocity.X, 0, _character.Speed);
-            velocity.Z = Mathf.MoveToward(_character.Velocity.Z, 0, _character.Speed);
+            else
+            {
+                velocity.X = Mathf.MoveToward(_character.Velocity.X, 0, _character.Speed);
+                velocity.Z = Mathf.MoveToward(_character.Velocity.Z, 0, _character.Speed);
+            }
         }
         _character.Velocity = velocity;
     }
@@ -236,6 +253,30 @@ public class CharacterHelper
             }
 
             _pathMarkers.Add(marker);
+        }
+    }
+
+    /// <summary>
+    /// Interacts with an object on the target tile.
+    /// </summary>
+    /// <param name="targetGridPosition">The grid position of the object.</param>
+    private void InteractWithObject(Vector3I targetGridPosition)
+    {
+        var targetTile = Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z];
+        if (targetTile.ContainsObject is IInteractable interactable)
+        {
+            interactable.OnInteract(_character);
+            GD.Print($"Interacted with object at {targetGridPosition}.");
+
+            // If the object is picked up, mark the tile as passable
+            if (targetTile.ContainsObject is IItem)
+            {
+                targetTile.ContainsObject = null;
+            }
+        }
+        else
+        {
+            GD.PrintErr($"Object at {targetGridPosition} is not interactable!");
         }
     }
 
