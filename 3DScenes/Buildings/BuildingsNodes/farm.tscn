@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://qslfoiji4ysh"]
 
-[ext_resource type="Script" path="res://3DScenes/Buildings/BuildingsScripts/BaseBuildingsScript.cs" id="1_118fe"]
+[ext_resource type="Script" uid="uid://ksrusr5pux1n" path="res://3DScenes/Buildings/BuildingsScripts/BaseBuildingsScript.cs" id="1_118fe"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_opyi3"]
 

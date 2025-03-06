@@ -1,6 +1,6 @@
 [gd_scene load_steps=17 format=3 uid="uid://yv4exqbyw4ar"]
 
-[ext_resource type="Script" path="res://3DScenes/ScenesScripts/MainScene.cs" id="1_520ue"]
+[ext_resource type="Script" uid="uid://26j631hqfv8" path="res://3DScenes/ScenesScripts/MainScene.cs" id="1_520ue"]
 [ext_resource type="PackedScene" uid="uid://balc5ja7v6yda" path="res://Characters/CharactersNodes/CharacterTest.tscn" id="1_5352l"]
 [ext_resource type="PackedScene" uid="uid://rd1llmi8nclu" path="res://3DScenes/Scenes/PathMarker.tscn" id="2_7ftq8"]
 [ext_resource type="PackedScene" uid="uid://pos74ns0mk3e" path="res://3DScenes/Scenes/floor_test.tscn" id="2_rcurs"]
@@ -15,10 +15,12 @@
 [ext_resource type="PackedScene" uid="uid://yrrmnmyqijqi" path="res://3DScenes/Objects/ObjectsNodes/gold.tscn" id="13_x8cpu"]
 [ext_resource type="PackedScene" uid="uid://5b8q6vus2ibc" path="res://3DScenes/TileScenes/buildings_node.tscn" id="14_bi36g"]
 [ext_resource type="PackedScene" uid="uid://qslfoiji4ysh" path="res://3DScenes/Buildings/BuildingsNodes/farm.tscn" id="15_itdwi"]
-[ext_resource type="Script" path="res://UI/Scripts/UIHandler.cs" id="16_bpon4"]
+[ext_resource type="Script" uid="uid://78vbqyyxm03f" path="res://UI/Scripts/UIHandler.cs" id="16_bpon4"]
 
 [node name="Node3D" type="Node3D"]
 script = ExtResource("1_520ue")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 
 [node name="CharacterTest" parent="." instance=ExtResource("1_5352l")]
 transform = Transform3D(1, 0, 0, 0, 0.999887, -0.0150267, 0, 0.0150267, 0.999887, 4.65529, 1.14969, 6.02818)

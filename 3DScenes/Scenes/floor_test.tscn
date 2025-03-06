@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://pos74ns0mk3e"]
 
-[ext_resource type="Shader" path="res://Shaders/TestShaders/TestShader.gdshader" id="1_cis2j"]
+[ext_resource type="Shader" uid="uid://cx4ekql0vsmlc" path="res://Shaders/TestShaders/TestShader.gdshader" id="1_cis2j"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_k13b2"]
 size = Vector3(50, 0.1, 50)

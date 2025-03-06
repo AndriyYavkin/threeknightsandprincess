@@ -4,7 +4,6 @@ using Godot.Collections;
 using Game.ScenesHelper;
 using System;
 using Game.ScenesHelper.ObjectsHelper;
-using Game.ScenesHelper.ObjectsHelper.Abilities;
 namespace Game.HelperCharacters;
 
 /// <summary>
@@ -83,6 +82,7 @@ public class CharacterHelper
                     StopMovement();
                     return;
                 }
+
                 _currentPathIndex++;
 
                 if (_currentPathIndex >= _pathPoints.Count)
@@ -150,7 +150,7 @@ public class CharacterHelper
     /// Picks up an item from the current tile.
     /// </summary>
     /// <param name="tile">The tile containing the item.</param>
-    public void PickUpItem(Tile tile)
+    public void InteractWithTile(Tile tile)
     {
         if (tile == null || tile.ContainsObject == null || _character == null)
             return;

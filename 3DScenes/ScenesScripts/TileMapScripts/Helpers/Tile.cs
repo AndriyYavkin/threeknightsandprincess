@@ -18,19 +18,24 @@ public class Tile
     public Node3D ContainsObject { get; set; }
 
     /// <summary>
+    /// Gets or sets the position of the tile in grid coordinates.
+    /// </summary>
+    public Vector3I PositionGrid { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether the tile represents an entity.
     /// </summary>
     public bool IsEntity { get; set; }
 
     /// <summary>
+    /// Indicates whether the tile contains an interactable object.
+    /// </summary>
+    public bool HasInteractableObject { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether the tile can be passed through by entities.
     /// </summary>
     public bool IsPassable { get; private set; }
-
-    /// <summary>
-    /// Gets or sets the position of the tile in grid coordinates.
-    /// </summary>
-    public Vector3I PositionGrid { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Tile"/> class with the specified tile type.

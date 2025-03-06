@@ -48,7 +48,7 @@ public partial class MainCharacterTemplate : CharacterHeroTemplate
         var currentTile = GetCurrentTile();
         if (currentTile != null && currentTile.ContainsObject != null)
         {
-            CharacterHelper.PickUpItem(currentTile);
+            CharacterHelper.InteractWithTile(currentTile);
         }
     }
 
