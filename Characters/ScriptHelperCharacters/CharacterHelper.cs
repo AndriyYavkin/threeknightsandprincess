@@ -4,6 +4,7 @@ using Godot.Collections;
 using Game.ScenesHelper;
 using System;
 using Game.ScenesHelper.ObjectsHelper;
+using System.Linq;
 namespace Game.HelperCharacters;
 
 /// <summary>
@@ -50,9 +51,9 @@ public class CharacterHelper
 
     public CharacterHelper(Camera3D mainCamera, CharacterHeroTemplate character, PackedScene pathMarkerScene)
     {
-        _mainCamera = mainCamera;
-        _character = character;
-        _pathMarkerScene = pathMarkerScene;
+        _mainCamera = mainCamera ?? throw new ArgumentNullException(nameof(mainCamera));
+        _character = character ?? throw new ArgumentNullException(nameof(character));
+        _pathMarkerScene = pathMarkerScene ?? throw new ArgumentNullException(nameof(pathMarkerScene));
     }
 
     /// <summary>
@@ -60,22 +61,30 @@ public class CharacterHelper
     /// </summary>
     public void HandleMovementPhysics()
     {
-        Vector3 velocity = _character.Velocity;
-
-        if (IsMoving && _currentPathIndex < _pathPoints.Count)
+        if (_currentPathIndex < _pathPoints.Count)
         {
-            var targetGridPosition = _pathPoints[_currentPathIndex];
-            var targetPosition = GridToWorldPosition(targetGridPosition, _character.Position.Y);
+            Vector3I targetGridPosition = _pathPoints[_currentPathIndex];
+            Vector3 targetPosition = GridToWorldPosition(targetGridPosition, _character.Position.Y);
+            Tile targetTile = Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z];
 
-            Vector3 direction = (targetPosition - _character.GlobalPosition).Normalized();
-            velocity = direction * _character.Speed;
-
-            if (_character.GlobalPosition.DistanceTo(targetPosition) <= 0.1f)
+            if (targetTile.ContainsObject != null && IsMoving)
             {
-                GD.Print("Reached point: ", targetGridPosition);
-                GD.Print("Index: ", _currentPathIndex);
+                StopMovement();
+                InteractWithObject(targetGridPosition);
+            }
+
+
+            float distanceToTarget = _character.GlobalPosition.DistanceTo(targetPosition);
+
+            if (distanceToTarget <= 0.1f)
+            {
+                GD.Print(distanceToTarget);
+                // Clear passed path markers
                 ClearPassedPathMarkers(_currentPathIndex);
                 _character.GlobalPosition = targetPosition;
+                _character.GridPosition = targetGridPosition;
+
+                // Check if the target tile has an object
 
                 if (_stopAfterNextPoint)
                 {
@@ -89,16 +98,24 @@ public class CharacterHelper
                 {
                     _character.GlobalPosition = GridToWorldPosition(_pathPoints[^1], _character.Position.Y);
                     StopMovement();
-                    GD.Print("Movement stopped!");
                 }
             }
+
+            Vector3 velocity = _character.Velocity;
+
+            if(IsMoving)
+            {
+                Vector3 direction = (targetPosition - _character.GlobalPosition).Normalized();
+                velocity = direction * _character.Speed;
+            }
+            else
+            {
+                velocity.X = Mathf.MoveToward(_character.Velocity.X, 0, _character.Speed);
+                velocity.Z = Mathf.MoveToward(_character.Velocity.Z, 0, _character.Speed);
+            }
+
+            _character.Velocity = velocity;
         }
-        else
-        {
-            velocity.X = Mathf.MoveToward(_character.Velocity.X, 0, _character.Speed);
-            velocity.Z = Mathf.MoveToward(_character.Velocity.Z, 0, _character.Speed);
-        }
-        _character.Velocity = velocity;
     }
 
     /// <summary>
@@ -108,80 +125,11 @@ public class CharacterHelper
     /// <param name="space">The physics space state.</param>
     public void HandleInput(Vector2 mousePos, PhysicsDirectSpaceState3D space)
     {
-        if (_mainCamera == null)
-        {
-            GD.PrintErr("Camera is null!");
-            return;
-        }
+        if (IsMoving) { _stopAfterNextPoint = true; return; }
+        if (!TryGetGridPositionFromMouse(mousePos, space, out var targetGridPosition)) return;
 
-        if (IsMoving)
-        {
-            _stopAfterNextPoint = true;
-            GD.Print("Movement interrupted!");
-            return;
-        }
-
-        // Create a ray from the camera
-        Vector3 from = _mainCamera.ProjectRayOrigin(mousePos);
-        Vector3 to = from + _mainCamera.ProjectRayNormal(mousePos) * 100f; // Ray length
-
-        PhysicsRayQueryParameters3D query = PhysicsRayQueryParameters3D.Create(from, to);
-        Dictionary result = space.IntersectRay(query);
-
-        if (result.Count > 0)
-        {
-            // Snap the target position to the grid
-            var hitPosition = (Vector3)result["position"];
-            var targetGridPosition = WorldToGridPosition(hitPosition);
-
-            // Check if the target position is valid and passable
-            if (IsPositionValid(targetGridPosition) && Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z].GetPassable())
-            {
-                PathingAndMoving(targetGridPosition);
-            }
-            else
-            {
-                GD.Print("Cannot move to this tile!");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Picks up an item from the current tile.
-    /// </summary>
-    /// <param name="tile">The tile containing the item.</param>
-    public void InteractWithTile(Tile tile)
-    {
-        if (tile == null || tile.ContainsObject == null || _character == null)
-            return;
-
-        if (_character.GridPosition != tile.PositionGrid)
-            return;
-
-        if (tile.ContainsObject is IObjectPickable item)
-        {
-            if (_character.Inventory == null)
-            {
-                GD.PrintErr("Character inventory is null!");
-                return;
-            }
-            item.LinkedItem.PickUp(_character); // applies items effect on pick up
-            _character.Inventory.AddItem(item.LinkedItem);
-            GD.Print($"{_character.Name} picked up {item.LinkedItem.ItemName}.");
-
-            tile.ContainsObject.QueueFree();
-            tile.ContainsObject = null;
-
-            Pathfinder3D.UpdateTileState(tile.PositionGrid, true);
-        }
-        else if(tile.ContainsObject is IInteractable interactable)
-        {
-            interactable.OnInteract(_character);
-        }
-        else
-        {
-            GD.PrintErr($"Tile object is not an IItem. Type: {tile.ContainsObject.GetType().Name}");
-        }
+        if (IsPositionValid(targetGridPosition) && Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z].GetPassable() && _character.GridPosition != targetGridPosition)
+            PathingAndMoving(targetGridPosition);
     }
 
     /// <summary>
@@ -203,7 +151,7 @@ public class CharacterHelper
             }
             else
             {
-                StartMovement(targetGridPosition);
+                StartMovement();
             }
         }
         else
@@ -221,7 +169,7 @@ public class CharacterHelper
         _pathPoints.Clear();
         _pathPoints.AddRange(path);
 
-        for (int i = 0; i < path.Count; i++)
+        for (int i = 1; i < path.Count; i++)
         {
             Vector3 worldPosition = GridToWorldPosition(path[i], 0);
             var marker = _pathMarkerScene.Instantiate<Node3D>();
@@ -240,13 +188,49 @@ public class CharacterHelper
     }
 
     /// <summary>
+    /// Interacts with an object on the target tile.
+    /// </summary>
+    /// <param name="targetGridPosition">The grid position of the object.</param>
+    private void InteractWithObject(Vector3I targetGridPosition)
+    {
+        var targetTile = Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z];
+        if (targetTile.ContainsObject is IInteractable interactable)
+        {
+            interactable.OnInteract(_character);
+            GD.Print($"Interacted with object at {targetGridPosition}.");
+
+            // If the object is picked up, mark the tile as passable
+            if (targetTile.ContainsObject is IObjectPickable)
+            {
+                Pathfinder3D.UpdateTileState(targetGridPosition, Scenes.TileMap.Map[targetGridPosition.X, targetGridPosition.Z].GetPassable());
+                targetTile.ContainsObject = null;
+            }
+        }
+        else
+        {
+            GD.PrintErr($"Object at {targetGridPosition} is not interactable!");
+        }
+    }
+
+    private bool TryGetGridPositionFromMouse(Vector2 mousePos, PhysicsDirectSpaceState3D space, out Vector3I gridPosition)
+    {
+        gridPosition = default;
+        var from = _mainCamera.ProjectRayOrigin(mousePos);
+        var to = from + _mainCamera.ProjectRayNormal(mousePos) * 100f;
+        var result = space.IntersectRay(PhysicsRayQueryParameters3D.Create(from, to));
+
+        if (result.Count == 0) return false;
+        gridPosition = WorldToGridPosition((Vector3)result["position"]);
+        return true;
+    }
+
+    /// <summary>
     /// Starts character movement along the calculated path.
     /// </summary>
     /// <param name="targetGridPosition">The target grid position.</param>
-    private void StartMovement(Vector3I targetGridPosition)
+    private void StartMovement()
     {
         IsMoving = true;
-        _character.GridPosition = targetGridPosition;
         _isTargetSelected = false;
         _stopAfterNextPoint = false;
         GD.Print($"Path: {string.Join(" -> ", _pathPoints)}");
@@ -272,10 +256,7 @@ public class CharacterHelper
     /// <param name="index">The index up to which markers should be cleared.</param>
     private void ClearPassedPathMarkers(int index)
     {
-        for (int i = 0; i < index; i++)
-        {
-            _pathMarkers[i].Visible = false;
-        }
+        _pathMarkers.Take(index).ToList().ForEach(marker => marker.Visible = false);
     }
 
     /// <summary>
@@ -283,10 +264,7 @@ public class CharacterHelper
     /// </summary>
     private void ClearPathMarkers()
     {
-        foreach (var marker in _pathMarkers)
-        {
-            marker.QueueFree();
-        }
+        _pathMarkers.ForEach(marker => marker.QueueFree());
         _pathMarkers.Clear();
     }
 
