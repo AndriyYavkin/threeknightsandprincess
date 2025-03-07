@@ -44,12 +44,6 @@ public partial class MainCharacterTemplate : CharacterHeroTemplate
     {
         CharacterHelper.HandleMovementPhysics();
         MoveAndSlide();
-
-        var currentTile = GetCurrentTile();
-        if (currentTile != null && currentTile.ContainsObject != null)
-        {
-            CharacterHelper.InteractWithTile(currentTile);
-        }
     }
 
     /// <summary>
